@@ -12,7 +12,7 @@ import {
 } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
-import { generateTravelPlan } from "./services/openai";
+import { generateTravelPlan, continueTravelConversation } from "./services/gemini";
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
 
