@@ -139,7 +139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Only get weather for the first/primary destination
             weatherData = await getWeather(destinations[0]);
             console.log(`Weather data fetched for ${destinations[0]}`);
-          } catch (weatherErr) {
+          } catch (weatherErr: any) {
             console.log(`Failed to fetch weather for ${destinations[0]}:`, weatherErr?.message || String(weatherErr));
           }
         }

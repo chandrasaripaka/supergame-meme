@@ -127,14 +127,39 @@ export async function generateTravelPlan(
 // Function to continue a conversation with the AI
 export async function continueTravelConversation(
   messages: Array<{ role: string; content: string }>,
-  newMessage: string
+  newMessage: string,
+  weatherData: any = null
 ): Promise<string> {
   try {
+    // Prepare system message content
+    let systemContent = `You are an AI travel concierge that helps plan personalized travel experiences. You provide helpful, friendly advice about destinations, activities, accommodations, and local customs. Always be conversational but focused on travel planning.`;
+    
+    // Add weather data if available
+    if (weatherData) {
+      const location = weatherData.location?.name || "the location";
+      const temp = weatherData.current?.temp_c;
+      const condition = weatherData.current?.condition?.text;
+      const forecast = weatherData.forecast?.forecastday || [];
+      
+      systemContent += `\n\nImportant: I've checked the current weather for ${location}:\n`;
+      systemContent += `Current temperature: ${temp}°C\n`;
+      systemContent += `Current conditions: ${condition}\n`;
+      
+      if (forecast.length > 0) {
+        systemContent += `Forecast for the next ${forecast.length} days:\n`;
+        forecast.forEach((day: any, index: number) => {
+          systemContent += `- Day ${index + 1}: High ${day.day.maxtemp_c}°C, Low ${day.day.mintemp_c}°C, ${day.day.condition.text}\n`;
+        });
+      }
+      
+      systemContent += `\nPlease incorporate this weather information into your travel advice and be sure to mention the weather in a properly formatted weather code block in your response.\n`;
+    }
+    
     // Add the new user message to the conversation
     const conversationHistory = [
       {
         role: "system" as const,
-        content: `You are an AI travel concierge that helps plan personalized travel experiences. You provide helpful, friendly advice about destinations, activities, accommodations, and local customs. Always be conversational but focused on travel planning.
+        content: systemContent + `
 
 Important: Format your responses using markdown for better readability. Follow these formatting guidelines:
 

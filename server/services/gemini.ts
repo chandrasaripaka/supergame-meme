@@ -150,7 +150,8 @@ export async function generateTravelPlan(
 // Function to continue a conversation with the AI
 export async function continueTravelConversation(
   messages: Array<{ role: string; content: string }>,
-  newMessage: string
+  newMessage: string,
+  weatherData: any = null
 ): Promise<string> {
   try {
     // Get the generative model
@@ -208,6 +209,27 @@ Now respond to the user's query using this markdown formatting style:
       }
       // We skip 'system' messages as they're already incorporated in the context
     });
+    
+    // Add weather data if available
+    if (weatherData) {
+      const location = weatherData.location?.name || "the location";
+      const temp = weatherData.current?.temp_c;
+      const condition = weatherData.current?.condition?.text;
+      const forecast = weatherData.forecast?.forecastday || [];
+      
+      conversationContext += `\nImportant: I've checked the current weather for ${location}:\n`;
+      conversationContext += `Current temperature: ${temp}°C\n`;
+      conversationContext += `Current conditions: ${condition}\n`;
+      
+      if (forecast.length > 0) {
+        conversationContext += `Forecast for the next ${forecast.length} days:\n`;
+        forecast.forEach((day: any, index: number) => {
+          conversationContext += `- Day ${index + 1}: High ${day.day.maxtemp_c}°C, Low ${day.day.mintemp_c}°C, ${day.day.condition.text}\n`;
+        });
+      }
+      
+      conversationContext += `\nPlease incorporate this weather information into your travel advice.\n`;
+    }
     
     // Add the new user message
     conversationContext += `User: ${newMessage}\n\nAI: `;
