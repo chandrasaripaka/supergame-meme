@@ -21,7 +21,11 @@ export function ChatMessage({ message }: ChatMessageProps) {
       )}
       
       <div className={`chat-message ${isUser ? 'bg-primary text-white' : 'bg-light text-gray-800'} rounded-lg p-3 shadow-sm`}>
-        <p>{message.content}</p>
+        {isUser ? (
+          <p>{message.content}</p>
+        ) : (
+          <div className="whitespace-pre-wrap">{message.content}</div>
+        )}
       </div>
       
       {isUser && (
