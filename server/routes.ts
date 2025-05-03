@@ -12,7 +12,9 @@ import {
 } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
-import { generateTravelPlan, continueTravelConversation } from "./services/gemini";
+import { generateTravelPlan as generateTravelPlanGemini, continueTravelConversation as continueTravelConversationGemini } from "./services/gemini";
+// Fallback to OpenAI when Gemini fails
+import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversation as continueTravelConversationOpenAI } from "./services/openai";
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
 
@@ -77,11 +79,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ error: 'Invalid message format' });
         }
         
-        // Get AI response
-        const aiResponse = await continueTravelConversation(
-          messageHistory.slice(0, -1), // Previous messages
-          lastMessage.content // New message content
-        );
+        // Get AI response with fallback
+        let aiResponse;
+        try {
+          // First try with Gemini
+          aiResponse = await continueTravelConversationGemini(
+            messageHistory.slice(0, -1), // Previous messages
+            lastMessage.content // New message content
+          );
+        } catch (err: any) {
+          console.log("Gemini API failed, falling back to OpenAI:", err?.message || String(err));
+          // Fallback to OpenAI if Gemini fails
+          aiResponse = await continueTravelConversationOpenAI(
+            messageHistory.slice(0, -1), // Previous messages
+            lastMessage.content // New message content
+          );
+        }
         
         return res.status(200).json({ content: aiResponse });
       } else {
@@ -124,13 +137,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         startDate: z.string().optional(),
       }).parse(req.body);
 
-      const travelPlan = await generateTravelPlan(
-        travelRequest.destination,
-        travelRequest.duration,
-        travelRequest.budget,
-        travelRequest.interests,
-        travelRequest.startDate
-      );
+      // Try Gemini first, fallback to OpenAI
+      let travelPlan;
+      try {
+        travelPlan = await generateTravelPlanGemini(
+          travelRequest.destination,
+          travelRequest.duration,
+          travelRequest.budget,
+          travelRequest.interests,
+          travelRequest.startDate
+        );
+      } catch (err: any) {
+        console.log("Gemini API failed for travel plan, falling back to OpenAI:", err?.message || String(err));
+        travelPlan = await generateTravelPlanOpenAI(
+          travelRequest.destination,
+          travelRequest.duration,
+          travelRequest.budget,
+          travelRequest.interests,
+          travelRequest.startDate
+        );
+      }
 
       return res.status(200).json(travelPlan);
     } catch (error) {
