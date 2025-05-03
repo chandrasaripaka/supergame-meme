@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'wouter';
+import { CheckSquare, Luggage } from 'lucide-react';
 
 interface WelcomeCardProps {
   onSuggestionClick: (suggestion: string) => void;
@@ -20,7 +22,8 @@ export function WelcomeCard({ onSuggestionClick, visible }: WelcomeCardProps) {
         <div className="flex-1 mb-4 md:mb-0 md:mr-6">
           <h2 className="text-2xl font-bold mb-2">Your AI Travel Concierge</h2>
           <p className="mb-4">Tell me where you want to go, your budget, interests, and travel dates. I'll help you create the perfect trip!</p>
-          <div className="flex flex-wrap gap-2">
+          
+          <div className="flex flex-wrap gap-2 mb-4">
             {suggestions.map((suggestion, index) => (
               <button 
                 key={index}
@@ -30,6 +33,13 @@ export function WelcomeCard({ onSuggestionClick, visible }: WelcomeCardProps) {
                 "{suggestion}"
               </button>
             ))}
+          </div>
+          
+          <div className="flex space-x-3">
+            <Link href="/packing-list" className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-md text-sm font-medium backdrop-blur-sm transition">
+              <Luggage className="h-4 w-4" />
+              Create Packing List
+            </Link>
           </div>
         </div>
         <div className="w-full md:w-1/3 flex justify-center">

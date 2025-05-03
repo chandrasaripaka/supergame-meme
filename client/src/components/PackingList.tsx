@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PackingItem } from '@/types';
+import { PackingItem } from '@/types/index';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
