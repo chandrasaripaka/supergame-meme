@@ -67,14 +67,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat/Message routes
   app.post(`${apiPrefix}/messages`, async (req, res) => {
     try {
-      const validatedData = insertMessageSchema.parse(req.body);
-      const [newMessage] = await db.insert(messages).values(validatedData).returning();
-      return res.status(201).json(newMessage);
+      // Check if this is a message to the AI
+      if (req.body.messages && Array.isArray(req.body.messages)) {
+        // This is a message to the AI
+        const messageHistory = req.body.messages;
+        const lastMessage = messageHistory[messageHistory.length - 1];
+        
+        if (!lastMessage || !lastMessage.content) {
+          return res.status(400).json({ error: 'Invalid message format' });
+        }
+        
+        // Get AI response
+        const aiResponse = await continueTravelConversation(
+          messageHistory.slice(0, -1), // Previous messages
+          lastMessage.content // New message content
+        );
+        
+        return res.status(200).json({ content: aiResponse });
+      } else {
+        // This is a message to be saved in the database
+        const validatedData = insertMessageSchema.parse(req.body);
+        const [newMessage] = await db.insert(messages).values(validatedData).returning();
+        return res.status(201).json(newMessage);
+      }
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ errors: error.errors });
       }
-      console.error('Error creating message:', error);
+      console.error('Error processing message:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   });

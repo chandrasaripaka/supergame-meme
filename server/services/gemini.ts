@@ -183,7 +183,7 @@ export async function continueTravelConversation(
     const text = response.text();
     
     return text || "I'm sorry, I couldn't generate a response.";
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error continuing conversation with Gemini:", error);
     throw new Error(`Failed to continue conversation: ${error.message}`);
   }

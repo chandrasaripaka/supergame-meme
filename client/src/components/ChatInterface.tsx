@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { sendMessageToAI } from '@/lib/openai';
+import { sendMessageToAI } from '@/lib/gemini';
 import { getWeather, getAttractions, generateTravelPlan } from '@/lib/api';
-import { extractTravelIntent } from '@/lib/openai';
+import { extractTravelIntent } from '@/lib/gemini';
 import { useMobile } from '@/hooks/use-mobile';
 
 // Define interfaces for Web Speech API
@@ -97,7 +97,7 @@ export function ChatInterface({
   });
   
   // Generate travel plan
-  const { data: travelPlan, isLoading: isTravelPlanLoading } = useQuery({
+  const { data: travelPlan, isLoading: isTravelPlanLoading } = useQuery<TravelPlan | null>({
     queryKey: ['/api/travel-plan', travelIntent],
     enabled: !!(
       travelIntent.destination && 
