@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Message } from '@/types';
+import { Message, Weather, Attraction, TravelPlan, ItineraryDay, BudgetBreakdown as BudgetType } from '@/types';
 import { ChatMessage, TypingIndicator } from '@/components/ChatMessage';
 import { WeatherWidget } from '@/components/WeatherWidget';
 import { ItineraryTimeline } from '@/components/ItineraryTimeline';
@@ -13,6 +13,43 @@ import { sendMessageToAI } from '@/lib/openai';
 import { getWeather, getAttractions, generateTravelPlan } from '@/lib/api';
 import { extractTravelIntent } from '@/lib/openai';
 import { useMobile } from '@/hooks/use-mobile';
+
+// Define interfaces for Web Speech API
+interface SpeechRecognitionEvent extends Event {
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+        confidence: number;
+      };
+    };
+    item(index: number): any;
+    length: number;
+  };
+  resultIndex: number;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: any) => void;
+  onend: () => void;
+  start: () => void;
+  stop: () => void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: {
+      new(): SpeechRecognition;
+    };
+    webkitSpeechRecognition: {
+      new(): SpeechRecognition;
+    };
+  }
+}
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -210,7 +247,7 @@ export function ChatInterface({
         {isLoading && <TypingIndicator />}
         
         {/* Show travel plan if available */}
-        {travelPlan && !isLoading && messages.length > 1 && (
+        {travelPlan && typeof travelPlan === 'object' && !isLoading && messages.length > 1 && (
           <div className="flex items-start">
             <div className="flex-shrink-0 mr-3">
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white">
@@ -221,28 +258,28 @@ export function ChatInterface({
             </div>
             <div className="chat-message bg-light rounded-lg p-3 shadow-sm">
               <p className="text-gray-800 mb-3">
-                Here's what I recommend for your {travelPlan.duration}-day trip to {travelPlan.destination} with a ${travelPlan.budget} budget:
+                Here's what I recommend for your {(travelPlan as TravelPlan).duration}-day trip to {(travelPlan as TravelPlan).destination} with a ${(travelPlan as TravelPlan).budget} budget:
               </p>
               
               {/* Weather Widget */}
               <WeatherWidget 
-                weather={weatherData} 
+                weather={weatherData as Weather | null} 
                 isLoading={isWeatherLoading} 
               />
               
               {/* Itinerary Timeline */}
-              <ItineraryTimeline days={travelPlan.days} />
+              <ItineraryTimeline days={(travelPlan as TravelPlan).days as ItineraryDay[]} />
               
               {/* Budget Breakdown */}
               <BudgetBreakdown 
-                budget={travelPlan.budget}
-                budgetBreakdown={travelPlan.budgetBreakdown}
-                remainingBudget={travelPlan.remainingBudget}
+                budget={(travelPlan as TravelPlan).budget}
+                budgetBreakdown={(travelPlan as TravelPlan).budgetBreakdown as BudgetType}
+                remainingBudget={(travelPlan as TravelPlan).remainingBudget}
               />
               
               {/* Attraction Cards */}
               <AttractionCards 
-                attractions={attractionsData || []} 
+                attractions={(attractionsData || []) as Attraction[]} 
                 isLoading={isAttractionsLoading} 
               />
               
