@@ -12,6 +12,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { sendMessageToAI } from '@/lib/openai';
 import { getWeather, getAttractions, generateTravelPlan } from '@/lib/api';
 import { extractTravelIntent } from '@/lib/openai';
+import { useMobile } from '@/hooks/use-mobile';
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -31,8 +32,15 @@ export function ChatInterface({
   isLoading
 }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const [speechError, setSpeechError] = useState<string | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { isMobile } = useMobile();
+  
+  // Check if speech recognition is available
+  const speechRecognitionSupported = 'SpeechRecognition' in window || 
+                                  'webkitSpeechRecognition' in window;
   
   // Extract travel intent from messages
   const travelIntent = extractTravelIntent(messages);
@@ -103,12 +111,84 @@ export function ChatInterface({
     }
   };
 
+  // Create a reference to store the speech recognition instance
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Handle starting and stopping voice input
   const handleVoiceInput = () => {
-    toast({
-      title: "Voice Input",
-      description: "Voice input is not available yet.",
-      variant: "destructive",
-    });
+    if (!speechRecognitionSupported) {
+      toast({
+        title: "Voice Input Not Supported",
+        description: "Your browser doesn't support voice input. Please try Chrome, Edge, or Safari.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isListening) {
+      // Stop listening
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      return;
+    }
+
+    try {
+      // Start listening
+      setSpeechError(null);
+      setIsListening(true);
+
+      // Create a new instance of SpeechRecognition
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
+      
+      // Configure the recognition
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US'; // Default to English
+      
+      // Set up event handlers
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        const transcript = event.results[0][0].transcript;
+        setInputValue((prev) => prev + transcript);
+        setIsListening(false);
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error', event.error);
+        setSpeechError(event.error);
+        setIsListening(false);
+        
+        toast({
+          title: "Voice Input Error",
+          description: `Error: ${event.error}. Please try again.`,
+          variant: "destructive",
+        });
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      // Start recognition
+      recognition.start();
+      
+      toast({
+        title: "Listening...",
+        description: "Speak now. I'm listening for your travel query.",
+      });
+    } catch (error) {
+      console.error('Error initializing speech recognition:', error);
+      setSpeechError('initialization_failed');
+      setIsListening(false);
+      
+      toast({
+        title: "Voice Input Failed",
+        description: "Failed to initialize voice input. Please try again or use text input.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -214,11 +294,21 @@ export function ChatInterface({
             <button 
               type="button" 
               onClick={handleVoiceInput}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary"
+              className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${
+                isListening ? "text-primary animate-pulse" : "text-gray-400 hover:text-primary"
+              }`}
+              aria-label={isListening ? "Stop listening" : "Start voice input"}
+              disabled={!speechRecognitionSupported}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
               </svg>
+              {isListening && (
+                <span className="absolute -top-2 -right-2 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                </span>
+              )}
             </button>
           </div>
           <Button
