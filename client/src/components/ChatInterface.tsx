@@ -5,6 +5,7 @@ import { WeatherForecast } from './WeatherForecast';
 import { ItineraryTable } from './ItineraryTable';
 import { BudgetDashboard } from './BudgetDashboard';
 import { AttractionCards } from './AttractionCards';
+import { FlightComparison } from './FlightComparison';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';

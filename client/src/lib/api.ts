@@ -80,3 +80,43 @@ export async function generatePackingList(request: PackingListRequest) {
   const response = await apiRequest("POST", "/api/packing-list", request);
   return response.json();
 }
+
+// Flight-related API functions
+export interface Flight {
+  id: string;
+  airline: string;
+  logo: string;
+  flightNumber: string;
+  departureAirport: string;
+  departureCity: string;
+  departureTime: string;
+  arrivalAirport: string;
+  arrivalCity: string;
+  arrivalTime: string;
+  duration: string;
+  stops: number;
+  price: number;
+  currency: string;
+}
+
+export interface FlightSearch {
+  departureCity: string;
+  arrivalCity: string;
+  departureDate: string;
+  returnDate?: string;
+}
+
+export interface FlightRecommendationResponse {
+  all: Flight[];
+  cheapestByAirline: Flight[];
+}
+
+export async function searchFlights(request: FlightSearch): Promise<Flight[]> {
+  const response = await apiRequest("POST", "/api/flights/search", request);
+  return response.json();
+}
+
+export async function getFlightRecommendations(destination: string): Promise<FlightRecommendationResponse> {
+  const response = await apiRequest("GET", `/api/flights/recommendations/${encodeURIComponent(destination)}`);
+  return response.json();
+}

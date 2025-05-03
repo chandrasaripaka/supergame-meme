@@ -18,6 +18,7 @@ import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversat
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
 import { generatePackingList, PackingListPreferences } from "./services/packing";
+import { searchFlights, getFlightRecommendations, getCheapestFlightsByAirline, Flight, FlightSearch } from "./services/flights";
 
 /**
  * Extract potential destination names from a message
@@ -307,6 +308,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ errors: error.errors });
       }
       console.error('Error generating packing list:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Flight search route
+  app.post(`${apiPrefix}/flights/search`, async (req, res) => {
+    try {
+      // Validate request body
+      const flightSearchRequest = z.object({
+        departureCity: z.string(),
+        arrivalCity: z.string(),
+        departureDate: z.string(),
+        returnDate: z.string().optional()
+      }).parse(req.body);
+
+      // Search for flights
+      const flights = await searchFlights(flightSearchRequest);
+      
+      return res.status(200).json(flights);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error searching flights:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Flight recommendations route
+  app.get(`${apiPrefix}/flights/recommendations/:destination`, async (req, res) => {
+    try {
+      const destination = req.params.destination;
+      const flights = await getFlightRecommendations(destination);
+      
+      // Also get cheapest flight options by airline for comparison
+      const cheapestByAirline = getCheapestFlightsByAirline(flights);
+      
+      return res.status(200).json({
+        all: flights,
+        cheapestByAirline
+      });
+    } catch (error) {
+      console.error('Error getting flight recommendations:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   });
