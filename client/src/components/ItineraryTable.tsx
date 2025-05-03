@@ -1,6 +1,7 @@
 import React from 'react';
 import { ItineraryDay, Activity } from '@/types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { useMobile } from '@/hooks/use-mobile';
 
 // Define custom type icons for different activity types
 const ActivityTypeIcons = {
@@ -16,6 +17,8 @@ interface ItineraryTableProps {
 }
 
 export function ItineraryTable({ days }: ItineraryTableProps) {
+  const { isMobile } = useMobile();
+  
   if (!days || days.length === 0) {
     return <div className="text-gray-500 text-center p-4">No itinerary data available</div>;
   }
@@ -52,21 +55,33 @@ export function ItineraryTable({ days }: ItineraryTableProps) {
 
   return (
     <div className="itinerary-table mb-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-4 mb-6">
         {/* Budget Distribution Chart */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <h3 className="text-lg font-semibold mb-4 text-center">Budget by Day</h3>
-          <div className="h-64">
+          <div className={isMobile ? "h-48" : "h-64"}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={budgetByDay}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                margin={isMobile ? 
+                  { top: 5, right: 10, left: 0, bottom: 5 } : 
+                  { top: 5, right: 30, left: 20, bottom: 5 }
+                }
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: isMobile ? 10 : 12 }}
+                  tickFormatter={isMobile && budgetByDay.length > 5 ? 
+                    (value) => value.replace('Day ', 'D') : 
+                    undefined}
+                />
+                <YAxis 
+                  tick={{ fontSize: isMobile ? 10 : 12 }}
+                  width={isMobile ? 30 : 40}
+                />
                 <Tooltip formatter={(value) => [`$${value}`, 'Cost']} />
-                <Legend />
+                <Legend wrapperStyle={isMobile ? { fontSize: '10px' } : undefined} />
                 <Bar dataKey="value" name="Daily Cost">
                   {budgetByDay.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -80,38 +95,43 @@ export function ItineraryTable({ days }: ItineraryTableProps) {
         {/* Activity Types Chart */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <h3 className="text-lg font-semibold mb-4 text-center">Budget by Activity Type</h3>
-          <div className="h-64">
+          <div className={isMobile ? "h-48" : "h-64"}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={activityTypesData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
+                  labelLine={!isMobile}
+                  outerRadius={isMobile ? 60 : 80}
                   fill="#8884d8"
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={isMobile ? 
+                    undefined : 
+                    ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`
+                  }
                 >
                   {activityTypesData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value) => [`$${value}`, 'Cost']} />
-                <Legend />
+                <Legend wrapperStyle={isMobile ? { fontSize: '10px' } : undefined} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      {/* Day-by-day Itinerary Tables */}
+      {/* Day-by-day Itinerary */}
       {days.map((day) => (
         <div key={day.day} className="mb-8">
           <h3 className="text-xl font-bold mt-8 mb-4 pl-2 flex items-center bg-gradient-to-r from-primary to-purple-600 text-transparent bg-clip-text border-l-4 border-primary py-1">
             Day {day.day}: {day.title}
           </h3>
-          <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+          
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -143,14 +163,36 @@ export function ItineraryTable({ days }: ItineraryTableProps) {
             </table>
           </div>
           
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-4">
+            {day.activities.map((activity, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                  <div className="flex items-center">
+                    <span className="mr-2 text-lg">
+                      {ActivityTypeIcons[activity.type as keyof typeof ActivityTypeIcons] || ActivityTypeIcons.default}
+                    </span>
+                    <span className="capitalize font-medium text-gray-900">{activity.type}</span>
+                  </div>
+                  <span className="text-sm font-semibold text-primary">
+                    {activity.cost > 0 ? `$${activity.cost}` : 'Free'}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <p className="text-sm text-gray-700">{activity.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
           {/* Day Total */}
-          <div className="mt-2 text-right">
-            <span className="text-sm font-medium text-gray-700">
-              Day Total: 
-              <span className="ml-2 text-primary font-semibold">
+          <div className="mt-4 bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex justify-between items-center">
+              <span className="font-medium text-gray-700">Day {day.day} Total</span>
+              <span className="text-lg font-semibold text-primary">
                 ${day.activities.reduce((sum, activity) => sum + activity.cost, 0)}
               </span>
-            </span>
+            </div>
           </div>
         </div>
       ))}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BudgetBreakdown as BudgetType } from '@/types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { useMobile } from '@/hooks/use-mobile';
 
 interface BudgetDashboardProps {
   budget: number;
@@ -9,6 +10,8 @@ interface BudgetDashboardProps {
 }
 
 export function BudgetDashboard({ budget, budgetBreakdown, remainingBudget }: BudgetDashboardProps) {
+  const { isMobile } = useMobile();
+  
   // Format the budget breakdown for charts
   const pieChartData = [
     { name: 'Accommodation', value: budgetBreakdown.accommodation, color: '#0088FE' },
@@ -71,25 +74,33 @@ export function BudgetDashboard({ budget, budgetBreakdown, remainingBudget }: Bu
         {/* Budget Pie Chart */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
           <h4 className="text-gray-700 text-sm font-medium uppercase tracking-wide text-center mb-4">Budget Distribution</h4>
-          <div className="h-64">
+          <div className={isMobile ? "h-48" : "h-64"}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={pieChartData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
+                  labelLine={!isMobile}
+                  outerRadius={isMobile ? 60 : 80}
                   fill="#8884d8"
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={isMobile ? 
+                    undefined : 
+                    ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`
+                  }
                 >
                   {pieChartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value) => [`$${value}`, 'Amount']} />
-                <Legend />
+                <Legend 
+                  wrapperStyle={isMobile ? { fontSize: '10px' } : undefined}
+                  layout={isMobile ? "horizontal" : "vertical"}
+                  verticalAlign={isMobile ? "bottom" : "middle"}
+                  align={isMobile ? "center" : "right"}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -99,17 +110,39 @@ export function BudgetDashboard({ budget, budgetBreakdown, remainingBudget }: Bu
       {/* Budget Breakdown Bar Chart */}
       <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5 mb-6">
         <h4 className="text-gray-700 text-sm font-medium uppercase tracking-wide text-center mb-4">Expense Categories</h4>
-        <div className="h-64">
+        <div className={isMobile ? "h-48" : "h-64"}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={barChartData}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              margin={isMobile ? 
+                { top: 5, right: 10, left: 0, bottom: 5 } : 
+                { top: 5, right: 30, left: 20, bottom: 5 }
+              }
+              layout={isMobile ? "vertical" : "horizontal"}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
+              {isMobile ? (
+                <>
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    tick={{ fontSize: 10 }}
+                    width={70}
+                  />
+                  <XAxis 
+                    type="number" 
+                    tick={{ fontSize: 10 }}
+                    height={30}
+                  />
+                </>
+              ) : (
+                <>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                </>
+              )}
               <Tooltip formatter={(value) => [`$${value}`, 'Amount']} />
-              <Legend />
+              <Legend wrapperStyle={isMobile ? { fontSize: '10px' } : undefined} />
               <Bar dataKey="value" name="Amount">
                 {barChartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
@@ -120,8 +153,8 @@ export function BudgetDashboard({ budget, budgetBreakdown, remainingBudget }: Bu
         </div>
       </div>
 
-      {/* Budget Breakdown Table */}
-      <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+      {/* Budget Breakdown Table - Desktop */}
+      <div className="hidden md:block overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -157,6 +190,52 @@ export function BudgetDashboard({ budget, budgetBreakdown, remainingBudget }: Bu
             </tr>
           </tbody>
         </table>
+      </div>
+      
+      {/* Budget Breakdown Cards - Mobile */}
+      <div className="md:hidden space-y-4">
+        {Object.entries(budgetBreakdown).map(([category, amount]) => (
+          <div key={category} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-4">
+              <div className="flex justify-between items-center mb-2">
+                <h5 className="text-gray-900 font-medium capitalize">{category}</h5>
+                <span className="text-lg font-semibold text-primary">${amount}</span>
+              </div>
+              <div className="flex items-center">
+                <div className="flex-grow">
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div 
+                      className="bg-blue-600 h-2.5 rounded-full" 
+                      style={{ width: `${Math.round((amount / budget) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+                <span className="ml-2 text-sm text-gray-600">{Math.round((amount / budget) * 100)}%</span>
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        {/* Remaining Budget Card - Mobile */}
+        <div className="bg-green-50 rounded-lg shadow-sm border border-green-200 overflow-hidden">
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-2">
+              <h5 className="text-green-800 font-medium">Remaining Budget</h5>
+              <span className="text-lg font-semibold text-green-600">${remainingBudget}</span>
+            </div>
+            <div className="flex items-center">
+              <div className="flex-grow">
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div 
+                    className="bg-green-600 h-2.5 rounded-full" 
+                    style={{ width: `${remainingPercentage}%` }}
+                  />
+                </div>
+              </div>
+              <span className="ml-2 text-sm text-green-700">{remainingPercentage}%</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
