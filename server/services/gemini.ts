@@ -96,7 +96,7 @@ export async function generateTravelPlan(
 
     // Get the generative model
     const model = genAI.getGenerativeModel({
-      model: "gemini-pro",
+      model: "gemini-1.0-pro", // Updated model name
     });
 
     // Generate system message to add context
@@ -155,7 +155,7 @@ export async function continueTravelConversation(
   try {
     // Get the generative model
     const model = genAI.getGenerativeModel({
-      model: "gemini-pro",
+      model: "gemini-1.0-pro", // Updated model name
     });
 
     // Map OpenAI role format to Gemini's expected format
