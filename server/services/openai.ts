@@ -132,7 +132,7 @@ export async function continueTravelConversation(
     // Add the new user message to the conversation
     const conversationHistory = [
       {
-        role: "system",
+        role: "system" as const,
         content: `You are an AI travel concierge that helps plan personalized travel experiences. You provide helpful, friendly advice about destinations, activities, accommodations, and local customs. Always be conversational but focused on travel planning.
 
 Important: Format your responses using markdown for better readability. Follow these formatting guidelines:
@@ -164,8 +164,11 @@ Example of good formatting:
 
 *Tip: The Museum Pass can save you money if visiting multiple museums.*`,
       },
-      ...messages,
-      { role: "user", content: newMessage },
+      ...messages.map(msg => ({
+        role: msg.role as "system" | "user" | "assistant",
+        content: msg.content
+      })),
+      { role: "user" as const, content: newMessage },
     ];
 
     const response = await openai.chat.completions.create({
@@ -174,8 +177,9 @@ Example of good formatting:
     });
 
     return response.choices[0].message.content || "I'm sorry, I couldn't generate a response.";
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error continuing conversation with OpenAI:", error);
-    throw new Error(`Failed to continue conversation: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to continue conversation: ${errorMessage}`);
   }
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { Message } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { cn } from '@/lib/utils';
 
 interface ChatMessageProps {
   message: Message;
@@ -30,19 +31,55 @@ export function ChatMessage({ message }: ChatMessageProps) {
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]}
               components={{
-                h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-4 mb-2 flex items-center" {...props} />,
-                h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mt-3 mb-1" {...props} />,
-                li: ({ node, ...props }) => <li className="mb-1 flex items-start" {...props} />,
+                h2: ({ node, ...props }: any) => {
+                  // Apply gradient styling to all day headings for consistency
+                  return (
+                    <h2 className="text-xl font-bold mt-6 mb-3 flex items-center bg-gradient-to-r from-primary to-purple-600 text-transparent bg-clip-text" {...props} />
+                  );
+                },
+                h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mt-4 mb-2 text-primary-dark" {...props} />,
+                li: ({ node, ...props }: any) => (
+                  <li className="mb-2 flex items-start" {...props} />
+                ),
                 p: ({ node, ...props }) => <p className="mb-2" {...props} />,
                 code: ({ node, className, ...props }: any) => {
                   const match = /language-(\w+)/.exec(className || '');
-                  const isInline = !match && !props.children?.includes('\n');
+                  const isInline = !match && (typeof props.children === 'string' && !props.children.includes('\n'));
+                  
+                  // Check if this is a budget breakdown code block
+                  if (typeof props.children === 'string') {
+                    const content = props.children;
+                    const isBudgetBreakdown = 
+                      content.includes('Estimated Breakdown') || 
+                      content.includes('Accommodation:') || 
+                      content.includes('Transportation:') ||
+                      content.includes('Total:');
+                    
+                    if (isBudgetBreakdown) {
+                      // Special styling for budget breakdown
+                      return (
+                        <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
+                          <h4 className="text-blue-800 font-semibold mb-2">💰 Budget Breakdown</h4>
+                          <pre className="whitespace-pre-wrap text-sm font-mono text-blue-700">{content}</pre>
+                        </div>
+                      );
+                    }
+                  }
+                  
                   return isInline 
                     ? <code className="bg-gray-100 dark:bg-gray-800 rounded p-1 text-sm" {...props} />
-                    : <div className="bg-gray-100 dark:bg-gray-800 rounded p-3 text-sm font-mono overflow-x-auto"><code {...props} /></div>
+                    : <div className="bg-gray-100 dark:bg-gray-800 rounded-md p-4 text-sm font-mono overflow-x-auto my-3"><code {...props} /></div>
                 },
                 em: ({ node, ...props }) => <em className="text-primary dark:text-primary-dark" {...props} />,
                 strong: ({ node, ...props }) => <strong className="font-bold text-primary-dark" {...props} />,
+                table: ({ node, ...props }) => <div className="overflow-x-auto my-4 rounded-md border border-gray-200">
+                  <table className="min-w-full divide-y divide-gray-200" {...props} />
+                </div>,
+                thead: ({ node, ...props }) => <thead className="bg-gray-50" {...props} />,
+                tbody: ({ node, ...props }) => <tbody className="bg-white divide-y divide-gray-200" {...props} />,
+                tr: ({ node, ...props }) => <tr className="hover:bg-gray-50" {...props} />,
+                th: ({ node, ...props }) => <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" {...props} />,
+                td: ({ node, ...props }) => <td className="px-4 py-2 whitespace-nowrap text-sm" {...props} />,
               }}
             >
               {message.content}
