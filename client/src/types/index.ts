@@ -102,3 +102,24 @@ export interface Attraction {
   rating: string;
   type: string;
 }
+
+export interface PackingItem {
+  id: string;
+  name: string;
+  category: string; 
+  quantity: number;
+  essential: boolean;
+  weatherDependent?: boolean;
+  activityDependent?: string;
+}
+
+export interface PackingList {
+  destination: string;
+  categories: Array<{
+    name: string;
+    items: PackingItem[];
+  }>;
+  essentials: PackingItem[];
+  weatherSpecific: PackingItem[];
+  activitySpecific: PackingItem[];
+}

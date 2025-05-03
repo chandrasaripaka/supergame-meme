@@ -17,6 +17,7 @@ import { generateTravelPlan as generateTravelPlanGemini, continueTravelConversat
 import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversation as continueTravelConversationOpenAI } from "./services/openai";
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
+import { generatePackingList, PackingListPreferences } from "./services/packing";
 
 /**
  * Extract potential destination names from a message
@@ -269,6 +270,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(200).json(locationAttractions);
     } catch (error) {
       console.error('Error fetching attractions:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Packing list generation route
+  app.post(`${apiPrefix}/packing-list`, async (req, res) => {
+    try {
+      // Validate request body
+      const packingListRequest = z.object({
+        destination: z.string(),
+        duration: z.number(),
+        activities: z.array(z.string()),
+        preferences: z.object({
+          travelStyle: z.string().optional(),
+          hasChildren: z.boolean().optional(),
+          hasPets: z.boolean().optional(),
+          hasSpecialEquipment: z.boolean().optional(),
+          specialDietary: z.boolean().optional(),
+          medicalNeeds: z.boolean().optional(),
+          isBusinessTrip: z.boolean().optional()
+        }).optional()
+      }).parse(req.body);
+
+      // Generate the packing list
+      const packingList = await generatePackingList({
+        destination: packingListRequest.destination,
+        duration: packingListRequest.duration,
+        activities: packingListRequest.activities,
+        preferences: packingListRequest.preferences || {}
+      });
+
+      return res.status(200).json(packingList);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error generating packing list:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   });

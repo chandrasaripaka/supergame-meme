@@ -59,3 +59,24 @@ export async function getAttractions(location: string): Promise<Attraction[]> {
   const response = await apiRequest("GET", `/api/attractions/${encodeURIComponent(location)}`);
   return response.json();
 }
+
+// Packing list generation 
+export interface PackingListRequest {
+  destination: string;
+  duration: number;
+  activities: string[];
+  preferences?: {
+    travelStyle?: string;
+    hasChildren?: boolean;
+    hasPets?: boolean;
+    hasSpecialEquipment?: boolean;
+    specialDietary?: boolean;
+    medicalNeeds?: boolean;
+    isBusinessTrip?: boolean;
+  };
+}
+
+export async function generatePackingList(request: PackingListRequest) {
+  const response = await apiRequest("POST", "/api/packing-list", request);
+  return response.json();
+}
