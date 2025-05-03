@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, Weather, Attraction, TravelPlan, ItineraryDay, BudgetBreakdown as BudgetType } from '@/types';
 import { ChatMessage, TypingIndicator } from '@/components/ChatMessage';
-import { WeatherWidget } from '@/components/WeatherWidget';
-import { ItineraryTimeline } from '@/components/ItineraryTimeline';
-import { BudgetBreakdown } from '@/components/BudgetBreakdown';
+import { WeatherForecast } from '@/components/WeatherForecast';
+import { ItineraryTable } from '@/components/ItineraryTable';
+import { BudgetDashboard } from '@/components/BudgetDashboard';
 import { AttractionCards } from '@/components/AttractionCards';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -261,17 +261,17 @@ export function ChatInterface({
                 Here's what I recommend for your {(travelPlan as TravelPlan).duration}-day trip to {(travelPlan as TravelPlan).destination} with a ${(travelPlan as TravelPlan).budget} budget:
               </p>
               
-              {/* Weather Widget */}
-              <WeatherWidget 
+              {/* Enhanced Weather Forecast */}
+              <WeatherForecast
                 weather={weatherData as Weather | null} 
-                isLoading={isWeatherLoading} 
+                isLoading={isWeatherLoading}
               />
               
-              {/* Itinerary Timeline */}
-              <ItineraryTimeline days={(travelPlan as TravelPlan).days as ItineraryDay[]} />
+              {/* Enhanced Itinerary Table with Charts */}
+              <ItineraryTable days={(travelPlan as TravelPlan).days as ItineraryDay[]} />
               
-              {/* Budget Breakdown */}
-              <BudgetBreakdown 
+              {/* Enhanced Budget Dashboard with Charts */}
+              <BudgetDashboard
                 budget={(travelPlan as TravelPlan).budget}
                 budgetBreakdown={(travelPlan as TravelPlan).budgetBreakdown as BudgetType}
                 remainingBudget={(travelPlan as TravelPlan).remainingBudget}
