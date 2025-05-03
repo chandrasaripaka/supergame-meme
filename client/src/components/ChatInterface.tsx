@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, Weather, Attraction, TravelPlan, ItineraryDay, BudgetBreakdown as BudgetType } from '@/types';
-import { ChatMessage, TypingIndicator } from '@/components/ChatMessage';
-import { WeatherForecast } from '@/components/WeatherForecast';
-import { ItineraryTable } from '@/components/ItineraryTable';
-import { BudgetDashboard } from '@/components/BudgetDashboard';
-import { AttractionCards } from '@/components/AttractionCards';
+import { ChatMessage, TypingIndicator } from './ChatMessage';
+import { WeatherForecast } from './WeatherForecast';
+import { ItineraryTable } from './ItineraryTable';
+import { BudgetDashboard } from './BudgetDashboard';
+import { AttractionCards } from './AttractionCards';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
