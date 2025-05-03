@@ -32,15 +32,35 @@ export function ChatMessage({ message }: ChatMessageProps) {
               remarkPlugins={[remarkGfm]}
               components={{
                 h2: ({ node, ...props }: any) => {
-                  // Apply gradient styling to all day headings for consistency
+                  // Apply gradient styling to all day headings with better indentation
                   return (
-                    <h2 className="text-xl font-bold mt-6 mb-3 flex items-center bg-gradient-to-r from-primary to-purple-600 text-transparent bg-clip-text" {...props} />
+                    <h2 className="text-xl font-bold mt-8 mb-4 pl-2 flex items-center bg-gradient-to-r from-primary to-purple-600 text-transparent bg-clip-text border-l-4 border-primary py-1" {...props} />
                   );
                 },
-                h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mt-4 mb-2 text-primary-dark" {...props} />,
-                li: ({ node, ...props }: any) => (
-                  <li className="mb-2 flex items-start" {...props} />
+                h3: ({ node, ...props }) => (
+                  <h3 className="text-lg font-semibold mt-6 mb-3 pl-2 text-primary-dark border-l-2 border-primary-light py-1" {...props} />
                 ),
+                li: ({ node, ...props }: any) => (
+                  <li className="mb-3 flex items-start pl-2" {...props} />
+                ),
+                img: ({ node, src, alt, ...props }: any) => {
+                  // Enhanced image handling with better styling
+                  return (
+                    <div className="my-4 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                      <img 
+                        src={src} 
+                        alt={alt || "Travel image"} 
+                        className="w-full object-cover max-h-[300px]" 
+                        {...props} 
+                      />
+                      {alt && (
+                        <div className="bg-gray-50 px-3 py-2 text-sm text-gray-600 text-center italic">
+                          {alt}
+                        </div>
+                      )}
+                    </div>
+                  );
+                },
                 p: ({ node, ...props }) => <p className="mb-2" {...props} />,
                 code: ({ node, className, ...props }: any) => {
                   const match = /language-(\w+)/.exec(className || '');
@@ -49,6 +69,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   // Check if this is a budget breakdown code block
                   if (typeof props.children === 'string') {
                     const content = props.children;
+                    
+                    // Check for budget breakdown
                     const isBudgetBreakdown = 
                       content.includes('Estimated Breakdown') || 
                       content.includes('Accommodation:') || 
@@ -58,9 +80,80 @@ export function ChatMessage({ message }: ChatMessageProps) {
                     if (isBudgetBreakdown) {
                       // Special styling for budget breakdown
                       return (
-                        <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
-                          <h4 className="text-blue-800 font-semibold mb-2">💰 Budget Breakdown</h4>
-                          <pre className="whitespace-pre-wrap text-sm font-mono text-blue-700">{content}</pre>
+                        <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4 shadow-sm">
+                          <h4 className="text-blue-800 font-semibold mb-2 flex items-center">
+                            <span className="mr-2">💰</span>
+                            Budget Breakdown
+                          </h4>
+                          <pre className="whitespace-pre-wrap text-sm font-mono text-blue-700 pl-2 border-l-2 border-blue-200">{content}</pre>
+                        </div>
+                      );
+                    }
+                    
+                    // Check for weather information
+                    const isWeatherInfo = 
+                      content.includes('Weather Forecast') || 
+                      (content.includes('Temperature') && (content.includes('Conditions') || content.includes('Humidity')));
+                    
+                    if (isWeatherInfo) {
+                      // Special styling for weather information
+                      const tempMatch = content.match(/Temperature:\s*([\d.-]+)°C/i);
+                      const conditionMatch = content.match(/Conditions?:\s*([A-Za-z\s]+)/i);
+                      
+                      // Determine weather icon
+                      let weatherIcon = (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                        </svg>
+                      );
+                      
+                      if (conditionMatch) {
+                        const condition = conditionMatch[1].toLowerCase().trim();
+                        if (condition.includes('sunny') || condition.includes('clear')) {
+                          weatherIcon = (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                          );
+                        } else if (condition.includes('rain') || condition.includes('shower')) {
+                          weatherIcon = (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                            </svg>
+                          );
+                        } else if (condition.includes('cloud')) {
+                          weatherIcon = (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            </svg>
+                          );
+                        }
+                      }
+                      
+                      return (
+                        <div className="bg-gradient-to-br from-blue-50 to-sky-50 border border-blue-100 rounded-md p-4 mb-4 shadow-sm">
+                          <h4 className="text-blue-700 font-semibold mb-3 flex items-center">
+                            <span className="mr-2">🌤️</span>
+                            Weather Information
+                          </h4>
+                          <div className="flex items-center mb-3">
+                            <div className="mr-3">
+                              {weatherIcon}
+                            </div>
+                            <div>
+                              {tempMatch && (
+                                <div className="text-2xl font-semibold text-blue-700">
+                                  {tempMatch[1]}°C
+                                </div>
+                              )}
+                              {conditionMatch && (
+                                <div className="text-blue-600">
+                                  {conditionMatch[1]}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <pre className="whitespace-pre-wrap text-sm text-blue-700 pl-2 border-l-2 border-blue-200 pt-2 pb-1">{content}</pre>
                         </div>
                       );
                     }

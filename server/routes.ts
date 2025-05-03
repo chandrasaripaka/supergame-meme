@@ -18,6 +18,56 @@ import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversat
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
 
+/**
+ * Extract potential destination names from a message
+ * @param message The message content to analyze
+ * @returns Array of potential destination names
+ */
+function extractPotentialDestinations(message: string): string[] {
+  // Common travel-related words that may indicate a destination
+  const travelIndicators = [
+    "travel to", "visit", "go to", "vacation in", "trip to", 
+    "holiday in", "flying to", "visiting", "staying in",
+    "exploring", "discover", "planning to go to"
+  ];
+
+  // List of common city names and countries to detect
+  // This is a basic implementation that could be improved with a more comprehensive database
+  const destinations: string[] = [];
+  
+  // Check for expressions like "I want to travel to [location]"
+  for (const indicator of travelIndicators) {
+    const regex = new RegExp(`${indicator}\\s+([A-Z][a-zA-Z\\s]+?)(?:[,.]|\\s+for|\\s+in|\\s+on|$)`, 'gi');
+    let match;
+    while ((match = regex.exec(message)) !== null) {
+      if (match[1] && match[1].trim().length > 2) {
+        destinations.push(match[1].trim());
+      }
+    }
+  }
+  
+  // Look for capitalized words that may be city/country names (simple heuristic)
+  const wordRegex = /\b([A-Z][a-zA-Z]{3,})\b/g;
+  const capitalizedWords = [];
+  let capitalizedMatch;
+  while ((capitalizedMatch = wordRegex.exec(message)) !== null) {
+    capitalizedWords.push(capitalizedMatch);
+  }
+  
+  for (const match of capitalizedWords) {
+    // Exclude common non-destination capitalized words
+    const excludedWords = ['I', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 
+      'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December',
+      'Hello', 'Thanks', 'Thank', 'Please', 'Great'];
+    
+    if (!excludedWords.includes(match[1]) && !destinations.includes(match[1])) {
+      destinations.push(match[1]);
+    }
+  }
+  
+  return destinations;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // API prefix
   const apiPrefix = "/api";
@@ -79,20 +129,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ error: 'Invalid message format' });
         }
         
+        // Extract potential destinations from the message
+        const destinations = extractPotentialDestinations(lastMessage.content);
+        let weatherData = null;
+        
+        // If we have a clear destination, fetch weather data
+        if (destinations.length > 0) {
+          try {
+            // Only get weather for the first/primary destination
+            weatherData = await getWeather(destinations[0]);
+            console.log(`Weather data fetched for ${destinations[0]}`);
+          } catch (weatherErr) {
+            console.log(`Failed to fetch weather for ${destinations[0]}:`, weatherErr?.message || String(weatherErr));
+          }
+        }
+        
         // Get AI response with fallback
         let aiResponse;
         try {
           // First try with Gemini
           aiResponse = await continueTravelConversationGemini(
             messageHistory.slice(0, -1), // Previous messages
-            lastMessage.content // New message content
+            lastMessage.content, // New message content
+            weatherData
           );
         } catch (err: any) {
           console.log("Gemini API failed, falling back to OpenAI:", err?.message || String(err));
           // Fallback to OpenAI if Gemini fails
           aiResponse = await continueTravelConversationOpenAI(
             messageHistory.slice(0, -1), // Previous messages
-            lastMessage.content // New message content
+            lastMessage.content, // New message content
+            weatherData
           );
         }
         
