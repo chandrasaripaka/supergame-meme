@@ -1,5 +1,7 @@
 import React from 'react';
 import { Message } from '@/types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ChatMessageProps {
   message: Message;
@@ -24,7 +26,28 @@ export function ChatMessage({ message }: ChatMessageProps) {
         {isUser ? (
           <p>{message.content}</p>
         ) : (
-          <div className="whitespace-pre-wrap">{message.content}</div>
+          <div className="prose max-w-none dark:prose-invert prose-sm">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-4 mb-2 flex items-center" {...props} />,
+                h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mt-3 mb-1" {...props} />,
+                li: ({ node, ...props }) => <li className="mb-1 flex items-start" {...props} />,
+                p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                code: ({ node, className, ...props }: any) => {
+                  const match = /language-(\w+)/.exec(className || '');
+                  const isInline = !match && !props.children?.includes('\n');
+                  return isInline 
+                    ? <code className="bg-gray-100 dark:bg-gray-800 rounded p-1 text-sm" {...props} />
+                    : <div className="bg-gray-100 dark:bg-gray-800 rounded p-3 text-sm font-mono overflow-x-auto"><code {...props} /></div>
+                },
+                em: ({ node, ...props }) => <em className="text-primary dark:text-primary-dark" {...props} />,
+                strong: ({ node, ...props }) => <strong className="font-bold text-primary-dark" {...props} />,
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          </div>
         )}
       </div>
       
