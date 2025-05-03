@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { sendMessageToAI } from '@/lib/gemini';
-import { getWeather, getAttractions, generateTravelPlan } from '@/lib/api';
+import { getWeather, getAttractions, generateTravelPlan, getFlightRecommendations } from '@/lib/api';
 import { extractTravelIntent } from '@/lib/gemini';
 import { useMobile } from '@/hooks/use-mobile';
 
@@ -105,6 +105,13 @@ export function ChatInterface({
       travelIntent.duration && 
       travelIntent.budget
     ),
+    // Using the default queryFn that's set up in queryClient.ts
+  });
+  
+  // Get flight recommendations if we have a destination
+  const { data: flightRecommendations, isLoading: isFlightLoading } = useQuery({
+    queryKey: ['/api/flights/recommendations', travelIntent.destination],
+    enabled: !!travelIntent.destination,
     // Using the default queryFn that's set up in queryClient.ts
   });
 
@@ -283,6 +290,15 @@ export function ChatInterface({
                 attractions={(attractionsData || []) as Attraction[]} 
                 isLoading={isAttractionsLoading} 
               />
+              
+              {/* Flight Comparison with price comparisons */}
+              {flightRecommendations && (
+                <FlightComparison
+                  flights={flightRecommendations.all || []}
+                  cheapestByAirline={flightRecommendations.cheapestByAirline || []}
+                  isLoading={isFlightLoading}
+                />
+              )}
               
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2 mt-4">
