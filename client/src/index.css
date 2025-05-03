@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-gray-50 text-foreground;
+  }
+
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 222.2 84% 4.9%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    
+    --primary: 221 83% 53%;  /* Royal Blue (#2563EB) */
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 160 84% 39%;  /* Emerald (#10B981) */
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221 83% 53%;
+    
+    --radius: 0.5rem;
+
+    /* Custom colors */
+    --accent-amber: 39 96% 52%;  /* Amber (#F59E0B) */
+    --light-gray: 210 40% 98%;
+    --dark-gray: 215 28% 17%;
+    --error-red: 0 84% 60%;
+    --warning-yellow: 45 96% 62%;
+  }
+}
+
+.chat-container {
+  max-height: calc(100vh - 220px);
+}
+
+.chat-message {
+  max-width: 80%;
+}
+
+.itinerary-timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background-color: #E5E7EB;
+  z-index: 0;
+}
+
+.typing-indicator span {
+  animation: blink 1.4s infinite both;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0% { opacity: 0.1; }
+  20% { opacity: 1; }
+  100% { opacity: 0.1; }
+}

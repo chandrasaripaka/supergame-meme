@@ -1,0 +1,104 @@
+// Trip related types
+export interface Trip {
+  id: number;
+  userId: number;
+  destination: string;
+  startDate: string;
+  endDate: string;
+  budget: number;
+  itinerary: TravelPlan;
+  createdAt: string;
+}
+
+export interface TravelPlan {
+  destination: string;
+  duration: number;
+  budget: number;
+  remainingBudget: number;
+  weather: {
+    temp: string;
+    condition: string;
+  };
+  days: Array<ItineraryDay>;
+  budgetBreakdown: BudgetBreakdown;
+  recommendations: Array<Recommendation>;
+}
+
+export interface ItineraryDay {
+  day: number;
+  title: string;
+  activities: Array<Activity>;
+}
+
+export interface Activity {
+  type: 'accommodation' | 'food' | 'activity' | 'transportation';
+  description: string;
+  cost: number;
+}
+
+export interface BudgetBreakdown {
+  accommodation: number;
+  food: number;
+  activities: number;
+  transportation: number;
+  miscellaneous: number;
+}
+
+export interface Recommendation {
+  name: string;
+  rating: number;
+  description: string;
+}
+
+// Message related types
+export interface Message {
+  id?: number;
+  userId?: number;
+  tripId?: number;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp?: string;
+}
+
+// Weather related types
+export interface Weather {
+  location: {
+    name: string;
+    country: string;
+  };
+  current: {
+    temp_c: number;
+    temp_f: number;
+    condition: {
+      text: string;
+      icon: string;
+    };
+    wind_mph: number;
+    humidity: number;
+    feelslike_c: number;
+  };
+  forecast?: {
+    forecastday: Array<{
+      date: string;
+      day: {
+        maxtemp_c: number;
+        mintemp_c: number;
+        condition: {
+          text: string;
+          icon: string;
+        };
+      };
+    }>;
+  };
+}
+
+// Attraction related types
+export interface Attraction {
+  id: number;
+  name: string;
+  location: string;
+  description: string;
+  imageUrl: string;
+  rating: string;
+  type: string;
+}
