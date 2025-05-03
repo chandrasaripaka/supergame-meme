@@ -179,7 +179,7 @@ Important: Format your responses using markdown for better readability. Follow t
 4. Use **bold** for important information and costs
 5. Use *italics* for tips and additional notes
 6. For detailed itineraries, use proper markdown tables
-7. Use code blocks for weather forecasts or formatted information
+7. ALWAYS put budget breakdowns in code blocks
 
 Example of good formatting:
 ## 🗓️ Day 1: Arrival in Paris
