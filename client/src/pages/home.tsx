@@ -3,7 +3,7 @@ import { WelcomeCard } from '@/components/WelcomeCard';
 import { ChatInterface } from '@/components/ChatInterface';
 import { Message } from '@/types';
 import { useMutation } from '@tanstack/react-query';
-import { sendMessageToAI } from '@/lib/openai';
+import { sendMessageToAI } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
@@ -11,7 +11,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello! I'm your AI Travel Concierge. I can help you plan your perfect trip. Just tell me where you'd like to go, your budget, and what you enjoy doing when you travel."
+      content: "Hello! I'm your AI Travel Concierge powered by Google's Gemini. I can help you plan your perfect trip. Just tell me where you'd like to go, your budget, and what you enjoy doing when you travel."
     }
   ]);
   
