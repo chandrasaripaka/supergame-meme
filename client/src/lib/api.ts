@@ -120,3 +120,9 @@ export async function getFlightRecommendations(destination: string): Promise<Fli
   const response = await apiRequest("GET", `/api/flights/recommendations/${encodeURIComponent(destination)}`);
   return response.json();
 }
+
+// Destination statistics function
+export async function getDestinationStats(destination: string) {
+  const response = await apiRequest("GET", `/api/destination-stats/${encodeURIComponent(destination)}`);
+  return response.json();
+}

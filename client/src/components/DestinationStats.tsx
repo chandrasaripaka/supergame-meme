@@ -296,6 +296,7 @@ interface ExpensesTabProps {
 
 function ExpensesTab({ expenses }: ExpensesTabProps) {
   const totalDailyBudget = expenses.reduce((sum, item) => sum + item.amount, 0);
+  const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
   
   // Calculate reasonable budget ranges
   const budgetRanges = {
@@ -321,7 +322,7 @@ function ExpensesTab({ expenses }: ExpensesTabProps) {
               dataKey="amount"
             >
               {expenses.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
               ))}
             </Pie>
             <Tooltip formatter={(value) => [`$${value}`, 'Daily Cost']} />
@@ -413,10 +414,20 @@ interface SeasonTabProps {
 
 function SeasonTab({ seasonalRecommendations, visitorData }: SeasonTabProps) {
   const bestSeason = [...seasonalRecommendations].sort((a, b) => b.score - a.score)[0];
+  const seasonColors: Record<string, string> = {
+    'Spring': '#4ade80',
+    'Summer': '#f59e0b',
+    'Fall': '#ef4444',
+    'Winter': '#3b82f6',
+    'Dry Season (Apr-Sep)': '#f59e0b',
+    'Shoulder Season (Mar, Oct)': '#84cc16',
+    'Rainy Season (Nov-Feb)': '#3b82f6',
+    'New Year': '#8b5cf6'
+  };
   
   // Get season color from mapping or default to blue
   const getSeasonColor = (season: string) => {
-    return SEASON_COLORS[season as keyof typeof SEASON_COLORS] || '#3b82f6';
+    return seasonColors[season] || '#3b82f6';
   };
   
   return (
@@ -519,6 +530,7 @@ interface ActivitiesTabProps {
 
 function ActivitiesTab({ activityDistribution }: ActivitiesTabProps) {
   const topActivity = [...activityDistribution].sort((a, b) => b.value - a.value)[0];
+  const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
   
   return (
     <div>
@@ -537,7 +549,7 @@ function ActivitiesTab({ activityDistribution }: ActivitiesTabProps) {
               dataKey="value"
             >
               {activityDistribution.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
               ))}
             </Pie>
             <Tooltip formatter={(value) => [`${value}%`, 'Percentage']} />

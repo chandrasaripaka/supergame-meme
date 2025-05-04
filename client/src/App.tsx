@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import PackingListPage from "@/pages/packing-list";
+import DestinationInfoPage from "@/pages/destination-info";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -13,6 +14,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/packing-list" component={PackingListPage} />
+      <Route path="/destination/:destination" component={DestinationInfoPage} />
       <Route component={NotFound} />
     </Switch>
   );
