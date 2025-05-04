@@ -81,7 +81,7 @@ async function generatePackingListWithPrimaryAI(
 ): Promise<PackingList> {
   try {
     // Get the generative model
-    const model = genAI.getGenerativeModel({
+    const model = primaryAI.getGenerativeModel({
       model: "gemini-2.0-flash",
     });
 
@@ -186,19 +186,19 @@ Ensure the response is valid JSON without any markdown formatting or extra text.
       
       return parsedResponse as PackingList;
     } catch (parseError) {
-      console.error("Failed to parse Gemini response as JSON:", parseError);
+      console.error("Failed to parse primary AI response as JSON:", parseError);
       throw new Error("Generated packing list was not in the expected format");
     }
   } catch (error) {
-    console.error("Error generating packing list with Gemini:", error);
+    console.error("Error generating packing list with primary AI:", error);
     throw error;
   }
 }
 
 /**
- * Generate packing list using OpenAI
+ * Generate packing list using backup AI service
  */
-async function generatePackingListWithOpenAI(
+async function generatePackingListWithBackupAI(
   preferences: PackingListPreferences,
   weatherData: any = null
 ): Promise<PackingList> {
@@ -279,8 +279,8 @@ Your response must be in valid JSON format with the following structure:
   "activitySpecific": [ /* Activity-dependent items */ ]
 }`;
 
-    // Generate content with OpenAI
-    const response = await openai.chat.completions.create({
+    // Generate content with backup AI
+    const response = await backupAI.chat.completions.create({
       model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
       messages: [
         { role: "system", content: systemPrompt },
@@ -293,7 +293,7 @@ Your response must be in valid JSON format with the following structure:
     const text = response.choices[0].message.content;
     
     if (!text) {
-      throw new Error("Empty response from OpenAI");
+      throw new Error("Empty response from backup AI");
     }
     
     try {
@@ -307,11 +307,11 @@ Your response must be in valid JSON format with the following structure:
       
       return parsedResponse as PackingList;
     } catch (parseError) {
-      console.error("Failed to parse OpenAI response as JSON:", parseError);
+      console.error("Failed to parse backup AI response as JSON:", parseError);
       throw new Error("Generated packing list was not in the expected format");
     }
   } catch (error) {
-    console.error("Error generating packing list with OpenAI:", error);
+    console.error("Error generating packing list with backup AI:", error);
     throw error;
   }
 }
