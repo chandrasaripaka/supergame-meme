@@ -12,9 +12,10 @@ import {
 } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
-import { generateTravelPlan as generateTravelPlanGemini, continueTravelConversation as continueTravelConversationGemini } from "./services/gemini";
-// Fallback to OpenAI when Gemini fails
-import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversation as continueTravelConversationOpenAI } from "./services/openai";
+// Primary AI service
+import { generateTravelPlan, continueTravelConversation } from "./services/ai/primary";
+// Backup AI service for fallback
+import { generateTravelPlan as generateTravelPlanBackup, continueTravelConversation as continueTravelConversationBackup } from "./services/ai/backup";
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
 import { generatePackingList, PackingListPreferences } from "./services/packing";
@@ -150,16 +151,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get AI response with fallback
         let aiResponse;
         try {
-          // First try with Gemini
-          aiResponse = await continueTravelConversationGemini(
+          // First try with primary AI model
+          aiResponse = await continueTravelConversation(
             messageHistory.slice(0, -1), // Previous messages
             lastMessage.content, // New message content
             weatherData
           );
         } catch (err: any) {
-          console.log("Gemini API failed, falling back to OpenAI:", err?.message || String(err));
-          // Fallback to OpenAI if Gemini fails
-          aiResponse = await continueTravelConversationOpenAI(
+          console.log("Primary AI model failed, falling back to secondary model:", err?.message || String(err));
+          // Fallback to secondary AI model if primary fails
+          aiResponse = await continueTravelConversationBackup(
             messageHistory.slice(0, -1), // Previous messages
             lastMessage.content, // New message content
             weatherData
@@ -207,10 +208,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         startDate: z.string().optional(),
       }).parse(req.body);
 
-      // Try Gemini first, fallback to OpenAI
+      // Try primary AI model first, with fallback
       let travelPlan;
       try {
-        travelPlan = await generateTravelPlanGemini(
+        travelPlan = await generateTravelPlan(
           travelRequest.destination,
           travelRequest.duration,
           travelRequest.budget,
@@ -218,8 +219,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           travelRequest.startDate
         );
       } catch (err: any) {
-        console.log("Gemini API failed for travel plan, falling back to OpenAI:", err?.message || String(err));
-        travelPlan = await generateTravelPlanOpenAI(
+        console.log("Primary AI model failed for travel plan, falling back to secondary model:", err?.message || String(err));
+        travelPlan = await generateTravelPlanBackup(
           travelRequest.destination,
           travelRequest.duration,
           travelRequest.budget,

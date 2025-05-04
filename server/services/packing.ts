@@ -2,9 +2,9 @@ import { getWeather } from "./weather";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize the AI providers
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+// Initialize the AI providers for primary and backup services
+const primaryAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const backupAI = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Interface for packing list preferences
 export interface PackingListPreferences {
@@ -59,12 +59,12 @@ export async function generatePackingList(preferences: PackingListPreferences): 
       console.log(`Could not fetch weather data for ${preferences.destination}: ${error.message || String(error)}`);
     }
 
-    // Try to use Gemini first, then fall back to OpenAI if necessary
+    // Try to use primary AI first, then fall back to backup AI if necessary
     try {
-      return await generatePackingListWithGemini(preferences, weatherData);
+      return await generatePackingListWithPrimaryAI(preferences, weatherData);
     } catch (error) {
-      console.log("Gemini API failed for packing list generation, falling back to OpenAI:", error);
-      return await generatePackingListWithOpenAI(preferences, weatherData);
+      console.log("Primary AI failed for packing list generation, falling back to backup AI:", error);
+      return await generatePackingListWithBackupAI(preferences, weatherData);
     }
   } catch (error: any) {
     console.error("Error generating packing list:", error);
@@ -73,9 +73,9 @@ export async function generatePackingList(preferences: PackingListPreferences): 
 }
 
 /**
- * Generate packing list using Gemini API
+ * Generate packing list using primary AI service
  */
-async function generatePackingListWithGemini(
+async function generatePackingListWithPrimaryAI(
   preferences: PackingListPreferences,
   weatherData: any = null
 ): Promise<PackingList> {
