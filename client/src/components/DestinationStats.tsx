@@ -39,7 +39,7 @@ export function DestinationStats({ statistics, isLoading = false }: DestinationS
           Destination Analysis
         </h2>
         <p className="text-gray-600 text-sm mb-6">
-          Data-driven insights to help you plan your perfect trip to {statistics.name}, {statistics.country}.
+          Data-driven insights to help you plan your perfect trip to {statistics.destination}.
         </p>
       </div>
       
