@@ -355,6 +355,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ error: 'Internal server error' });
     }
   });
+  
+  // Destination statistics route
+  app.get(`${apiPrefix}/destination-stats/:destination`, async (req, res) => {
+    try {
+      const destination = req.params.destination;
+      const statistics = await getDestinationStatistics(destination);
+      
+      if (!statistics) {
+        return res.status(404).json({ error: 'No statistics available for this destination' });
+      }
+      
+      return res.status(200).json(statistics);
+    } catch (error) {
+      console.error('Error getting destination statistics:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

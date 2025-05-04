@@ -42,8 +42,8 @@ export function DestinationStats({ statistics, isLoading = false }: DestinationS
   const [activeTab, setActiveTab] = useState<'overview' | 'expenses' | 'season' | 'activities'>('overview');
   
   // Colors for charts
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
-  const SEASON_COLORS = {
+  const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+  const seasonColors: Record<string, string> = {
     'Spring': '#4ade80',
     'Summer': '#f59e0b',
     'Fall': '#ef4444',
