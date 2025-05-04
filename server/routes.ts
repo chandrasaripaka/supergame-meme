@@ -18,6 +18,7 @@ import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversat
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
 import { generatePackingList, PackingListPreferences } from "./services/packing";
+import { getDestinationStatistics } from "./services/destination-stats";
 import { searchFlights, getFlightRecommendations, getCheapestFlightsByAirline, Flight, FlightSearch } from "./services/flights";
 
 /**
