@@ -321,7 +321,7 @@ function SeasonTab({ seasonalRecommendations, visitorData }: SeasonTabProps) {
       >
         {seasonalRecommendations.map((season, index) => (
           <div 
-            key={season.season} 
+            key={season.month} 
             className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm"
           >
             <h4 className="text-md font-semibold flex items-center">
@@ -329,15 +329,13 @@ function SeasonTab({ seasonalRecommendations, visitorData }: SeasonTabProps) {
                 className="h-3 w-3 rounded-full mr-2" 
                 style={{ backgroundColor: COLORS[index % COLORS.length] }}
               ></span>
-              {season.season} <span className="text-sm text-gray-500 ml-2">({season.score.toFixed(1)}/10)</span>
+              {season.month} <span className="text-sm text-gray-500 ml-2">({season.rating.toFixed(1)}/10)</span>
             </h4>
             <div className="mt-2">
-              <div className="text-sm text-gray-600">Highlights:</div>
-              <ul className="mt-1 ml-5 text-sm text-gray-600 list-disc">
-                {season.highlights.map((highlight, i) => (
-                  <li key={i}>{highlight}</li>
-                ))}
-              </ul>
+              <div className="text-sm text-gray-600">Best time to visit for:</div>
+              <p className="mt-1 text-sm text-gray-600">
+                {index % 2 === 0 ? 'Pleasant weather and fewer crowds' : 'Special events and seasonal activities'}
+              </p>
             </div>
           </div>
         ))}
@@ -374,10 +372,11 @@ function ActivitiesTab({ activityDistribution }: ActivitiesTabProps) {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ activity, percent }) => `${activity}: ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
-                  dataKey="value"
+                  dataKey="percentage"
+                  nameKey="activity"
                 >
                   {activityDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -394,17 +393,17 @@ function ActivitiesTab({ activityDistribution }: ActivitiesTabProps) {
             <h4 className="text-md font-semibold mb-3">Popular Activities by Category</h4>
             <div className="space-y-4">
               {activityDistribution.map((activity, index) => (
-                <div key={activity.name} className="bg-gray-50 rounded-lg p-3">
+                <div key={activity.activity} className="bg-gray-50 rounded-lg p-3">
                   <div className="flex items-center mb-2">
                     <span 
                       className="h-3 w-3 rounded-full mr-2" 
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     ></span>
-                    <h5 className="font-medium">{activity.name}</h5>
-                    <span className="ml-auto text-sm text-gray-500">{(activity.value * 100).toFixed(0)}%</span>
+                    <h5 className="font-medium">{activity.activity}</h5>
+                    <span className="ml-auto text-sm text-gray-500">{(activity.percentage * 100).toFixed(0)}%</span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    {getActivityDescription(activity.name)}
+                    {getActivityDescription(activity.activity)}
                   </p>
                 </div>
               ))}
