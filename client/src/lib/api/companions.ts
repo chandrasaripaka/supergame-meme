@@ -5,16 +5,16 @@ import { apiRequest } from '../queryClient';
  * Fetch all available travel companions
  */
 export async function getAllCompanions(): Promise<Companion[]> {
-  const response = await apiRequest<Companion[]>('/companions');
-  return response;
+  const response = await apiRequest('/companions');
+  return response as Companion[];
 }
 
 /**
  * Fetch a specific companion by ID
  */
 export async function getCompanion(id: number): Promise<Companion> {
-  const response = await apiRequest<Companion>(`/companions/${id}`);
-  return response;
+  const response = await apiRequest(`/companions/${id}`);
+  return response as Companion;
 }
 
 /**
@@ -34,14 +34,14 @@ export async function findCompanionMatches(
     destination?: string;
   }
 ): Promise<Companion[]> {
-  const response = await apiRequest<Companion[]>(
+  const response = await apiRequest(
     `/trips/${tripId}/companion-matches`, 
     {
       method: 'POST',
       data: preferences
     }
   );
-  return response;
+  return response as Companion[];
 }
 
 /**
@@ -52,14 +52,14 @@ export async function associateCompanionWithTrip(
   companionId: number,
   status = 'pending'
 ): Promise<TripCompanion> {
-  const response = await apiRequest<TripCompanion>(
+  const response = await apiRequest(
     `/trips/${tripId}/companions`,
     {
       method: 'POST',
       data: { companionId, status }
     }
   );
-  return response;
+  return response as TripCompanion;
 }
 
 /**
@@ -70,34 +70,29 @@ export async function updateTripCompanionStatus(
   companionId: number,
   status: string
 ): Promise<TripCompanion> {
-  const response = await apiRequest<TripCompanion>(
+  const response = await apiRequest(
     `/trips/${tripId}/companions/${companionId}`,
     {
       method: 'PATCH',
       data: { status }
     }
   );
-  return response;
+  return response as TripCompanion;
 }
 
 /**
  * Get all companions for a trip
  */
-export async function getTripCompanions(tripId: number): Promise<Array<{
+export interface TripCompanionWithDetails {
   companion: Companion;
   status: string;
   id: number;
   tripId: number;
   companionId: number;
   createdAt: Date;
-}>> {
-  const response = await apiRequest<Array<{
-    companion: Companion;
-    status: string;
-    id: number;
-    tripId: number;
-    companionId: number;
-    createdAt: Date;
-  }>>(`/trips/${tripId}/companions`);
-  return response;
+}
+
+export async function getTripCompanions(tripId: number): Promise<TripCompanionWithDetails[]> {
+  const response = await apiRequest(`/trips/${tripId}/companions`);
+  return response as TripCompanionWithDetails[];
 }

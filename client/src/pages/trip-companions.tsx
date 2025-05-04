@@ -126,9 +126,9 @@ export default function TripCompanions({
     setIsProfileOpen(true);
   };
   
-  const getCompanionStatus = (companion: Companion) => {
+  const getCompanionStatus = (companion: Companion): string | undefined => {
     const foundCompanion = tripCompanions.find(tc => tc.companion.id === companion.id);
-    return foundCompanion?.status || null;
+    return foundCompanion?.status;
   };
   
   // Determine if we're showing a loading state
