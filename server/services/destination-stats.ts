@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DestinationStatistics } from '../../client/src/types/destination-stats';
+import { DestinationStatistics, Expense, VisitorData, ActivityData, SeasonalData } from '../../client/src/types/destination-stats';
 
 /**
  * Fetches destination statistics from either Viator or GetYourGuide API
