@@ -6,7 +6,6 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import PackingListPage from "@/pages/packing-list";
 import DestinationInfoPage from "@/pages/destination-info";
-import TripCompanionsPage from "@/pages/trip-companions";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -16,7 +15,6 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/packing-list" component={PackingListPage} />
       <Route path="/destination/:destination" component={DestinationInfoPage} />
-      <Route path="/trip-companions" component={TripCompanionsPage} />
       <Route component={NotFound} />
     </Switch>
   );

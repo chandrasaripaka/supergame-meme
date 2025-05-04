@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -58,54 +58,6 @@ export const insertAttractionSchema = createInsertSchema(attractions).pick({
   type: true,
 });
 
-// Travel companions table
-export const companions = pgTable("companions", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  bio: text("bio").notNull(),
-  age: integer("age").notNull(),
-  gender: text("gender").notNull(),
-  interests: text("interests").array().notNull(),
-  languages: text("languages").array().notNull(),
-  travelStyle: text("travel_style").notNull(),
-  availabilityStart: timestamp("availability_start"),
-  availabilityEnd: timestamp("availability_end"),
-  preferredDestinations: text("preferred_destinations").array(),
-  avatarUrl: text("avatar_url"),
-  rating: decimal("rating", { precision: 2, scale: 1 }).default("4.5"),
-  reviewCount: integer("review_count").default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const insertCompanionSchema = createInsertSchema(companions).pick({
-  name: true,
-  bio: true,
-  age: true,
-  gender: true,
-  interests: true,
-  languages: true,
-  travelStyle: true,
-  availabilityStart: true,
-  availabilityEnd: true,
-  preferredDestinations: true,
-  avatarUrl: true,
-});
-
-// Trip companions junction table
-export const tripCompanions = pgTable("trip_companions", {
-  id: serial("id").primaryKey(),
-  tripId: integer("trip_id").references(() => trips.id).notNull(),
-  companionId: integer("companion_id").references(() => companions.id).notNull(),
-  status: text("status").default("pending").notNull(), // pending, accepted, rejected
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const insertTripCompanionSchema = createInsertSchema(tripCompanions).pick({
-  tripId: true,
-  companionId: true,
-  status: true,
-});
-
 // Messages table for storing conversation history
 export const messages = pgTable("messages", {
   id: serial("id").primaryKey(),
@@ -135,22 +87,6 @@ export const tripRelations = relations(trips, ({ one, many }) => ({
     references: [users.id],
   }),
   messages: many(messages),
-  tripCompanions: many(tripCompanions),
-}));
-
-export const companionRelations = relations(companions, ({ many }) => ({
-  tripCompanions: many(tripCompanions),
-}));
-
-export const tripCompanionRelations = relations(tripCompanions, ({ one }) => ({
-  trip: one(trips, {
-    fields: [tripCompanions.tripId],
-    references: [trips.id],
-  }),
-  companion: one(companions, {
-    fields: [tripCompanions.companionId],
-    references: [companions.id],
-  }),
 }));
 
 export const messageRelations = relations(messages, ({ one }) => ({
@@ -169,12 +105,8 @@ export type User = typeof users.$inferSelect;
 export type Trip = typeof trips.$inferSelect;
 export type Attraction = typeof attractions.$inferSelect;
 export type Message = typeof messages.$inferSelect;
-export type Companion = typeof companions.$inferSelect;
-export type TripCompanion = typeof tripCompanions.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertTrip = z.infer<typeof insertTripSchema>;
 export type InsertAttraction = z.infer<typeof insertAttractionSchema>;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
-export type InsertCompanion = z.infer<typeof insertCompanionSchema>;
-export type InsertTripCompanion = z.infer<typeof insertTripCompanionSchema>;

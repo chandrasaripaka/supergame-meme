@@ -2,9 +2,9 @@ import { getWeather } from "./weather";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize the AI providers for primary and backup services
-const primaryAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const backupAI = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Initialize the AI providers
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 // Interface for packing list preferences
 export interface PackingListPreferences {
@@ -59,12 +59,12 @@ export async function generatePackingList(preferences: PackingListPreferences): 
       console.log(`Could not fetch weather data for ${preferences.destination}: ${error.message || String(error)}`);
     }
 
-    // Try to use primary AI first, then fall back to backup AI if necessary
+    // Try to use Gemini first, then fall back to OpenAI if necessary
     try {
-      return await generatePackingListWithPrimaryAI(preferences, weatherData);
+      return await generatePackingListWithGemini(preferences, weatherData);
     } catch (error) {
-      console.log("Primary AI failed for packing list generation, falling back to backup AI:", error);
-      return await generatePackingListWithBackupAI(preferences, weatherData);
+      console.log("Gemini API failed for packing list generation, falling back to OpenAI:", error);
+      return await generatePackingListWithOpenAI(preferences, weatherData);
     }
   } catch (error: any) {
     console.error("Error generating packing list:", error);
@@ -73,15 +73,15 @@ export async function generatePackingList(preferences: PackingListPreferences): 
 }
 
 /**
- * Generate packing list using primary AI service
+ * Generate packing list using Gemini API
  */
-async function generatePackingListWithPrimaryAI(
+async function generatePackingListWithGemini(
   preferences: PackingListPreferences,
   weatherData: any = null
 ): Promise<PackingList> {
   try {
     // Get the generative model
-    const model = primaryAI.getGenerativeModel({
+    const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash",
     });
 
@@ -186,19 +186,19 @@ Ensure the response is valid JSON without any markdown formatting or extra text.
       
       return parsedResponse as PackingList;
     } catch (parseError) {
-      console.error("Failed to parse primary AI response as JSON:", parseError);
+      console.error("Failed to parse Gemini response as JSON:", parseError);
       throw new Error("Generated packing list was not in the expected format");
     }
   } catch (error) {
-    console.error("Error generating packing list with primary AI:", error);
+    console.error("Error generating packing list with Gemini:", error);
     throw error;
   }
 }
 
 /**
- * Generate packing list using backup AI service
+ * Generate packing list using OpenAI
  */
-async function generatePackingListWithBackupAI(
+async function generatePackingListWithOpenAI(
   preferences: PackingListPreferences,
   weatherData: any = null
 ): Promise<PackingList> {
@@ -279,8 +279,8 @@ Your response must be in valid JSON format with the following structure:
   "activitySpecific": [ /* Activity-dependent items */ ]
 }`;
 
-    // Generate content with backup AI
-    const response = await backupAI.chat.completions.create({
+    // Generate content with OpenAI
+    const response = await openai.chat.completions.create({
       model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
       messages: [
         { role: "system", content: systemPrompt },
@@ -293,7 +293,7 @@ Your response must be in valid JSON format with the following structure:
     const text = response.choices[0].message.content;
     
     if (!text) {
-      throw new Error("Empty response from backup AI");
+      throw new Error("Empty response from OpenAI");
     }
     
     try {
@@ -307,11 +307,11 @@ Your response must be in valid JSON format with the following structure:
       
       return parsedResponse as PackingList;
     } catch (parseError) {
-      console.error("Failed to parse backup AI response as JSON:", parseError);
+      console.error("Failed to parse OpenAI response as JSON:", parseError);
       throw new Error("Generated packing list was not in the expected format");
     }
   } catch (error) {
-    console.error("Error generating packing list with backup AI:", error);
+    console.error("Error generating packing list with OpenAI:", error);
     throw error;
   }
 }

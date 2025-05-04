@@ -7,35 +7,11 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-interface ApiRequestOptions {
-  method?: string;
-  data?: unknown;
-}
-
 export async function apiRequest(
-  urlOrOptions: string | (ApiRequestOptions & { url: string }),
-  options?: ApiRequestOptions
-): Promise<any> {
-  let url: string;
-  let method: string = 'GET';
-  let data: unknown | undefined = undefined;
-
-  // Handle both formats:
-  // 1. apiRequest('/path')
-  // 2. apiRequest('/path', { method: 'POST', data: {...} })
-  if (typeof urlOrOptions === 'string') {
-    url = urlOrOptions;
-    if (options) {
-      method = options.method || 'GET';
-      data = options.data;
-    }
-  } else {
-    // 3. apiRequest({ url: '/path', method: 'POST', data: {...} })
-    url = urlOrOptions.url;
-    method = urlOrOptions.method || 'GET';
-    data = urlOrOptions.data;
-  }
-
+  method: string,
+  url: string,
+  data?: unknown | undefined,
+): Promise<Response> {
   const res = await fetch(url, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
@@ -44,7 +20,7 @@ export async function apiRequest(
   });
 
   await throwIfResNotOk(res);
-  return res.json();
+  return res;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

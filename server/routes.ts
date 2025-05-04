@@ -6,34 +6,20 @@ import {
   trips, 
   attractions, 
   messages, 
-  companions,
-  tripCompanions,
   insertUserSchema, 
   insertTripSchema, 
-  insertMessageSchema,
-  insertCompanionSchema,
-  insertTripCompanionSchema
+  insertMessageSchema 
 } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
-// Primary AI service
-import { generateTravelPlan, continueTravelConversation } from "./services/ai/primary";
-// Backup AI service for fallback
-import { generateTravelPlan as generateTravelPlanBackup, continueTravelConversation as continueTravelConversationBackup } from "./services/ai/backup";
+import { generateTravelPlan as generateTravelPlanGemini, continueTravelConversation as continueTravelConversationGemini } from "./services/gemini";
+// Fallback to OpenAI when Gemini fails
+import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversation as continueTravelConversationOpenAI } from "./services/openai";
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
 import { generatePackingList, PackingListPreferences } from "./services/packing";
 import { getDestinationStatistics } from "./services/destination-stats";
 import { searchFlights, getFlightRecommendations, getCheapestFlightsByAirline, Flight, FlightSearch } from "./services/flights";
-import { 
-  getAllCompanions, 
-  getCompanion, 
-  findCompanionMatches, 
-  associateCompanionWithTrip, 
-  updateTripCompanionStatus, 
-  getTripCompanions,
-  findAICompanionMatches 
-} from "./services/companions";
 
 /**
  * Extract potential destination names from a message
@@ -164,16 +150,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get AI response with fallback
         let aiResponse;
         try {
-          // First try with primary AI model
-          aiResponse = await continueTravelConversation(
+          // First try with Gemini
+          aiResponse = await continueTravelConversationGemini(
             messageHistory.slice(0, -1), // Previous messages
             lastMessage.content, // New message content
             weatherData
           );
         } catch (err: any) {
-          console.log("Primary AI model failed, falling back to secondary model:", err?.message || String(err));
-          // Fallback to secondary AI model if primary fails
-          aiResponse = await continueTravelConversationBackup(
+          console.log("Gemini API failed, falling back to OpenAI:", err?.message || String(err));
+          // Fallback to OpenAI if Gemini fails
+          aiResponse = await continueTravelConversationOpenAI(
             messageHistory.slice(0, -1), // Previous messages
             lastMessage.content, // New message content
             weatherData
@@ -221,10 +207,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         startDate: z.string().optional(),
       }).parse(req.body);
 
-      // Try primary AI model first, with fallback
+      // Try Gemini first, fallback to OpenAI
       let travelPlan;
       try {
-        travelPlan = await generateTravelPlan(
+        travelPlan = await generateTravelPlanGemini(
           travelRequest.destination,
           travelRequest.duration,
           travelRequest.budget,
@@ -232,8 +218,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           travelRequest.startDate
         );
       } catch (err: any) {
-        console.log("Primary AI model failed for travel plan, falling back to secondary model:", err?.message || String(err));
-        travelPlan = await generateTravelPlanBackup(
+        console.log("Gemini API failed for travel plan, falling back to OpenAI:", err?.message || String(err));
+        travelPlan = await generateTravelPlanOpenAI(
           travelRequest.destination,
           travelRequest.duration,
           travelRequest.budget,
@@ -383,156 +369,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(200).json(statistics);
     } catch (error) {
       console.error('Error getting destination statistics:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-  
-  // Companion Routes
-  
-  // Get all available companions
-  app.get(`${apiPrefix}/companions`, async (req, res) => {
-    try {
-      const allCompanions = await getAllCompanions();
-      return res.status(200).json(allCompanions);
-    } catch (error) {
-      console.error('Error fetching companions:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-  
-  // Get a specific companion by ID
-  app.get(`${apiPrefix}/companions/:id`, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const companion = await getCompanion(id);
-      
-      if (!companion) {
-        return res.status(404).json({ error: 'Companion not found' });
-      }
-      
-      return res.status(200).json(companion);
-    } catch (error) {
-      console.error('Error fetching companion:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-  
-  // Find companions that match a trip's preferences
-  app.post(`${apiPrefix}/trips/:tripId/companion-matches`, async (req, res) => {
-    try {
-      const tripId = parseInt(req.params.tripId);
-      
-      // Validate request body
-      const matchRequest = z.object({
-        travelStyles: z.array(z.string()).optional(),
-        languages: z.array(z.string()).optional(),
-        ageRange: z.object({
-          min: z.number(),
-          max: z.number()
-        }).optional(),
-        gender: z.string().optional(),
-        interests: z.array(z.string()).optional(),
-        destinationMatch: z.boolean().optional(),
-        useAi: z.boolean().optional(),
-        activities: z.array(z.string()).optional(),
-        destination: z.string().optional()
-      }).parse(req.body);
-      
-      let matches;
-      
-      // Use AI-powered matching if requested
-      if (matchRequest.useAi && matchRequest.activities && matchRequest.destination) {
-        matches = await findAICompanionMatches(
-          tripId,
-          matchRequest.destination,
-          matchRequest.activities,
-          matchRequest
-        );
-      } else {
-        // Use standard filtering
-        matches = await findCompanionMatches(tripId, {
-          travelStyles: matchRequest.travelStyles,
-          languages: matchRequest.languages,
-          ageRange: matchRequest.ageRange,
-          gender: matchRequest.gender,
-          interests: matchRequest.interests,
-          destinationMatch: matchRequest.destinationMatch
-        });
-      }
-      
-      return res.status(200).json(matches);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ errors: error.errors });
-      }
-      console.error('Error finding companion matches:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-  
-  // Associate a companion with a trip
-  app.post(`${apiPrefix}/trips/:tripId/companions`, async (req, res) => {
-    try {
-      const tripId = parseInt(req.params.tripId);
-      
-      // Validate request body
-      const associationRequest = z.object({
-        companionId: z.number(),
-        status: z.string().default('pending')
-      }).parse(req.body);
-      
-      const result = await associateCompanionWithTrip(
-        tripId,
-        associationRequest.companionId,
-        associationRequest.status
-      );
-      
-      return res.status(201).json(result);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ errors: error.errors });
-      }
-      console.error('Error associating companion with trip:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-  
-  // Update a trip companion's status
-  app.patch(`${apiPrefix}/trips/:tripId/companions/:companionId`, async (req, res) => {
-    try {
-      const tripId = parseInt(req.params.tripId);
-      const companionId = parseInt(req.params.companionId);
-      
-      // Validate request body
-      const updateRequest = z.object({
-        status: z.string()
-      }).parse(req.body);
-      
-      const result = await updateTripCompanionStatus(
-        tripId,
-        companionId,
-        updateRequest.status
-      );
-      
-      return res.status(200).json(result);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ errors: error.errors });
-      }
-      console.error('Error updating trip companion status:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-  
-  // Get all companions for a trip
-  app.get(`${apiPrefix}/trips/:tripId/companions`, async (req, res) => {
-    try {
-      const tripId = parseInt(req.params.tripId);
-      const tripCompanions = await getTripCompanions(tripId);
-      
-      return res.status(200).json(tripCompanions);
-    } catch (error) {
-      console.error('Error fetching trip companions:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   });
