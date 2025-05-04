@@ -20,7 +20,7 @@ export function AppFooter() {
           </div>
         </div>
         <div className="mt-4 text-center text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} TravelAI. Powered by OpenAI. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} TravelAI Concierge. All rights reserved.</p>
         </div>
       </div>
     </footer>
