@@ -5,7 +5,8 @@ import {
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { 
-  DestinationStatistics, Expense, VisitorData, ActivityData, SeasonalData 
+  DestinationStatistics, DestinationRating, DestinationExpense, 
+  VisitorData, ActivityDistribution, SeasonalRecommendation 
 } from '@/types/destination-stats';
 
 interface DestinationStatsProps {
@@ -38,7 +39,7 @@ export function DestinationStats({ statistics, isLoading = false }: DestinationS
           Destination Analysis
         </h2>
         <p className="text-gray-600 text-sm mb-6">
-          Data-driven insights to help you plan your perfect trip to {statistics.destination}.
+          Data-driven insights to help you plan your perfect trip to {statistics.name}, {statistics.country}.
         </p>
       </div>
       
@@ -89,7 +90,7 @@ export function DestinationStats({ statistics, isLoading = false }: DestinationS
       {/* Tab content */}
       <div className="p-6">
         {activeTab === 'overview' && (
-          <OverviewTab visitorData={statistics.visitorData} />
+          <OverviewTab ratings={statistics.ratings} visitorData={statistics.visitorData} />
         )}
         {activeTab === 'expenses' && (
           <ExpensesTab expenses={statistics.expenses} />
@@ -129,14 +130,45 @@ function TabButton({ isActive, onClick, label, icon }: TabButtonProps) {
 }
 
 interface OverviewTabProps {
+  ratings: DestinationRating[];
   visitorData: VisitorData[];
 }
 
-function OverviewTab({ visitorData }: OverviewTabProps) {
+function OverviewTab({ ratings, visitorData }: OverviewTabProps) {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
   
   return (
     <div>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mb-8"
+      >
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Destination Ratings</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          How this destination rates across key categories compared to global averages.
+        </p>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={ratings}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="category" />
+              <YAxis domain={[0, 10]} />
+              <Tooltip 
+                formatter={(value: number) => [`${value.toFixed(1)}/10`, 'Rating']}
+                labelFormatter={(label) => `Category: ${label}`}
+              />
+              <Legend />
+              <Bar name="Destination Rating" dataKey="score" fill="#8884d8" />
+              <Bar name="Global Average" dataKey="average" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </motion.div>
       
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -170,15 +202,15 @@ function OverviewTab({ visitorData }: OverviewTabProps) {
 }
 
 interface ExpensesTabProps {
-  expenses: Expense[];
+  expenses: DestinationExpense[];
 }
 
 function ExpensesTab({ expenses }: ExpensesTabProps) {
   // Calculate totals for budget cards
-  const totalDailyExpense = expenses.reduce((sum, expense) => sum + expense.cost, 0);
-  const accommodation = expenses.find(e => e.category === 'Accommodation')?.cost || 0;
-  const food = expenses.find(e => e.category === 'Food')?.cost || 0;
-  const transportation = expenses.find(e => e.category === 'Transportation')?.cost || 0;
+  const totalDailyExpense = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const accommodation = expenses.find(e => e.category === 'Accommodation')?.amount || 0;
+  const food = expenses.find(e => e.category === 'Food')?.amount || 0;
+  const transportation = expenses.find(e => e.category === 'Transportation')?.amount || 0;
   
   return (
     <div>
@@ -238,7 +270,7 @@ function ExpensesTab({ expenses }: ExpensesTabProps) {
                 labelFormatter={(label) => `Category: ${label}`}
               />
               <Legend />
-              <Bar dataKey="cost" name="USD per day" fill="#8884d8" />
+              <Bar dataKey="amount" name="USD per day" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -271,7 +303,7 @@ function BudgetCard({ title, amount, description, color }: BudgetCardProps) {
 }
 
 interface SeasonTabProps {
-  seasonalRecommendations: SeasonalData[];
+  seasonalRecommendations: SeasonalRecommendation[];
   visitorData: VisitorData[];
 }
 
@@ -296,14 +328,14 @@ function SeasonTab({ seasonalRecommendations, visitorData }: SeasonTabProps) {
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
+              <XAxis dataKey="season" />
               <YAxis domain={[0, 10]} />
               <Tooltip 
                 formatter={(value: number) => [`${value.toFixed(1)}/10`, 'Recommendation Score']}
-                labelFormatter={(label) => `Month: ${label}`}
+                labelFormatter={(label) => `Season: ${label}`}
               />
               <Legend />
-              <Bar dataKey="rating" name="Recommendation Score" fill="#8884d8">
+              <Bar dataKey="score" name="Recommendation Score" fill="#8884d8">
                 {seasonalRecommendations.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
@@ -321,7 +353,7 @@ function SeasonTab({ seasonalRecommendations, visitorData }: SeasonTabProps) {
       >
         {seasonalRecommendations.map((season, index) => (
           <div 
-            key={season.month} 
+            key={season.season} 
             className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm"
           >
             <h4 className="text-md font-semibold flex items-center">
@@ -329,13 +361,15 @@ function SeasonTab({ seasonalRecommendations, visitorData }: SeasonTabProps) {
                 className="h-3 w-3 rounded-full mr-2" 
                 style={{ backgroundColor: COLORS[index % COLORS.length] }}
               ></span>
-              {season.month} <span className="text-sm text-gray-500 ml-2">({season.rating.toFixed(1)}/10)</span>
+              {season.season} <span className="text-sm text-gray-500 ml-2">({season.score.toFixed(1)}/10)</span>
             </h4>
             <div className="mt-2">
-              <div className="text-sm text-gray-600">Best time to visit for:</div>
-              <p className="mt-1 text-sm text-gray-600">
-                {index % 2 === 0 ? 'Pleasant weather and fewer crowds' : 'Special events and seasonal activities'}
-              </p>
+              <div className="text-sm text-gray-600">Highlights:</div>
+              <ul className="mt-1 ml-5 text-sm text-gray-600 list-disc">
+                {season.highlights.map((highlight, i) => (
+                  <li key={i}>{highlight}</li>
+                ))}
+              </ul>
             </div>
           </div>
         ))}
@@ -345,7 +379,7 @@ function SeasonTab({ seasonalRecommendations, visitorData }: SeasonTabProps) {
 }
 
 interface ActivitiesTabProps {
-  activityDistribution: ActivityData[];
+  activityDistribution: ActivityDistribution[];
 }
 
 function ActivitiesTab({ activityDistribution }: ActivitiesTabProps) {
@@ -372,11 +406,10 @@ function ActivitiesTab({ activityDistribution }: ActivitiesTabProps) {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ activity, percent }) => `${activity}: ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
-                  dataKey="percentage"
-                  nameKey="activity"
+                  dataKey="value"
                 >
                   {activityDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -393,17 +426,17 @@ function ActivitiesTab({ activityDistribution }: ActivitiesTabProps) {
             <h4 className="text-md font-semibold mb-3">Popular Activities by Category</h4>
             <div className="space-y-4">
               {activityDistribution.map((activity, index) => (
-                <div key={activity.activity} className="bg-gray-50 rounded-lg p-3">
+                <div key={activity.name} className="bg-gray-50 rounded-lg p-3">
                   <div className="flex items-center mb-2">
                     <span 
                       className="h-3 w-3 rounded-full mr-2" 
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     ></span>
-                    <h5 className="font-medium">{activity.activity}</h5>
-                    <span className="ml-auto text-sm text-gray-500">{(activity.percentage * 100).toFixed(0)}%</span>
+                    <h5 className="font-medium">{activity.name}</h5>
+                    <span className="ml-auto text-sm text-gray-500">{(activity.value * 100).toFixed(0)}%</span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    {getActivityDescription(activity.activity)}
+                    {getActivityDescription(activity.name)}
                   </p>
                 </div>
               ))}
