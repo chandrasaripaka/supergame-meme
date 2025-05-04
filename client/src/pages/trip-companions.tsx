@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { RouteComponentProps } from 'wouter';
 import { 
   getAllCompanions, 
   findCompanionMatches, 
@@ -45,11 +46,11 @@ interface TripCompanionsProps {
   activities?: string[];
 }
 
-export default function TripCompanions({
-  tripId = 1, // Default for testing
-  destination = "Paris",
-  activities = ["museums", "food", "architecture"]
-}: TripCompanionsProps) {
+export default function TripCompanions(_props: RouteComponentProps): React.ReactElement {
+  // Default values for development/testing
+  const tripId = 1;
+  const destination = "Paris";
+  const activities = ["museums", "food", "architecture"];
   const [viewingCompanion, setViewingCompanion] = useState<Companion | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("browse");

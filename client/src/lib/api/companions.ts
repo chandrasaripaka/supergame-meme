@@ -5,16 +5,14 @@ import { apiRequest } from '../queryClient';
  * Fetch all available travel companions
  */
 export async function getAllCompanions(): Promise<Companion[]> {
-  const response = await apiRequest('/companions');
-  return response as Companion[];
+  return apiRequest('/companions');
 }
 
 /**
  * Fetch a specific companion by ID
  */
 export async function getCompanion(id: number): Promise<Companion> {
-  const response = await apiRequest(`/companions/${id}`);
-  return response as Companion;
+  return apiRequest(`/companions/${id}`);
 }
 
 /**
@@ -34,14 +32,11 @@ export async function findCompanionMatches(
     destination?: string;
   }
 ): Promise<Companion[]> {
-  const response = await apiRequest(
-    `/trips/${tripId}/companion-matches`, 
-    {
-      method: 'POST',
-      data: preferences
-    }
-  );
-  return response as Companion[];
+  return apiRequest({
+    url: `/trips/${tripId}/companion-matches`,
+    method: 'POST',
+    data: preferences
+  });
 }
 
 /**
@@ -52,14 +47,11 @@ export async function associateCompanionWithTrip(
   companionId: number,
   status = 'pending'
 ): Promise<TripCompanion> {
-  const response = await apiRequest(
-    `/trips/${tripId}/companions`,
-    {
-      method: 'POST',
-      data: { companionId, status }
-    }
-  );
-  return response as TripCompanion;
+  return apiRequest({
+    url: `/trips/${tripId}/companions`,
+    method: 'POST',
+    data: { companionId, status }
+  });
 }
 
 /**
@@ -70,14 +62,11 @@ export async function updateTripCompanionStatus(
   companionId: number,
   status: string
 ): Promise<TripCompanion> {
-  const response = await apiRequest(
-    `/trips/${tripId}/companions/${companionId}`,
-    {
-      method: 'PATCH',
-      data: { status }
-    }
-  );
-  return response as TripCompanion;
+  return apiRequest({
+    url: `/trips/${tripId}/companions/${companionId}`,
+    method: 'PATCH',
+    data: { status }
+  });
 }
 
 /**
@@ -93,6 +82,5 @@ export interface TripCompanionWithDetails {
 }
 
 export async function getTripCompanions(tripId: number): Promise<TripCompanionWithDetails[]> {
-  const response = await apiRequest(`/trips/${tripId}/companions`);
-  return response as TripCompanionWithDetails[];
+  return apiRequest(`/trips/${tripId}/companions`);
 }
