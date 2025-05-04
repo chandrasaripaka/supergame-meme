@@ -5,6 +5,7 @@ import { Message } from '@/types';
 import { useMutation } from '@tanstack/react-query';
 import { sendMessageToAI } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
+import { PopularDestinations } from '@/components/PopularDestinations';
 
 export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -104,6 +105,8 @@ export default function Home() {
         onModifyPlan={handleModifyPlan}
         isLoading={isPending}
       />
+      
+      <PopularDestinations />
     </>
   );
 }
