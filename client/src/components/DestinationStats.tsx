@@ -5,8 +5,7 @@ import {
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { 
-  DestinationStatistics, DestinationRating, DestinationExpense, 
-  VisitorData, ActivityDistribution, SeasonalRecommendation 
+  DestinationStatistics, Expense, VisitorData, ActivityData, SeasonalData 
 } from '@/types/destination-stats';
 
 interface DestinationStatsProps {
@@ -90,7 +89,7 @@ export function DestinationStats({ statistics, isLoading = false }: DestinationS
       {/* Tab content */}
       <div className="p-6">
         {activeTab === 'overview' && (
-          <OverviewTab ratings={statistics.ratings} visitorData={statistics.visitorData} />
+          <OverviewTab visitorData={statistics.visitorData} />
         )}
         {activeTab === 'expenses' && (
           <ExpensesTab expenses={statistics.expenses} />
@@ -130,45 +129,14 @@ function TabButton({ isActive, onClick, label, icon }: TabButtonProps) {
 }
 
 interface OverviewTabProps {
-  ratings: DestinationRating[];
   visitorData: VisitorData[];
 }
 
-function OverviewTab({ ratings, visitorData }: OverviewTabProps) {
+function OverviewTab({ visitorData }: OverviewTabProps) {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
   
   return (
     <div>
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8"
-      >
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Destination Ratings</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          How this destination rates across key categories compared to global averages.
-        </p>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={ratings}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="category" />
-              <YAxis domain={[0, 10]} />
-              <Tooltip 
-                formatter={(value: number) => [`${value.toFixed(1)}/10`, 'Rating']}
-                labelFormatter={(label) => `Category: ${label}`}
-              />
-              <Legend />
-              <Bar name="Destination Rating" dataKey="score" fill="#8884d8" />
-              <Bar name="Global Average" dataKey="average" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </motion.div>
       
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -202,15 +170,15 @@ function OverviewTab({ ratings, visitorData }: OverviewTabProps) {
 }
 
 interface ExpensesTabProps {
-  expenses: DestinationExpense[];
+  expenses: Expense[];
 }
 
 function ExpensesTab({ expenses }: ExpensesTabProps) {
   // Calculate totals for budget cards
-  const totalDailyExpense = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const accommodation = expenses.find(e => e.category === 'Accommodation')?.amount || 0;
-  const food = expenses.find(e => e.category === 'Food')?.amount || 0;
-  const transportation = expenses.find(e => e.category === 'Transportation')?.amount || 0;
+  const totalDailyExpense = expenses.reduce((sum, expense) => sum + expense.cost, 0);
+  const accommodation = expenses.find(e => e.category === 'Accommodation')?.cost || 0;
+  const food = expenses.find(e => e.category === 'Food')?.cost || 0;
+  const transportation = expenses.find(e => e.category === 'Transportation')?.cost || 0;
   
   return (
     <div>
@@ -270,7 +238,7 @@ function ExpensesTab({ expenses }: ExpensesTabProps) {
                 labelFormatter={(label) => `Category: ${label}`}
               />
               <Legend />
-              <Bar dataKey="amount" name="USD per day" fill="#8884d8" />
+              <Bar dataKey="cost" name="USD per day" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -303,7 +271,7 @@ function BudgetCard({ title, amount, description, color }: BudgetCardProps) {
 }
 
 interface SeasonTabProps {
-  seasonalRecommendations: SeasonalRecommendation[];
+  seasonalRecommendations: SeasonalData[];
   visitorData: VisitorData[];
 }
 
@@ -328,14 +296,14 @@ function SeasonTab({ seasonalRecommendations, visitorData }: SeasonTabProps) {
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="season" />
+              <XAxis dataKey="month" />
               <YAxis domain={[0, 10]} />
               <Tooltip 
                 formatter={(value: number) => [`${value.toFixed(1)}/10`, 'Recommendation Score']}
-                labelFormatter={(label) => `Season: ${label}`}
+                labelFormatter={(label) => `Month: ${label}`}
               />
               <Legend />
-              <Bar dataKey="score" name="Recommendation Score" fill="#8884d8">
+              <Bar dataKey="rating" name="Recommendation Score" fill="#8884d8">
                 {seasonalRecommendations.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
@@ -379,7 +347,7 @@ function SeasonTab({ seasonalRecommendations, visitorData }: SeasonTabProps) {
 }
 
 interface ActivitiesTabProps {
-  activityDistribution: ActivityDistribution[];
+  activityDistribution: ActivityData[];
 }
 
 function ActivitiesTab({ activityDistribution }: ActivitiesTabProps) {
