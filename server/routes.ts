@@ -6,9 +6,13 @@ import {
   trips, 
   attractions, 
   messages, 
+  companions,
+  tripCompanions,
   insertUserSchema, 
   insertTripSchema, 
-  insertMessageSchema 
+  insertMessageSchema,
+  insertCompanionSchema,
+  insertTripCompanionSchema
 } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
@@ -21,6 +25,15 @@ import { getPlaceDetails } from "./services/places";
 import { generatePackingList, PackingListPreferences } from "./services/packing";
 import { getDestinationStatistics } from "./services/destination-stats";
 import { searchFlights, getFlightRecommendations, getCheapestFlightsByAirline, Flight, FlightSearch } from "./services/flights";
+import { 
+  getAllCompanions, 
+  getCompanion, 
+  findCompanionMatches, 
+  associateCompanionWithTrip, 
+  updateTripCompanionStatus, 
+  getTripCompanions,
+  findAICompanionMatches 
+} from "./services/companions";
 
 /**
  * Extract potential destination names from a message

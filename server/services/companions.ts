@@ -6,7 +6,7 @@ import {
   tripCompanions,
   trips
 } from "@shared/schema";
-import { eq, and, sql, like, not, or, inArray } from "drizzle-orm";
+import { eq, and, sql, like, not, or, inArray, desc } from "drizzle-orm";
 
 /**
  * Get all available travel companions
@@ -14,7 +14,7 @@ import { eq, and, sql, like, not, or, inArray } from "drizzle-orm";
 export async function getAllCompanions(): Promise<Companion[]> {
   try {
     const allCompanions = await db.query.companions.findMany({
-      orderBy: [companions.rating.desc()],
+      orderBy: (companions, { desc }) => [desc(companions.rating)],
     });
     return allCompanions;
   } catch (error) {
@@ -31,7 +31,7 @@ export async function getCompanion(id: number): Promise<Companion | null> {
     const companion = await db.query.companions.findFirst({
       where: eq(companions.id, id),
     });
-    return companion;
+    return companion || null;
   } catch (error) {
     console.error(`Error fetching companion with id ${id}:`, error);
     throw new Error("Failed to fetch travel companion");
@@ -92,8 +92,8 @@ export async function findCompanionMatches(
     if (preferences.ageRange) {
       conditions.push(
         and(
-          companionsTable.age >= preferences.ageRange.min,
-          companionsTable.age <= preferences.ageRange.max
+          sql`${companionsTable.age} >= ${preferences.ageRange.min}`,
+          sql`${companionsTable.age} <= ${preferences.ageRange.max}`
         )
       );
     }
@@ -155,7 +155,7 @@ export async function findCompanionMatches(
     }
 
     // Order by rating (best first)
-    query = query.orderBy(companions.rating.desc());
+    query = query.orderBy(sql`${companions.rating} DESC`);
 
     // Execute the query
     const matches = await query;
