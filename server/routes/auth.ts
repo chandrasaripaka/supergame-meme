@@ -8,13 +8,27 @@ const router = Router();
 
 // Google OAuth routes
 router.get('/google', (req, res, next) => {
+  const hostname = req.headers.host || '';
+  const isReplit = process.env.REPLIT_SLUG || hostname.includes('replit');
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  // For local development
+  const localCallbackUrl = `http://${req.headers.host}/auth/google/callback`;
+  
+  // For Replit development environment
   const devCallbackUrl = process.env.REPLIT_SLUG 
     ? `https://${process.env.REPLIT_SLUG}.replit.dev/auth/google/callback` 
-    : `http://${req.headers.host}/auth/google/callback`;
+    : localCallbackUrl;
     
+  // For Replit production environment
   const prodCallbackUrl = process.env.REPLIT_SLUG 
     ? `https://${process.env.REPLIT_SLUG}.replit.app/auth/google/callback` 
-    : `http://${req.headers.host}/auth/google/callback`;
+    : localCallbackUrl;
+  
+  // Determine which URL we're actually using
+  const actualCallbackUrl = isReplit
+    ? (isProduction ? prodCallbackUrl : devCallbackUrl)
+    : localCallbackUrl;
     
   console.log('Starting Google OAuth flow. Authentication callback URLs:');
   console.log('Dev URL:', devCallbackUrl);

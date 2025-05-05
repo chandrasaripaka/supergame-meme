@@ -29,8 +29,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Check authentication status on mount
+  // Check authentication status on mount and handle URL error parameters
   useEffect(() => {
+    // Check for error params in URL (e.g., from failed OAuth)
+    const searchParams = new URLSearchParams(window.location.search);
+    const errorParam = searchParams.get('error');
+    
+    if (errorParam) {
+      setError(decodeURIComponent(errorParam));
+      // Remove the error parameter from URL to prevent showing it again on refresh
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+    
     checkAuthStatus();
   }, []);
 
