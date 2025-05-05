@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/lib/auth';
 import { FaGoogle } from 'react-icons/fa';
+import { LocalLogin } from '@/components/LocalLogin';
 
 export default function LoginPage() {
   const [location, setLocation] = useLocation();
@@ -78,6 +79,14 @@ export default function LoginPage() {
           >
             Continue as Guest
           </Button>
+          
+          <div className="flex items-center gap-2 py-2">
+            <Separator className="flex-1" />
+            <span className="text-sm text-gray-500 dark:text-gray-400">testing only</span>
+            <Separator className="flex-1" />
+          </div>
+          
+          <LocalLogin />
         </CardContent>
         
         <CardFooter className="flex justify-center text-center text-sm text-gray-500 dark:text-gray-400 pt-0">

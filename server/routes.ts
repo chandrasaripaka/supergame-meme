@@ -13,6 +13,7 @@ import {
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
 import authRoutes from "./routes/auth";
+import localAuthRoutes from "./routes/local-auth";
 import { isAuthenticated, createTemporarySession } from "./services/auth";
 import { generateTravelPlan as generateTravelPlanGemini, continueTravelConversation as continueTravelConversationGemini } from "./services/gemini";
 // Fallback to OpenAI when Gemini fails
@@ -79,6 +80,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register authentication routes
   app.use('/auth', authRoutes);
+  
+  // Register local auth routes for testing
+  app.use('/api/local-auth', localAuthRoutes);
 
   // User routes
   app.post(`${apiPrefix}/users`, async (req, res) => {
@@ -401,6 +405,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(200).json(statistics);
     } catch (error) {
       console.error('Error getting destination statistics:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // User preferences routes
+  app.get(`${apiPrefix}/user/preferences`, isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any).id;
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, userId)
+      });
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      return res.status(200).json({ preferences: user.preferences });
+    } catch (error) {
+      console.error('Error fetching user preferences:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  app.put(`${apiPrefix}/user/preferences`, isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any).id;
+      const { preferences } = req.body;
+      
+      // Validate preferences
+      const preferencesSchema = z.object({
+        travelStyle: z.string().optional(),
+        budgetLevel: z.number().optional(),
+        preferredAccommodation: z.string().optional(),
+        adventureLevel: z.number().optional(),
+        preferredActivities: z.array(z.string()).optional(),
+        darkMode: z.boolean().optional(),
+        receiveNotifications: z.boolean().optional(),
+        saveSearchHistory: z.boolean().optional(),
+        companions: z.array(z.object({
+          id: z.number(),
+          name: z.string(),
+          relationship: z.string(),
+          preferences: z.array(z.string())
+        })).optional()
+      }).parse(preferences);
+      
+      // Get existing user
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, userId)
+      });
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      // Create updated preferences object
+      let updatedPreferences = {};
+      
+      // Start with default empty object if preferences is null/undefined
+      if (user.preferences && typeof user.preferences === 'object') {
+        // Copy existing preferences (safe way to handle potentially invalid objects)
+        Object.keys(user.preferences).forEach(key => {
+          (updatedPreferences as any)[key] = (user.preferences as any)[key];
+        });
+      }
+      
+      // Add new preferences
+      Object.keys(preferencesSchema).forEach(key => {
+        (updatedPreferences as any)[key] = (preferencesSchema as any)[key];
+      });
+      
+      // Update user preferences
+      await db.update(users)
+        .set({ 
+          preferences: updatedPreferences,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
+      
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Preferences updated successfully',
+        preferences: updatedPreferences
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error updating user preferences:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   });
