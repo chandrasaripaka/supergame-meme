@@ -27,10 +27,8 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      // We'll dynamically determine the callback URL at authentication time
-      // This static value doesn't matter - it's overridden in the auth route
+      // Using the most generic callback path - we'll detect the full URL dynamically
       callbackURL: '/auth/google/callback',
-      scope: ['profile', 'email'],
       // Add the following properties to handle redirect issues
       proxy: true, // Trust the reverse proxy
       passReqToCallback: true // Allow access to the request object

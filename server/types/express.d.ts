@@ -1,4 +1,5 @@
 import { User } from '../../shared/schema';
+import 'express-session';
 
 declare global {
   namespace Express {
@@ -7,6 +8,13 @@ declare global {
     interface Request {
       temporarySession?: boolean;
     }
+  }
+}
+
+// Extend the express-session SessionData interface
+declare module 'express-session' {
+  interface SessionData {
+    oauthCallbackUrl?: string;
   }
 }
 

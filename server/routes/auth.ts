@@ -30,12 +30,9 @@ router.get('/google', (req, res, next) => {
   console.log('Environment:', isReplit ? (isProduction ? 'production' : 'development') : 'local');
   console.log('Make sure this matches EXACTLY what you configured in Google Cloud Console');
   
-  // Store the dynamically determined callback URL in session to retrieve it later
-  if (req.session) {
-    req.session.oauthCallbackUrl = callbackUrl;
-  }
+  // No need to store in session - we'll reconstruct it on callback
   
-  // Standard authentication without runtime options
+  // Standard authentication - we're using @types/passport-google-oauth20
   passport.authenticate('google', { 
     scope: ['profile', 'email'] 
   })(req, res, next);
@@ -57,7 +54,7 @@ router.get('/google/callback', (req, res, next) => {
   console.log('Original URL:', req.originalUrl);
   console.log('Full callback URL:', callbackUrl);
   
-  // Handle authentication with more detailed error reporting
+  // Handle authentication without option overrides to avoid TypeScript errors
   passport.authenticate('google', (err: any, user: any, info: any) => {
     if (err) {
       console.error('Google OAuth error:', err);
