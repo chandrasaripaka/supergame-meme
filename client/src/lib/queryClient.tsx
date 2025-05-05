@@ -12,6 +12,7 @@ export const queryClient = new QueryClient({
 
 interface ApiRequestOptions extends RequestInit {
   headers?: HeadersInit;
+  data?: any; // Allow for data property as an alternative to body
 }
 
 // Helper function to make API requests
@@ -35,8 +36,10 @@ export async function apiRequest(
     credentials: 'include', // Important for cookies/sessions
   };
 
-  // If data is provided and method is not GET, stringify it
-  if (options.body && typeof options.body === 'object') {
+  // Handle both body and data properties for backward compatibility
+  if (options.data && options.method !== 'GET' && !options.body) {
+    fetchOptions.body = JSON.stringify(options.data);
+  } else if (options.body && typeof options.body === 'object') {
     fetchOptions.body = JSON.stringify(options.body);
   }
 

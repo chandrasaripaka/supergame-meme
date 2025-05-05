@@ -26,7 +26,7 @@ export function LocalLogin() {
       // Use our special local auth endpoint
       const response = await apiRequest('/api/local-auth/login', {
         method: 'POST',
-        body: { username }
+        data: { username }
       });
       
       console.log('Local login successful:', response);
