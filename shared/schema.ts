@@ -7,7 +7,7 @@ import { relations } from "drizzle-orm";
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
-  password: text("password"),
+  password: text("password"), // Nullable to support OAuth logins
   email: varchar("email", { length: 255 }).unique(),
   googleId: varchar("google_id", { length: 255 }).unique(),
   profilePicture: text("profile_picture"),
@@ -18,6 +18,7 @@ export const users = pgTable("users", {
 
 export const insertUserSchema = createInsertSchema(users, {
   email: (schema) => schema.email("Must provide a valid email"),
+  password: (schema) => schema.optional(), // Make password optional for OAuth users
 }).pick({
   username: true,
   password: true,
