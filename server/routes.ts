@@ -409,6 +409,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User preferences routes
+  app.get(`${apiPrefix}/user/preferences`, isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any).id;
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, userId)
+      });
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      return res.status(200).json({ preferences: user.preferences });
+    } catch (error) {
+      console.error('Error fetching user preferences:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  app.put(`${apiPrefix}/user/preferences`, isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any).id;
+      const { preferences } = req.body;
+      
+      // Validate preferences
+      const preferencesSchema = z.object({
+        travelStyle: z.string().optional(),
+        budgetLevel: z.number().optional(),
+        preferredAccommodation: z.string().optional(),
+        adventureLevel: z.number().optional(),
+        preferredActivities: z.array(z.string()).optional(),
+        darkMode: z.boolean().optional(),
+        receiveNotifications: z.boolean().optional(),
+        saveSearchHistory: z.boolean().optional(),
+        companions: z.array(z.object({
+          id: z.number(),
+          name: z.string(),
+          relationship: z.string(),
+          preferences: z.array(z.string())
+        })).optional()
+      }).parse(preferences);
+      
+      // Get existing user
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, userId)
+      });
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      // Merge with existing preferences to keep any other fields
+      const updatedPreferences = {
+        ...user.preferences,
+        ...preferencesSchema
+      };
+      
+      // Update user preferences
+      await db.update(users)
+        .set({ 
+          preferences: updatedPreferences,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
+      
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Preferences updated successfully',
+        preferences: updatedPreferences
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error updating user preferences:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
