@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Globe -->
+  <circle cx="16" cy="16" r="14" fill="#4D9689" stroke="#134C4C" stroke-width="1.5"/>
+  <path d="M10 8 C12 12, 15 13, 22 13 C24 14, 24 18, 22 19 C18 21, 15 20, 12 24" stroke="#134C4C" stroke-width="1" fill="none" />
+  <path d="M8 12 C12 14, 14 18, 12 22 C10 24, 8 24, 6 22" stroke="#134C4C" stroke-width="1" fill="none" />
+  
+  <!-- Airplane -->
+  <path d="M16 10 L22 7 L23 8 L18 13 L24 23 L22 24 L15 14 L10 18 L8 16 L13 11 Z" fill="#FFFFFF" stroke="#134C4C" stroke-width="0.75"/>
+  
+  <!-- Stars -->
+  <path d="M26 6 L27 8 L29 9 L27 10 L26 12 L25 10 L23 9 L25 8 Z" fill="#D6A84B"/>
+  <circle cx="4" cy="20" r="1" fill="#D6A84B"/>
+  <circle cx="28" cy="18" r="1" fill="#D6A84B"/>
+</svg>

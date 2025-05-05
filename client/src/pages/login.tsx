@@ -28,12 +28,12 @@ export default function LoginPage() {
         <CardHeader className="pb-2 text-center">
           <div className="flex justify-center py-4">
             <img 
-              src="/logo.png" 
+              src="/logo.svg" 
               alt="AI Travel Concierge" 
-              className="h-16 w-auto"
+              className="h-20 w-auto"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = '/favicon.ico';
+                target.src = '/favicon.svg';
               }}  
             />
           </div>
