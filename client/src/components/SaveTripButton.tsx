@@ -207,7 +207,17 @@ export function SaveTripButton({ messages, destination }: SaveTripButtonProps) {
             <Label htmlFor="dates" className="font-medium">Travel Dates</Label>
             <DateRangePicker 
               dateRange={dateRange}
-              onSelect={setDateRange}
+              onSelect={(range) => {
+                // Handle the DateRange | undefined type from the DateRangePicker
+                if (range) {
+                  setDateRange({
+                    from: range.from,
+                    to: range.to || range.from
+                  });
+                } else {
+                  setDateRange({ from: undefined, to: undefined });
+                }
+              }}
             />
           </div>
           
