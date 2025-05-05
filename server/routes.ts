@@ -13,6 +13,7 @@ import {
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
 import authRoutes from "./routes/auth";
+import localAuthRoutes from "./routes/local-auth";
 import { isAuthenticated, createTemporarySession } from "./services/auth";
 import { generateTravelPlan as generateTravelPlanGemini, continueTravelConversation as continueTravelConversationGemini } from "./services/gemini";
 // Fallback to OpenAI when Gemini fails
@@ -79,6 +80,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register authentication routes
   app.use('/auth', authRoutes);
+  
+  // Register local auth routes for testing
+  app.use('/api/local-auth', localAuthRoutes);
 
   // User routes
   app.post(`${apiPrefix}/users`, async (req, res) => {

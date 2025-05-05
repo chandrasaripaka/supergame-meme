@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/lib/auth';
 import { FaGoogle } from 'react-icons/fa';
+import { LocalLogin } from '@/components/LocalLogin';
 
 export default function LoginPage() {
   const [location, setLocation] = useLocation();
