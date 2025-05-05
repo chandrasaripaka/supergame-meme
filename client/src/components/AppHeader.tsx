@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { Settings, Bookmark } from 'lucide-react';
+import { Settings, Bookmark, Users } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 
 export function AppHeader() {
@@ -16,13 +16,17 @@ export function AppHeader() {
           </Link>
         </div>
         <div className="flex items-center space-x-4">
-          <Link href="/settings" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
+          <Link href="/preferences" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
             <Settings className="h-5 w-5" />
             <span className="hidden sm:inline-block ml-1">Preferences</span>
           </Link>
           <Link href="/saved-trips" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
             <Bookmark className="h-5 w-5" />
             <span className="hidden sm:inline-block ml-1">Saved Trips</span>
+          </Link>
+          <Link href="/travel-companions" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
+            <Users className="h-5 w-5" />
+            <span className="hidden sm:inline-block ml-1">Companions</span>
           </Link>
           <UserProfile />
         </div>

@@ -9,6 +9,9 @@ import LoginPage from "@/pages/login";
 import ChatHistoryPage from "@/pages/chat-history";
 import PackingListPage from "@/pages/packing-list";
 import DestinationInfoPage from "@/pages/destination-info";
+import PreferencesPage from "@/pages/preferences";
+import SavedTripsPage from "@/pages/saved-trips";
+import TravelCompanionsPage from "@/pages/travel-companions";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -29,6 +32,9 @@ function Router() {
           <Route path="/chat-history" component={ChatHistoryPage} />
           <Route path="/packing-list" component={PackingListPage} />
           <Route path="/destination/:destination" component={DestinationInfoPage} />
+          <Route path="/preferences" component={PreferencesPage} />
+          <Route path="/saved-trips" component={SavedTripsPage} />
+          <Route path="/travel-companions" component={TravelCompanionsPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

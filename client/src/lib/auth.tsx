@@ -98,3 +98,9 @@ export function useAuth() {
   }
   return context;
 }
+
+// Helper hook to access only the user information
+export function useUser() {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  return { user, isAuthenticated, isLoading };
+}
