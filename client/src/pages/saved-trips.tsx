@@ -36,8 +36,8 @@ export default function SavedTripsPage() {
     queryKey: ['/api/trips'],
     queryFn: async () => {
       try {
-        const response = await apiRequest<Trip[]>('/api/trips');
-        return response || [];
+        const response = await apiRequest('/api/trips');
+        return (response as Trip[]) || [];
       } catch (error) {
         // For demo purposes, return mock data if API isn't implemented yet
         console.warn('API not implemented, using demo data');
@@ -47,7 +47,7 @@ export default function SavedTripsPage() {
   });
   
   // Filter trips based on search query and status filter
-  const filteredTrips = trips?.filter(trip => {
+  const filteredTrips = trips?.filter((trip: Trip) => {
     const matchesSearch = 
       trip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trip.destination.toLowerCase().includes(searchQuery.toLowerCase());
@@ -239,7 +239,7 @@ export default function SavedTripsPage() {
           </div>
         ) : filteredTrips && filteredTrips.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTrips.map((trip) => (
+            {filteredTrips.map((trip: Trip) => (
               <Card key={trip.id} className="overflow-hidden hover:shadow-md transition-shadow">
                 <div className="relative overflow-hidden h-48">
                   {trip.coverImage ? (
@@ -289,7 +289,7 @@ export default function SavedTripsPage() {
                       <div className="text-sm text-gray-500">
                         <div className="font-medium mb-1">Travel Companions:</div>
                         <div className="flex flex-wrap gap-1">
-                          {trip.companions.map((companion, i) => (
+                          {trip.companions.map((companion: string, i: number) => (
                             <Badge key={i} variant="outline" className="bg-gray-50">
                               {companion}
                             </Badge>
@@ -302,7 +302,7 @@ export default function SavedTripsPage() {
                       <div className="text-sm text-gray-500">
                         <div className="font-medium mb-1">Activities:</div>
                         <div className="flex flex-wrap gap-1">
-                          {trip.activities.map((activity, i) => (
+                          {trip.activities.map((activity: string, i: number) => (
                             <Badge key={i} variant="secondary" className="capitalize">
                               {activity}
                             </Badge>

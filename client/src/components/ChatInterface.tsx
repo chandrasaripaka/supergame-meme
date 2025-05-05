@@ -13,6 +13,7 @@ import { ItineraryTable } from "./ItineraryTable";
 import { BudgetDashboard } from "./BudgetDashboard";
 import { AttractionCards } from "./AttractionCards";
 import { FlightComparison } from "./FlightComparison";
+import { SaveTripButton } from "./SaveTripButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -359,26 +360,10 @@ export function ChatInterface({
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2 mt-4">
-                  <button
-                    onClick={handleSavePlan}
-                    className="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm flex items-center transition"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 mr-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
-                      />
-                    </svg>
-                    Save Itinerary
-                  </button>
+                  <SaveTripButton 
+                    messages={messages} 
+                    destination={(travelPlan as TravelPlan).destination} 
+                  />
                   <button
                     onClick={handleExportPDF}
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm flex items-center transition"
