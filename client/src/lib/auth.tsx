@@ -51,12 +51,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setError(null);
       
+      console.log("Checking auth status...");
       const response = await apiRequest('/auth/status');
+      console.log("Auth status response:", response);
       
       if (response.isAuthenticated) {
+        console.log("User is authenticated:", response.user);
         setUser(response.user);
         setIsAuthenticated(true);
       } else {
+        console.log("User is not authenticated");
         setUser(null);
         setIsAuthenticated(false);
       }
