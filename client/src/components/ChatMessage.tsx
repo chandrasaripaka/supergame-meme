@@ -97,8 +97,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
                     
                     if (isWeatherInfo) {
                       // Special styling for weather information
-                      const tempMatch = content.match(/Temperature:\s*([\d.-]+)°C/i);
-                      const conditionMatch = content.match(/Conditions?:\s*([A-Za-z\s]+)/i);
+                      const tempMatch = content.match(/Temperature:\s*([\d.-]+)°C/i) || content.match(/(\d+)°C/);
+                      const conditionMatch = content.match(/Conditions?:\s*([A-Za-z\s]+)/i) || content.match(/conditions?(?:\s*is|\s*are)?:\s*([A-Za-z\s]+)/i);
                       
                       // Determine weather icon
                       let weatherIcon = (
@@ -131,29 +131,65 @@ export function ChatMessage({ message }: ChatMessageProps) {
                       }
                       
                       return (
-                        <div className="bg-gradient-to-br from-blue-50 to-sky-50 border border-blue-100 rounded-md p-4 mb-4 shadow-sm">
-                          <h4 className="text-blue-700 font-semibold mb-3 flex items-center">
-                            <span className="mr-2">🌤️</span>
+                        <div className="bg-gradient-to-br from-blue-100/90 to-sky-100/90 border border-blue-200 rounded-lg p-5 mb-4 shadow-md">
+                          <h4 className="text-blue-800 font-semibold mb-4 flex items-center bg-gradient-to-r from-blue-600 to-sky-600 bg-clip-text text-transparent">
+                            <span className="mr-2 text-xl">🌤️</span>
                             Weather Information
                           </h4>
-                          <div className="flex items-center mb-3">
-                            <div className="mr-3">
+                          <div className="flex items-center mb-3 bg-white/70 backdrop-blur-sm p-3 rounded-md border border-blue-200/50">
+                            <div className="mr-4 p-2 bg-gradient-to-br from-blue-500/10 to-sky-500/10 rounded-full">
                               {weatherIcon}
                             </div>
                             <div>
                               {tempMatch && (
-                                <div className="text-2xl font-semibold text-blue-700">
+                                <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-sky-600 bg-clip-text text-transparent">
                                   {tempMatch[1]}°C
                                 </div>
                               )}
                               {conditionMatch && (
-                                <div className="text-blue-600">
+                                <div className="text-blue-700 font-medium">
                                   {conditionMatch[1]}
                                 </div>
                               )}
                             </div>
                           </div>
-                          <pre className="whitespace-pre-wrap text-sm text-blue-700 pl-2 border-l-2 border-blue-200 pt-2 pb-1">{content}</pre>
+                          <div className="mt-3 bg-white/80 backdrop-blur-sm rounded-md p-3">
+                            <h5 className="font-semibold text-blue-800 mb-2 flex items-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              Forecast Details:
+                            </h5>
+                            <div className="space-y-3">
+                              {content.split('\n\n').map((section: string, index: number) => {
+                                if (section.includes('Day 1:') || section.includes('Day 2:') || section.includes('Day 3:')) {
+                                  const dayMatch = section.match(/Day (\d+):/);
+                                  const dayNum = dayMatch ? parseInt(dayMatch[1]) : 1;
+                                  
+                                  let bgColor = 'from-blue-500/5 to-blue-400/5';
+                                  let borderColor = 'border-blue-300';
+                                  
+                                  if (dayNum === 2) {
+                                    bgColor = 'from-green-500/5 to-green-400/5';
+                                    borderColor = 'border-green-300';
+                                  } else if (dayNum === 3) {
+                                    bgColor = 'from-purple-500/5 to-purple-400/5';
+                                    borderColor = 'border-purple-300';
+                                  }
+                                  
+                                  return (
+                                    <div key={index} className={`bg-gradient-to-r ${bgColor} p-2 rounded-md border ${borderColor}`}>
+                                      <pre className="whitespace-pre-wrap text-sm font-medium text-gray-800">{section}</pre>
+                                    </div>
+                                  );
+                                }
+                                
+                                return (
+                                  <pre key={index} className="whitespace-pre-wrap text-sm font-medium text-gray-800 pl-2 border-l-3 border-blue-400 pt-2 pb-1">{section}</pre>
+                                );
+                              })}
+                            </div>
+                          </div>
                         </div>
                       );
                     }
