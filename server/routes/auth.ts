@@ -7,15 +7,25 @@ import { eq } from 'drizzle-orm';
 const router = Router();
 
 // Google OAuth routes
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', (req, res, next) => {
+  console.log('Starting Google OAuth flow. Authentication URL:', 
+    `https://${req.headers.host}/auth/google/callback`);
+  
+  // Add this URL to your Google Cloud Console OAuth configuration
+  passport.authenticate('google', { 
+    scope: ['profile', 'email']
+  })(req, res, next);
+});
 
-router.get(
-  '/google/callback',
+router.get('/google/callback', (req, res, next) => {
+  console.log('Google OAuth callback received at URL:', req.originalUrl);
+  console.log('Full callback URL:', `https://${req.headers.host}${req.originalUrl}`);
+  
   passport.authenticate('google', { 
     failureRedirect: '/login',
     successRedirect: '/'
-  })
-);
+  })(req, res, next);
+});
 
 // Login status route
 router.get('/status', (req, res) => {

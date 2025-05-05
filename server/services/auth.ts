@@ -27,7 +27,8 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      callbackURL: '/auth/google/callback',
+      // Use full URL for callback to match exactly with Google Cloud Console
+      callbackURL: `https://${process.env.REPLIT_SLUG || 'localhost:5000'}/auth/google/callback`,
       scope: ['profile', 'email'],
       // Add the following properties to handle redirect issues
       proxy: true, // Trust the reverse proxy
