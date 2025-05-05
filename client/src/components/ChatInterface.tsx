@@ -350,9 +350,9 @@ export function ChatInterface({
                 {/* Flight Comparison with price comparisons */}
                 {flightRecommendations && (
                   <FlightComparison
-                    flights={flightRecommendations.all || []}
+                    flights={(flightRecommendations as any).all || []}
                     cheapestByAirline={
-                      flightRecommendations.cheapestByAirline || []
+                      (flightRecommendations as any).cheapestByAirline || []
                     }
                     isLoading={isFlightLoading}
                   />

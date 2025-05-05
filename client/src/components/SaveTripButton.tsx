@@ -1,294 +1,323 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { DatePicker } from '@/components/ui/date-picker';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-import { useUser } from '@/lib/auth';
-import { Link } from 'wouter';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { DateRangePicker } from "@/components/ui/date-picker";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { extractTravelIntent } from "@/lib/gemini";
+import { Message } from "@/types";
+import { useAuth } from "@/lib/auth";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 interface SaveTripButtonProps {
-  messages: any[]; // Chat messages to save
-  destination?: string;
+  messages: Message[];
+  destination: string;
 }
 
 export function SaveTripButton({ messages, destination }: SaveTripButtonProps) {
-  const { toast } = useToast();
-  const { user } = useUser();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  
-  const [tripDetails, setTripDetails] = useState({
-    title: destination ? `Trip to ${destination}` : 'My Trip',
-    startDate: new Date(),
-    endDate: new Date(new Date().setDate(new Date().getDate() + 7)),
-    budget: 0,
-    notes: '',
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [notes, setNotes] = useState("");
+  const [budget, setBudget] = useState<number>(0);
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
   });
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setTripDetails({
-      ...tripDetails,
-      [name]: name === 'budget' ? parseFloat(value) || 0 : value,
-    });
-  };
-  
-  const handleStartDateChange = (date: Date | undefined) => {
-    if (date) {
-      setTripDetails({
-        ...tripDetails,
-        startDate: date,
+  const [companions, setCompanions] = useState<string[]>([]);
+  const [newCompanion, setNewCompanion] = useState("");
+  const [activities, setActivities] = useState<string[]>([]);
+  const [newActivity, setNewActivity] = useState("");
+
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Extract travel information from messages
+  const travelIntent = extractTravelIntent(messages);
+
+  // Pre-populate form when dialog opens
+  React.useEffect(() => {
+    if (open) {
+      setTitle(`Trip to ${destination}`);
+      setBudget(travelIntent.budget || 0);
+      
+      // Extract activities from messages
+      const extractedActivities: string[] = [];
+      messages.forEach(msg => {
+        const text = msg.content.toLowerCase();
+        const activityKeywords = ['hiking', 'sightseeing', 'museums', 'beach', 'dining', 'shopping', 'relaxation', 'adventure'];
+        
+        activityKeywords.forEach(activity => {
+          if (text.includes(activity) && !extractedActivities.includes(activity)) {
+            extractedActivities.push(activity);
+          }
+        });
       });
+      
+      setActivities(extractedActivities);
     }
-  };
-  
-  const handleEndDateChange = (date: Date | undefined) => {
-    if (date) {
-      setTripDetails({
-        ...tripDetails,
-        endDate: date,
-      });
-    }
-  };
-  
-  const handleSaveTrip = async () => {
-    if (!user) {
-      toast({
-        title: 'Login Required',
-        description: 'Please log in to save your trip.',
-        variant: 'destructive',
-      });
-      setIsDialogOpen(false);
-      return;
-    }
-    
-    setIsSaving(true);
-    
-    try {
-      // Extract trip information from messages
-      const activities = extractActivities(messages);
-      const extractedBudget = extractBudget(messages) || tripDetails.budget;
-      
-      const tripData = {
-        ...tripDetails,
-        budget: extractedBudget,
-        destination: destination || extractDestination(messages),
-        activities,
-        messages: messages,
-        userId: user.id,
-        status: 'planned',
-      };
-      
-      // For simplicity, we'll use localStorage instead of API
-      // In a real app, we would use:
-      // await apiRequest('/api/trips', 'POST', tripData);
-      
-      const existingTrips = JSON.parse(localStorage.getItem('savedTrips') || '[]');
-      const newTrip = {
-        ...tripData,
-        id: Date.now(),
-        createdAt: new Date().toISOString(),
-      };
-      
-      localStorage.setItem('savedTrips', JSON.stringify([...existingTrips, newTrip]));
-      
+  }, [open, destination, messages, travelIntent]);
+
+  const saveTripMutation = useMutation({
+    mutationFn: async (tripData: any) => {
+      return await apiRequest('/api/trips', { method: 'POST', body: tripData });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/trips'] });
       toast({
         title: 'Trip Saved',
         description: 'Your trip has been saved successfully.',
       });
-      
-      setIsDialogOpen(false);
-    } catch (error) {
+      setOpen(false);
+    },
+    onError: (error) => {
       console.error('Error saving trip:', error);
       toast({
         title: 'Error',
-        description: 'There was an error saving your trip. Please try again.',
+        description: 'Failed to save your trip. Please try again.',
         variant: 'destructive',
       });
-    } finally {
-      setIsSaving(false);
+    }
+  });
+
+  const handleSave = () => {
+    if (!title || !dateRange.from || !dateRange.to) {
+      toast({
+        title: 'Missing Information',
+        description: 'Please fill in the required fields (title and date range).',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const tripData = {
+      title,
+      destination,
+      startDate: dateRange.from.toISOString(),
+      endDate: dateRange.to.toISOString(),
+      budget,
+      notes,
+      companions,
+      activities,
+      status: 'planned',
+      userId: user?.id || null,
+    };
+
+    saveTripMutation.mutate(tripData);
+  };
+
+  const addCompanion = () => {
+    if (newCompanion.trim() !== '' && !companions.includes(newCompanion.trim())) {
+      setCompanions([...companions, newCompanion.trim()]);
+      setNewCompanion('');
     }
   };
-  
-  // Helper function to extract destination from messages
-  const extractDestination = (messages: any[]): string => {
-    // Look for destination mentions in the conversation
-    for (const message of messages) {
-      const content = message.content.toLowerCase();
-      
-      // This is a very basic extraction - a real version would be more sophisticated
-      if (content.includes('destination:') || content.includes('going to') || content.includes('traveling to')) {
-        const lines = content.split('\n');
-        for (const line of lines) {
-          if (line.includes('destination:')) {
-            return line.split('destination:')[1].trim();
-          }
-        }
-      }
-    }
-    
-    return 'Unknown Destination';
+
+  const removeCompanion = (index: number) => {
+    setCompanions(companions.filter((_, i) => i !== index));
   };
-  
-  // Helper function to extract budget from messages
-  const extractBudget = (messages: any[]): number | null => {
-    for (const message of messages) {
-      const content = message.content.toLowerCase();
-      
-      // Look for budget information
-      if (content.includes('budget:') || content.includes('total cost:') || content.includes('estimated cost:')) {
-        const budgetMatch = content.match(/budget:?\s*\$?(\d+,?\d*)/i) || 
-                           content.match(/total cost:?\s*\$?(\d+,?\d*)/i) ||
-                           content.match(/estimated cost:?\s*\$?(\d+,?\d*)/i);
-                           
-        if (budgetMatch && budgetMatch[1]) {
-          return parseFloat(budgetMatch[1].replace(',', ''));
-        }
-      }
+
+  const addActivity = () => {
+    if (newActivity.trim() !== '' && !activities.includes(newActivity.trim())) {
+      setActivities([...activities, newActivity.trim()]);
+      setNewActivity('');
     }
-    
-    return null;
   };
-  
-  // Helper function to extract activities from messages
-  const extractActivities = (messages: any[]): string[] => {
-    const activities: string[] = [];
-    
-    for (const message of messages) {
-      const content = message.content.toLowerCase();
-      
-      // This is a simplified activity extraction
-      // A real implementation would use more sophisticated NLP
-      if (content.includes('activities:') || content.includes('things to do:') || content.includes('itinerary:')) {
-        const activityKeywords = [
-          'visit', 'explore', 'tour', 'see', 'experience', 'hike', 'swim',
-          'museum', 'park', 'restaurant', 'café', 'beach', 'mountain', 'shopping'
-        ];
-        
-        const lines = content.split('\n');
-        for (const line of lines) {
-          const lowercaseLine = line.toLowerCase();
-          for (const keyword of activityKeywords) {
-            if (lowercaseLine.includes(keyword) && !activities.includes(line.trim())) {
-              activities.push(line.trim());
-              break;
-            }
-          }
-        }
-      }
-    }
-    
-    return activities.slice(0, 10); // Limit to 10 activities
+
+  const removeActivity = (index: number) => {
+    setActivities(activities.filter((_, i) => i !== index));
   };
-  
-  return (
-    <>
-      <Button 
-        variant="outline"
-        onClick={() => setIsDialogOpen(true)}
-        className="flex items-center space-x-1"
+
+  if (!isAuthenticated) {
+    // If not authenticated, show a login prompt button
+    return (
+      <Button
+        onClick={() => window.location.href = '/login'} 
+        className="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm flex items-center transition"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4 mr-1"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+          />
         </svg>
-        Save Trip
+        Log in to Save Itinerary
       </Button>
-      
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Save Your Trip</DialogTitle>
-            <DialogDescription>
-              Save this trip to access it later or share with friends.
-              {!user && (
-                <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-amber-700 text-sm">
-                  You're not logged in. <Link href="/login" className="underline">Log in</Link> to save trips to your account.
-                </div>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">
-                Trip Title
-              </Label>
-              <Input
-                id="title"
-                name="title"
-                value={tripDetails.title}
-                onChange={handleInputChange}
-                className="col-span-3"
-              />
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">
-                Start Date
-              </Label>
-              <div className="col-span-3">
-                <DatePicker
-                  date={tripDetails.startDate}
-                  setDate={handleStartDateChange}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">
-                End Date
-              </Label>
-              <div className="col-span-3">
-                <DatePicker
-                  date={tripDetails.endDate}
-                  setDate={handleEndDateChange}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="budget" className="text-right">
-                Budget ($)
-              </Label>
-              <Input
-                id="budget"
-                name="budget"
-                type="number"
-                value={tripDetails.budget.toString()}
-                onChange={handleInputChange}
-                className="col-span-3"
-              />
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="notes" className="text-right">
-                Notes
-              </Label>
-              <Textarea
-                id="notes"
-                name="notes"
-                value={tripDetails.notes}
-                onChange={handleInputChange}
-                className="col-span-3"
-                rows={3}
-              />
-            </div>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button 
+          className="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm flex items-center transition"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4 mr-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+            />
+          </svg>
+          Save Itinerary
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[525px]">
+        <DialogHeader>
+          <DialogTitle className="text-xl">Save Your Travel Plan</DialogTitle>
+          <DialogDescription>
+            Save this itinerary to your account to access it later.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="title" className="font-medium">Trip Title</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter a name for your trip"
+              className="w-full"
+              required
+            />
           </div>
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveTrip} disabled={isSaving}>
-              {isSaving ? 'Saving...' : 'Save Trip'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+          <div className="grid gap-2">
+            <Label htmlFor="dates" className="font-medium">Travel Dates</Label>
+            <DateRangePicker 
+              dateRange={dateRange}
+              onSelect={setDateRange}
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="budget" className="font-medium">Budget (USD)</Label>
+            <Input
+              id="budget"
+              type="number"
+              value={budget || ''}
+              onChange={(e) => setBudget(Number(e.target.value))}
+              placeholder="Enter your budget"
+              className="w-full"
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="companions" className="font-medium">Travel Companions</Label>
+            <div className="flex gap-2">
+              <Input
+                id="companions"
+                value={newCompanion}
+                onChange={(e) => setNewCompanion(e.target.value)}
+                placeholder="Add travel companion"
+                className="flex-1"
+              />
+              <Button 
+                type="button" 
+                onClick={addCompanion}
+                variant="outline"
+              >
+                Add
+              </Button>
+            </div>
+            
+            {companions.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {companions.map((companion, index) => (
+                  <div key={index} className="flex items-center bg-gray-100 rounded-full px-3 py-1">
+                    <span className="mr-1">{companion}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeCompanion(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="activities" className="font-medium">Activities</Label>
+            <div className="flex gap-2">
+              <Input
+                id="activities"
+                value={newActivity}
+                onChange={(e) => setNewActivity(e.target.value)}
+                placeholder="Add activity"
+                className="flex-1"
+              />
+              <Button 
+                type="button" 
+                onClick={addActivity}
+                variant="outline"
+              >
+                Add
+              </Button>
+            </div>
+            
+            {activities.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {activities.map((activity, index) => (
+                  <div key={index} className="flex items-center bg-blue-100 text-blue-800 rounded-full px-3 py-1">
+                    <span className="mr-1">{activity}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeActivity(index)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="notes" className="font-medium">Notes</Label>
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add any additional notes about your trip"
+              className="min-h-[100px]"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSave}
+            className="bg-primary"
+            disabled={saveTripMutation.isPending}
+          >
+            {saveTripMutation.isPending ? 'Saving...' : 'Save Trip'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
