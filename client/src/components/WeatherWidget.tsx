@@ -220,58 +220,284 @@ export function WeatherWidget({ weather, isLoading }: WeatherWidgetProps) {
   
   return (
     <motion.div 
-      className={`bg-gradient-to-br ${isDaytime ? 'from-blue-100 to-blue-50' : 'from-indigo-900 to-blue-800'} rounded-lg shadow-md overflow-hidden mb-4 cursor-pointer transition-all`}
+      className="rounded-lg shadow-lg overflow-hidden mb-4 transition-all"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      onClick={() => setIsExpanded(!isExpanded)}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ scale: 1.01 }}
     >
-      {/* Basic Weather Info */}
-      <div className="p-4 flex items-center">
-        <div className="mr-4">
-          {renderAnimatedIcon()}
-        </div>
+      {/* Main weather card with animated background */}
+      <div className={`relative ${
+        isDaytime 
+          ? 'bg-gradient-to-br from-sky-400 to-blue-500' 
+          : 'bg-gradient-to-br from-indigo-900 to-blue-900'
+      } p-5`}>
         
-        <div className="flex-1">
-          <motion.h4 
-            className={`font-medium ${isDaytime ? 'text-gray-800' : 'text-white'} flex items-center`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            {name}, {country}
-            <motion.span 
-              whileHover={{ rotate: 180 }}
-              transition={{ duration: 0.3 }}
-              className="ml-2 text-blue-500 cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsExpanded(!isExpanded);
-              }}
+        {/* Animated weather effects in background */}
+        <div className="absolute inset-0 overflow-hidden">
+          {isSunny && isDaytime && (
+            <>
+              <motion.div 
+                className="absolute right-5 top-5 h-28 w-28 bg-yellow-300 rounded-full blur-3xl opacity-40"
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.4, 0.5, 0.4]
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              <motion.div 
+                className="absolute -right-10 -top-10 h-20 w-20 bg-orange-300 rounded-full blur-2xl opacity-30"
+                animate={{ 
+                  scale: [1, 1.15, 1],
+                  opacity: [0.3, 0.4, 0.3]
+                }}
+                transition={{
+                  duration: 6,
+                  delay: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </>
+          )}
+          
+          {isSunny && !isDaytime && (
+            <>
+              <motion.div 
+                className="absolute right-5 top-5 h-24 w-24 bg-blue-400 rounded-full blur-3xl opacity-20"
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.2, 0.3, 0.2]
+                }}
+                transition={{
+                  duration: 10,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              <div className="absolute inset-0">
+                {Array.from({ length: 20 }).map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-0.5 h-0.5 bg-white rounded-full"
+                    style={{
+                      top: `${Math.random() * 100}%`,
+                      left: `${Math.random() * 100}%`,
+                    }}
+                    animate={{
+                      opacity: [0.1, 0.8, 0.1],
+                      scale: [1, 1.2, 1]
+                    }}
+                    transition={{
+                      duration: 3 + Math.random() * 5,
+                      repeat: Infinity,
+                      delay: Math.random() * 5,
+                    }}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+          
+          {isCloudy && (
+            <div className="absolute inset-0">
+              <motion.div 
+                className="absolute left-10 top-0 h-16 w-32 bg-white rounded-full blur-xl opacity-40"
+                animate={{ x: [0, 10, 0] }}
+                transition={{
+                  duration: 20,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              <motion.div 
+                className="absolute right-5 top-5 h-12 w-24 bg-white rounded-full blur-xl opacity-30"
+                animate={{ x: [0, -15, 0] }}
+                transition={{
+                  duration: 25,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              <motion.div 
+                className="absolute left-1/4 top-10 h-8 w-16 bg-white rounded-full blur-xl opacity-20"
+                animate={{ x: [0, 20, 0] }}
+                transition={{
+                  duration: 18,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </div>
+          )}
+          
+          {isRainy && (
+            <div className="absolute inset-0">
+              {raindrops.map(drop => (
+                <motion.div
+                  key={drop.id}
+                  className="absolute w-0.5 bg-blue-200 rounded-full opacity-70"
+                  style={{ 
+                    left: `${drop.x}%`, 
+                    top: `${drop.y}%`,
+                    height: `${drop.size * 5}px`
+                  }}
+                  animate={{ 
+                    y: ['0%', '120%'], 
+                    opacity: [0.7, 0.3],
+                    rotate: 15
+                  }}
+                  transition={{ 
+                    duration: drop.duration, 
+                    repeat: Infinity, 
+                    delay: Math.random() * 2,
+                    ease: 'linear'
+                  }}
+                />
+              ))}
+              
+              <motion.div 
+                className="absolute inset-0 bg-blue-900/10"
+                animate={{ opacity: [0.1, 0.15, 0.1] }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </div>
+          )}
+          
+          {isSnowy && (
+            <div className="absolute inset-0">
+              {snowflakes.map(flake => (
+                <motion.div
+                  key={flake.id}
+                  className="absolute bg-white rounded-full opacity-90"
+                  style={{ 
+                    left: `${flake.x}%`, 
+                    top: `${flake.y}%`,
+                    width: `${flake.size}px`,
+                    height: `${flake.size}px`,
+                  }}
+                  animate={{ 
+                    y: ['0%', '100%'], 
+                    x: [`${flake.x}%`, `${flake.x + (Math.random() * 10 - 5)}%`],
+                    rotate: [0, 360],
+                    opacity: [0.9, 0.7]
+                  }}
+                  transition={{ 
+                    duration: flake.duration * 2, 
+                    repeat: Infinity, 
+                    delay: Math.random() * 2,
+                    ease: 'linear'
+                  }}
+                />
+              ))}
+              
+              <motion.div 
+                className="absolute inset-0 bg-blue-100/5"
+                animate={{ opacity: [0.05, 0.1, 0.05] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Weather content */}
+        <div className="relative z-10">
+          {/* Location and expand control */}
+          <div className="flex justify-between items-center mb-3">
+            <motion.h3 
+              className="text-white font-bold text-xl flex items-center"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              {name}, {country}
+              <motion.span 
+                className="ml-2 text-white/80"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                {isDaytime ? "☀️" : "🌙"}
+              </motion.span>
+            </motion.h3>
+            
+            <motion.button
+              className="bg-white/20 hover:bg-white/30 text-white rounded-full p-1.5 backdrop-blur-sm transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsExpanded(!isExpanded)}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isExpanded ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
               </svg>
-            </motion.span>
-          </motion.h4>
+            </motion.button>
+          </div>
           
-          <div className="flex items-center">
-            <motion.span 
-              className={`text-2xl font-semibold mr-2 ${getTemperatureColor(temp_c)}`}
-              initial={{ scale: 1 }}
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 0.5 }}
+          {/* Temperature and condition display */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              {/* Animated weather icon */}
+              <div className="mr-3">
+                {renderAnimatedIcon()}
+              </div>
+              
+              <div>
+                <motion.div 
+                  className="text-4xl font-bold text-white flex items-baseline"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {Math.round(temp_c)}
+                  <span className="text-xl">°C</span>
+                </motion.div>
+                
+                <motion.div 
+                  className="text-white/90 text-sm mt-0.5"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {condition.text}
+                </motion.div>
+              </div>
+            </div>
+            
+            <motion.div 
+              className="text-right"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
             >
-              {Math.round(temp_c)}°C
-            </motion.span>
-            <motion.span className={`text-sm ${isDaytime ? 'text-gray-600' : 'text-gray-300'}`}>
-              {condition.text}
-            </motion.span>
+              <div className="text-sm text-white/80 flex items-center justify-end mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+                Feels like: {Math.round(feelslike_c)}°C
+              </div>
+              <div className="text-sm text-white/80 flex items-center justify-end">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+                Humidity: {humidity}%
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
       
-      {/* Expanded Weather Details */}
+      {/* Expanded details panel */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div 
@@ -279,63 +505,82 @@ export function WeatherWidget({ weather, isLoading }: WeatherWidgetProps) {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className={`px-4 pb-4 pt-0 ${isDaytime ? 'text-gray-700' : 'text-gray-200'}`}
+            className="bg-white dark:bg-gray-800 p-4"
           >
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-blue-200 to-transparent my-2"></div>
-            
             {/* Additional Weather Info */}
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
-                <span className="text-sm">Feels like: {Math.round(feelslike_c)}°C</span>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg flex items-center">
+                <div className="bg-blue-100 dark:bg-blue-800 p-2 rounded-full mr-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 dark:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-xs text-blue-500 dark:text-blue-300">Wind Speed</div>
+                  <div className="font-bold text-blue-700 dark:text-blue-200">{wind_mph} mph</div>
+                </div>
               </div>
-              <div className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="text-sm">Wind: {wind_mph} mph</span>
-              </div>
-              <div className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-                <span className="text-sm">Humidity: {humidity}%</span>
-              </div>
-              <div className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <span className="text-sm">Temp in °F: {Math.round(temp_f)}°F</span>
+              
+              <div className="bg-purple-50 dark:bg-purple-900/30 p-3 rounded-lg flex items-center">
+                <div className="bg-purple-100 dark:bg-purple-800 p-2 rounded-full mr-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-500 dark:text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-xs text-purple-500 dark:text-purple-300">Temperature (F)</div>
+                  <div className="font-bold text-purple-700 dark:text-purple-200">{Math.round(temp_f)}°F</div>
+                </div>
               </div>
             </div>
             
-            {/* Forecast */}
+            {/* 3-Day Forecast */}
             {forecast.length > 0 && (
-              <div className="mt-3">
-                <h5 className={`text-sm font-semibold mb-2 ${isDaytime ? 'text-gray-700' : 'text-gray-200'}`}>3-Day Forecast</h5>
-                <div className="flex space-x-2 overflow-x-auto pb-2">
+              <div className="mt-1">
+                <h5 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  3-Day Forecast
+                </h5>
+                
+                <div className="grid grid-cols-3 gap-2">
                   {forecast.map((day, index) => (
                     <motion.div 
                       key={index}
-                      className={`flex-shrink-0 p-2 rounded-md ${isDaytime ? 'bg-white bg-opacity-50' : 'bg-blue-900 bg-opacity-40'} text-center`}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-center"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      whileHover={{ scale: 1.05, y: -3 }}
+                      whileHover={{ 
+                        y: -4, 
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                        backgroundColor: "#f5f9ff"
+                      }}
                     >
-                      <div className={`text-xs font-medium ${isDaytime ? 'text-gray-700' : 'text-gray-300'}`}>
+                      <div className="font-bold text-sm text-gray-700 dark:text-gray-200 mb-1">
                         {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
                       </div>
-                      <div className="flex justify-center my-1">
-                        <img src={day.day.condition.icon} alt={day.day.condition.text} className="h-6 w-6" />
+                      
+                      <div className="flex justify-center my-2">
+                        <img 
+                          src={day.day.condition.icon} 
+                          alt={day.day.condition.text} 
+                          className="h-10 w-10 object-contain" 
+                        />
                       </div>
-                      <div className={`text-xs ${getTemperatureColor(day.day.maxtemp_c)}`}>
-                        {Math.round(day.day.maxtemp_c)}°
+                      
+                      <div className="flex justify-center space-x-3 text-sm">
+                        <div className={`font-bold ${getTemperatureColor(day.day.maxtemp_c)}`}>
+                          {Math.round(day.day.maxtemp_c)}°
+                        </div>
+                        <div className="text-gray-500 dark:text-gray-400">
+                          {Math.round(day.day.mintemp_c)}°
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {Math.round(day.day.mintemp_c)}°
+                      
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+                        {day.day.condition.text}
                       </div>
                     </motion.div>
                   ))}
