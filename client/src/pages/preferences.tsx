@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/lib/auth";
 import { motion } from "framer-motion";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 export default function PreferencesPage() {
   const { toast } = useToast();
@@ -33,12 +35,103 @@ export default function PreferencesPage() {
   const [newCompanionName, setNewCompanionName] = useState("");
   const [newCompanionRelationship, setNewCompanionRelationship] = useState("");
   
+  // Fetch preferences from API
+  const { data: preferencesData, isLoading } = useQuery({
+    queryKey: ["/api/user/preferences"],
+    queryFn: async () => {
+      if (!user) return null;
+      const response = await fetch('/api/user/preferences');
+      if (!response.ok) throw new Error('Failed to fetch preferences');
+      return response.json();
+    },
+    enabled: !!user, // Only run if user is logged in
+  });
+  
+  // Set form values from fetched preferences
+  useEffect(() => {
+    if (preferencesData?.preferences) {
+      const prefs = preferencesData.preferences;
+      
+      // Set general preferences
+      if (prefs.darkMode !== undefined) setDarkMode(prefs.darkMode);
+      if (prefs.receiveNotifications !== undefined) setReceiveNotifications(prefs.receiveNotifications);
+      if (prefs.saveSearchHistory !== undefined) setSaveSearchHistory(prefs.saveSearchHistory);
+      
+      // Set travel preferences
+      if (prefs.travelStyle) setTravelStyle(prefs.travelStyle);
+      if (prefs.budgetLevel !== undefined) setBudgetLevel(prefs.budgetLevel);
+      if (prefs.preferredAccommodation) setPreferredAccommodation(prefs.preferredAccommodation);
+      if (prefs.adventureLevel !== undefined) setAdventureLevel(prefs.adventureLevel);
+      if (prefs.preferredActivities) setPreferredActivities(prefs.preferredActivities);
+      
+      // Set companion preferences
+      if (prefs.companions) setCompanions(prefs.companions);
+    }
+  }, [preferencesData]);
+  
+  // Mutation to save preferences
+  const savePreferencesMutation = useMutation({
+    mutationFn: async (preferences: any) => {
+      const response = await fetch('/api/user/preferences', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ preferences }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save preferences');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Preferences Saved",
+        description: "Your travel preferences have been saved successfully."
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
   const handleSavePreferences = () => {
-    // In a real app, would save to backend here
-    toast({
-      title: "Preferences Saved",
-      description: "Your travel preferences have been saved successfully."
-    });
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save your preferences",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Collect all preferences
+    const preferences = {
+      // General
+      darkMode,
+      receiveNotifications,
+      saveSearchHistory,
+      
+      // Travel
+      travelStyle,
+      budgetLevel,
+      preferredAccommodation,
+      adventureLevel,
+      preferredActivities,
+      
+      // Companions
+      companions
+    };
+    
+    // Save to backend
+    savePreferencesMutation.mutate(preferences);
   };
   
   const addCompanion = () => {
@@ -323,13 +416,46 @@ export default function PreferencesPage() {
                   </div>
                 </div>
               </CardContent>
+              <CardFooter className="flex justify-end">
+                <Button 
+                  onClick={handleSavePreferences} 
+                  disabled={savePreferencesMutation.isPending || !user}
+                >
+                  {savePreferencesMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Preferences"
+                  )}
+                </Button>
+              </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>
         
+        {isLoading && (
+          <div className="flex justify-center items-center h-20 mt-6">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <span className="ml-2 text-blue-500">Loading preferences...</span>
+          </div>
+        )}
+        
         <div className="mt-6 flex justify-end">
-          <Button onClick={handleSavePreferences} size="lg">
-            Save All Preferences
+          <Button 
+            onClick={handleSavePreferences} 
+            size="lg"
+            disabled={savePreferencesMutation.isPending || !user}
+          >
+            {savePreferencesMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving All Preferences...
+              </>
+            ) : (
+              "Save All Preferences"
+            )}
           </Button>
         </div>
       </motion.div>

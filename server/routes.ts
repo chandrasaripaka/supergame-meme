@@ -460,11 +460,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'User not found' });
       }
       
-      // Merge with existing preferences to keep any other fields
-      const updatedPreferences = {
-        ...user.preferences,
-        ...preferencesSchema
-      };
+      // Create updated preferences object
+      let updatedPreferences = {};
+      
+      // Start with default empty object if preferences is null/undefined
+      if (user.preferences && typeof user.preferences === 'object') {
+        // Copy existing preferences (safe way to handle potentially invalid objects)
+        Object.keys(user.preferences).forEach(key => {
+          (updatedPreferences as any)[key] = (user.preferences as any)[key];
+        });
+      }
+      
+      // Add new preferences
+      Object.keys(preferencesSchema).forEach(key => {
+        (updatedPreferences as any)[key] = (preferencesSchema as any)[key];
+      });
       
       // Update user preferences
       await db.update(users)
