@@ -81,6 +81,10 @@ router.get('/google/callback', (req, res, next) => {
 
 // Login status route
 router.get('/status', (req, res) => {
+  console.log('Auth status check - Session:', req.session);
+  console.log('Auth status check - isAuthenticated:', req.isAuthenticated());
+  console.log('Auth status check - User:', req.user);
+  
   if (req.isAuthenticated()) {
     return res.json({
       isAuthenticated: true,

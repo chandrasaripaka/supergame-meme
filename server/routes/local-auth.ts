@@ -38,9 +38,13 @@ router.post('/login', async (req, res) => {
         return res.status(500).json({ error: 'Login error' });
       }
       
+      console.log('Local login successful for user:', user.username);
+      console.log('Session after login:', req.session);
+      
       return res.json({ 
         success: true, 
-        user
+        user,
+        isAuthenticated: true
       });
     });
   } catch (error) {
