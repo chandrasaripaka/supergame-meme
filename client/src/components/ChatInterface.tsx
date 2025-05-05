@@ -329,16 +329,16 @@ export function ChatInterface({
 
                 {/* Enhanced Itinerary Table with Charts */}
                 <ItineraryTable
-                  days={(travelPlan as TravelPlan).days as ItineraryDay[]}
+                  days={((travelPlan as TravelPlan).days || []) as ItineraryDay[]}
                 />
 
                 {/* Enhanced Budget Dashboard with Charts */}
                 <BudgetDashboard
-                  budget={(travelPlan as TravelPlan).budget}
+                  budget={(travelPlan as TravelPlan)?.budget || 0}
                   budgetBreakdown={
-                    (travelPlan as TravelPlan).budgetBreakdown as BudgetType
+                    ((travelPlan as TravelPlan)?.budgetBreakdown || {}) as BudgetType
                   }
-                  remainingBudget={(travelPlan as TravelPlan).remainingBudget}
+                  remainingBudget={(travelPlan as TravelPlan)?.remainingBudget || 0}
                 />
 
                 {/* Attraction Cards */}
@@ -362,7 +362,7 @@ export function ChatInterface({
                 <div className="flex flex-wrap gap-2 mt-4">
                   <SaveTripButton 
                     messages={messages} 
-                    destination={(travelPlan as TravelPlan).destination} 
+                    destination={(travelPlan as TravelPlan)?.destination || ''} 
                   />
                   <button
                     onClick={handleExportPDF}

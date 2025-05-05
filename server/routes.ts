@@ -110,6 +110,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all trips or filter by user
+  app.get(`${apiPrefix}/trips`, async (req, res) => {
+    try {
+      // If userId is provided as a query parameter, filter by user
+      const userId = req.query.userId ? parseInt(req.query.userId as string) : null;
+      
+      let userTrips;
+      if (userId) {
+        userTrips = await db.query.trips.findMany({
+          where: eq(trips.userId, userId),
+          orderBy: desc(trips.createdAt)
+        });
+      } else {
+        // Get all trips if no userId is specified
+        userTrips = await db.query.trips.findMany({
+          orderBy: desc(trips.createdAt)
+        });
+      }
+      
+      return res.status(200).json(userTrips);
+    } catch (error) {
+      console.error('Error fetching trips:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Get trips for a specific user
   app.get(`${apiPrefix}/trips/:userId`, async (req, res) => {
     try {
       const userId = parseInt(req.params.userId);

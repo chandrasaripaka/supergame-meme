@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { DateRangePicker } from "@/components/ui/date-picker";
+import { DateRangePicker } from "./ui/date-picker";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { extractTravelIntent } from "@/lib/gemini";
 import { Message } from "@/types";
@@ -63,7 +63,10 @@ export function SaveTripButton({ messages, destination }: SaveTripButtonProps) {
 
   const saveTripMutation = useMutation({
     mutationFn: async (tripData: any) => {
-      return await apiRequest('/api/trips', { method: 'POST', body: tripData });
+      return await apiRequest('/api/trips', { 
+        method: 'POST', 
+        data: tripData 
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/trips'] });

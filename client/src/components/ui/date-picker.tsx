@@ -1,6 +1,8 @@
 import * as React from "react";
-import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { DateRange } from "react-day-picker";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -10,89 +12,41 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export interface DatePickerProps {
-  date: Date | undefined;
-  onSelect: (date: Date | undefined) => void;
-  label?: string;
+interface DateRangePickerProps {
+  dateRange: DateRange;
+  onSelect: (range: DateRange) => void;
   className?: string;
-  disabled?: boolean;
-}
-
-export function DatePicker({
-  date,
-  onSelect,
-  label = "Pick a date",
-  className,
-  disabled = false,
-}: DatePickerProps) {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "w-full justify-start text-left font-normal",
-            !date && "text-muted-foreground",
-            className
-          )}
-          disabled={disabled}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>{label}</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={onSelect}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-export interface DateRangePickerProps {
-  dateRange: { from: Date | undefined; to: Date | undefined };
-  onSelect: (range: { from: Date | undefined; to: Date | undefined }) => void;
-  className?: string;
-  disabled?: boolean;
 }
 
 export function DateRangePicker({
   dateRange,
   onSelect,
   className,
-  disabled = false,
 }: DateRangePickerProps) {
-  const { from, to } = dateRange;
-  
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             id="date"
-            variant={"outline"}
+            variant="outline"
             className={cn(
               "w-full justify-start text-left font-normal",
-              !from && "text-muted-foreground",
-              disabled && "opacity-50 cursor-not-allowed"
+              !dateRange.from && "text-muted-foreground"
             )}
-            disabled={disabled}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {from ? (
-              to ? (
+            {dateRange.from ? (
+              dateRange.to ? (
                 <>
-                  {format(from, "MMM d, yyyy")} - {format(to, "MMM d, yyyy")}
+                  {format(dateRange.from, "LLL dd, y")} -{" "}
+                  {format(dateRange.to, "LLL dd, y")}
                 </>
               ) : (
-                format(from, "MMM d, yyyy")
+                format(dateRange.from, "LLL dd, y")
               )
             ) : (
-              <span>Select date range</span>
+              <span>Pick a date range</span>
             )}
           </Button>
         </PopoverTrigger>
@@ -100,17 +54,9 @@ export function DateRangePicker({
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={from}
-            selected={{
-              from,
-              to,
-            }}
-            onSelect={(selectedRange) => {
-              onSelect({
-                from: selectedRange?.from,
-                to: selectedRange?.to,
-              });
-            }}
+            defaultMonth={dateRange.from || new Date()}
+            selected={dateRange}
+            onSelect={onSelect}
             numberOfMonths={2}
           />
         </PopoverContent>
