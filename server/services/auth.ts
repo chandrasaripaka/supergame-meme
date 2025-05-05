@@ -1,5 +1,5 @@
 import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
 import { Request, Response, NextFunction } from 'express';
 import { eq } from 'drizzle-orm';
 import { db } from '../../db';
@@ -28,9 +28,12 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
       callbackURL: '/auth/google/callback',
-      scope: ['profile', 'email']
+      scope: ['profile', 'email'],
+      // Add the following properties to handle redirect issues
+      proxy: true, // Trust the reverse proxy
+      passReqToCallback: true // Allow access to the request object
     },
-    async (accessToken, refreshToken, profile, done) => {
+    async (req, accessToken, refreshToken, profile, done) => {
       try {
         // Check if user exists by Google ID
         let user = await db.query.users.findFirst({
