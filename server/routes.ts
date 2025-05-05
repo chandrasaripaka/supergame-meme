@@ -12,6 +12,8 @@ import {
 } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
+import authRoutes from "./routes/auth";
+import { isAuthenticated, createTemporarySession } from "./services/auth";
 import { generateTravelPlan as generateTravelPlanGemini, continueTravelConversation as continueTravelConversationGemini } from "./services/gemini";
 // Fallback to OpenAI when Gemini fails
 import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversation as continueTravelConversationOpenAI } from "./services/openai";
@@ -74,6 +76,9 @@ function extractPotentialDestinations(message: string): string[] {
 export async function registerRoutes(app: Express): Promise<Server> {
   // API prefix
   const apiPrefix = "/api";
+  
+  // Register authentication routes
+  app.use('/auth', authRoutes);
 
   // User routes
   app.post(`${apiPrefix}/users`, async (req, res) => {

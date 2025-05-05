@@ -15,9 +15,9 @@ passport.deserializeUser(async (id: number, done) => {
     const user = await db.query.users.findFirst({
       where: eq(users.id, id)
     });
-    done(null, user);
+    done(null, user || undefined);
   } catch (error) {
-    done(error, null);
+    done(error, undefined);
   }
 });
 
@@ -48,7 +48,7 @@ passport.use(
         // If no user found, create a new one
         if (!user) {
           if (!profile.emails || profile.emails.length === 0) {
-            return done(new Error('No email found in Google profile'), null);
+            return done(new Error('No email found in Google profile'), undefined);
           }
 
           const displayName = profile.displayName || 'Google User';
@@ -91,7 +91,7 @@ passport.use(
         // Return existing user
         return done(null, user);
       } catch (error) {
-        return done(error, null);
+        return done(error, undefined);
       }
     }
   )

@@ -1,10 +1,35 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
+import passport from "./services/auth";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { pool } from "../db";
+import pgSession from "connect-pg-simple";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Set up session middleware
+const PgSessionStore = pgSession(session);
+app.use(session({
+  store: new PgSessionStore({
+    pool,
+    tableName: 'session' // Default is "session"
+  }),
+  secret: process.env.SESSION_SECRET || 'travel-planner-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 1 week
+  }
+}));
+
+// Initialize passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use((req, res, next) => {
   const start = Date.now();
