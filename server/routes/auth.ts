@@ -8,8 +8,11 @@ const router = Router();
 
 // Google OAuth routes
 router.get('/google', (req, res, next) => {
-  console.log('Starting Google OAuth flow. Authentication URL:', 
-    `https://${req.headers.host}/auth/google/callback`);
+  const callbackUrl = process.env.REPLIT_SLUG 
+    ? `https://${process.env.REPLIT_SLUG}.replit.dev/auth/google/callback` 
+    : `http://${req.headers.host}/auth/google/callback`;
+  console.log('Starting Google OAuth flow. Authentication callback URL:', callbackUrl);
+  console.log('Make sure this matches exactly what you configured in Google Cloud Console');
   
   // Add this URL to your Google Cloud Console OAuth configuration
   passport.authenticate('google', { 
@@ -19,11 +22,30 @@ router.get('/google', (req, res, next) => {
 
 router.get('/google/callback', (req, res, next) => {
   console.log('Google OAuth callback received at URL:', req.originalUrl);
-  console.log('Full callback URL:', `https://${req.headers.host}${req.originalUrl}`);
+  console.log('Full callback URL:', `${req.protocol}://${req.headers.host}${req.originalUrl}`);
   
-  passport.authenticate('google', { 
-    failureRedirect: '/login',
-    successRedirect: '/'
+  // Handle authentication with more detailed error reporting
+  passport.authenticate('google', (err, user, info) => {
+    if (err) {
+      console.error('Google OAuth error:', err);
+      return res.redirect('/login?error=' + encodeURIComponent('Authentication failed'));
+    }
+    
+    if (!user) {
+      console.error('Google OAuth failed - No user returned:', info);
+      return res.redirect('/login?error=' + encodeURIComponent('Authentication failed'));
+    }
+    
+    // Log in the authenticated user
+    req.login(user, (err) => {
+      if (err) {
+        console.error('Error in req.login():', err);
+        return res.redirect('/login?error=' + encodeURIComponent('Login error'));
+      }
+      
+      console.log('Google OAuth authentication successful for user:', user.username);
+      return res.redirect('/');
+    });
   })(req, res, next);
 });
 
