@@ -8,11 +8,19 @@ const router = Router();
 
 // Google OAuth routes
 router.get('/google', (req, res, next) => {
-  const callbackUrl = process.env.REPLIT_SLUG 
+  const devCallbackUrl = process.env.REPLIT_SLUG 
     ? `https://${process.env.REPLIT_SLUG}.replit.dev/auth/google/callback` 
     : `http://${req.headers.host}/auth/google/callback`;
-  console.log('Starting Google OAuth flow. Authentication callback URL:', callbackUrl);
-  console.log('Make sure this matches exactly what you configured in Google Cloud Console');
+    
+  const prodCallbackUrl = process.env.REPLIT_SLUG 
+    ? `https://${process.env.REPLIT_SLUG}.replit.app/auth/google/callback` 
+    : `http://${req.headers.host}/auth/google/callback`;
+    
+  console.log('Starting Google OAuth flow. Authentication callback URLs:');
+  console.log('Dev URL:', devCallbackUrl);
+  console.log('Production URL:', prodCallbackUrl);
+  console.log('Current environment:', process.env.NODE_ENV || 'development');
+  console.log('Make sure one of these matches EXACTLY what you configured in Google Cloud Console');
   
   // Add this URL to your Google Cloud Console OAuth configuration
   passport.authenticate('google', { 
@@ -25,7 +33,7 @@ router.get('/google/callback', (req, res, next) => {
   console.log('Full callback URL:', `${req.protocol}://${req.headers.host}${req.originalUrl}`);
   
   // Handle authentication with more detailed error reporting
-  passport.authenticate('google', (err, user, info) => {
+  passport.authenticate('google', (err: any, user: any, info: any) => {
     if (err) {
       console.error('Google OAuth error:', err);
       return res.redirect('/login?error=' + encodeURIComponent('Authentication failed'));

@@ -29,7 +29,9 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
       // Use full URL for callback to match exactly with Google Cloud Console
       callbackURL: process.env.REPLIT_SLUG 
-        ? `https://${process.env.REPLIT_SLUG}.replit.dev/auth/google/callback` 
+        ? (process.env.NODE_ENV === 'production' 
+            ? `https://${process.env.REPLIT_SLUG}.replit.app/auth/google/callback` 
+            : `https://${process.env.REPLIT_SLUG}.replit.dev/auth/google/callback`)
         : 'http://localhost:5000/auth/google/callback',
       scope: ['profile', 'email'],
       // Add the following properties to handle redirect issues
