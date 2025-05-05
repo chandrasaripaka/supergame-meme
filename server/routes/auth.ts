@@ -8,49 +8,60 @@ const router = Router();
 
 // Google OAuth routes
 router.get('/google', (req, res, next) => {
-  const hostname = req.headers.host || '';
-  const isReplit = process.env.REPLIT_SLUG || hostname.includes('replit');
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Detect the protocol, preferring x-forwarded-proto header (provided by Replit proxy)
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
   
-  // For local development
-  const localCallbackUrl = `http://${req.headers.host}/auth/google/callback`;
+  // Get host from request
+  const host = req.headers.host || 'localhost:5000';
   
-  // For Replit development environment
-  const devCallbackUrl = process.env.REPLIT_SLUG 
-    ? `https://${process.env.REPLIT_SLUG}.replit.dev/auth/google/callback` 
-    : localCallbackUrl;
-    
-  // For Replit production environment
-  const prodCallbackUrl = process.env.REPLIT_SLUG 
-    ? `https://${process.env.REPLIT_SLUG}.replit.app/auth/google/callback` 
-    : localCallbackUrl;
+  // Determine if we're in a Replit environment
+  const isReplit = host.includes('.replit.dev') || host.includes('.replit.app');
   
-  // Determine which URL we're actually using
-  const actualCallbackUrl = isReplit
-    ? (isProduction ? prodCallbackUrl : devCallbackUrl)
-    : localCallbackUrl;
-    
-  console.log('Starting Google OAuth flow. Authentication callback URLs:');
-  console.log('Dev URL:', devCallbackUrl);
-  console.log('Production URL:', prodCallbackUrl);
-  console.log('Current environment:', process.env.NODE_ENV || 'development');
-  console.log('Make sure one of these matches EXACTLY what you configured in Google Cloud Console');
+  // Determine if we're in production (replit.app)
+  const isProduction = host.includes('.replit.app');
   
-  // Add this URL to your Google Cloud Console OAuth configuration
+  // Build the full callback URL
+  const callbackUrl = `${protocol}://${host}/auth/google/callback`;
+  
+  console.log('Starting Google OAuth flow');
+  console.log('Running on host:', host);
+  console.log('Protocol:', protocol);
+  console.log('Callback URL:', callbackUrl);
+  console.log('Environment:', isReplit ? (isProduction ? 'production' : 'development') : 'local');
+  console.log('Make sure this matches EXACTLY what you configured in Google Cloud Console');
+  
+  // Store the dynamically determined callback URL in session to retrieve it later
+  if (req.session) {
+    req.session.oauthCallbackUrl = callbackUrl;
+  }
+  
+  // Standard authentication without runtime options
   passport.authenticate('google', { 
-    scope: ['profile', 'email']
+    scope: ['profile', 'email'] 
   })(req, res, next);
 });
 
 router.get('/google/callback', (req, res, next) => {
-  console.log('Google OAuth callback received at URL:', req.originalUrl);
-  console.log('Full callback URL:', `${req.protocol}://${req.headers.host}${req.originalUrl}`);
+  // Detect the protocol, preferring x-forwarded-proto header (provided by Replit proxy)
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+  
+  // Get host from request
+  const host = req.headers.host || 'localhost:5000';
+  
+  // Build the full callback URL
+  const callbackUrl = `${protocol}://${host}/auth/google/callback`;
+  
+  console.log('Google OAuth callback received');
+  console.log('Protocol:', protocol);
+  console.log('Host:', host);
+  console.log('Original URL:', req.originalUrl);
+  console.log('Full callback URL:', callbackUrl);
   
   // Handle authentication with more detailed error reporting
   passport.authenticate('google', (err: any, user: any, info: any) => {
     if (err) {
       console.error('Google OAuth error:', err);
-      return res.redirect('/login?error=' + encodeURIComponent('Authentication failed'));
+      return res.redirect('/login?error=' + encodeURIComponent('Authentication error: ' + err.message));
     }
     
     if (!user) {

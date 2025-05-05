@@ -27,24 +27,9 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      // Use full URL for callback to match exactly with Google Cloud Console
-      callbackURL: (() => {
-        const isReplit = !!process.env.REPLIT_SLUG;
-        const isProduction = process.env.NODE_ENV === 'production';
-        
-        // Local development
-        if (!isReplit) {
-          return 'http://localhost:5000/auth/google/callback';
-        }
-        
-        // Replit production environment (.replit.app)
-        if (isProduction) {
-          return `https://${process.env.REPLIT_SLUG}.replit.app/auth/google/callback`;
-        }
-        
-        // Replit development environment (.replit.dev)
-        return `https://${process.env.REPLIT_SLUG}.replit.dev/auth/google/callback`;
-      })(),
+      // We'll dynamically determine the callback URL at authentication time
+      // This static value doesn't matter - it's overridden in the auth route
+      callbackURL: '/auth/google/callback',
       scope: ['profile', 'email'],
       // Add the following properties to handle redirect issues
       proxy: true, // Trust the reverse proxy
