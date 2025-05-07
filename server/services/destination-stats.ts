@@ -688,3 +688,348 @@ function getRomeData(): DestinationStatistics {
     comparableDestinations: ['florence-italy', 'paris-france', 'athens-greece']
   };
 }
+
+/**
+ * Embedded data for Bangkok
+ */
+function getBangkokData(): DestinationStatistics {
+  return {
+    id: 'bangkok-thailand',
+    name: 'Bangkok',
+    country: 'Thailand',
+    ratings: [
+      { category: 'Overall', score: 8.7, average: 7.0 },
+      { category: 'Culture', score: 9.0, average: 7.2 },
+      { category: 'Food', score: 9.6, average: 7.5 },
+      { category: 'Value', score: 9.3, average: 7.5 },
+      { category: 'Shopping', score: 9.2, average: 7.0 }
+    ],
+    expenses: [
+      { category: 'Accommodation', amount: 50 },
+      { category: 'Food', amount: 20 },
+      { category: 'Transportation', amount: 10 },
+      { category: 'Activities', amount: 25 },
+      { category: 'Miscellaneous', amount: 15 }
+    ],
+    visitorData: [
+      { month: 'Jan', visitors: 450, temperature: 27 },
+      { month: 'Feb', visitors: 430, temperature: 28 },
+      { month: 'Mar', visitors: 400, temperature: 30 },
+      { month: 'Apr', visitors: 350, temperature: 31 },
+      { month: 'May', visitors: 300, temperature: 30 },
+      { month: 'Jun', visitors: 320, temperature: 29 },
+      { month: 'Jul', visitors: 350, temperature: 29 },
+      { month: 'Aug', visitors: 330, temperature: 29 },
+      { month: 'Sep', visitors: 320, temperature: 28 },
+      { month: 'Oct', visitors: 350, temperature: 28 },
+      { month: 'Nov', visitors: 380, temperature: 27 },
+      { month: 'Dec', visitors: 470, temperature: 26 }
+    ],
+    activityDistribution: [
+      { name: 'Temple Visits', value: 30 },
+      { name: 'Street Food', value: 25 },
+      { name: 'Shopping', value: 20 },
+      { name: 'Nightlife', value: 15 },
+      { name: 'River Cruises', value: 10 }
+    ],
+    seasonalRecommendations: [
+      { 
+        season: 'Cool Season (Nov-Feb)', 
+        score: 9.4, 
+        highlights: ['Best weather', 'Peak tourist season', 'Festivals and events'] 
+      },
+      { 
+        season: 'Hot Season (Mar-May)', 
+        score: 7.5, 
+        highlights: ['Songkran Festival', 'Less crowded', 'Very hot temperatures'] 
+      },
+      { 
+        season: 'Rainy Season (Jun-Oct)', 
+        score: 7.8, 
+        highlights: ['Lower prices', 'Lush landscapes', 'Intermittent rain'] 
+      },
+      { 
+        season: 'New Year', 
+        score: 9.0, 
+        highlights: ['Festive atmosphere', 'Special events', 'Great weather'] 
+      }
+    ],
+    comparableDestinations: ['kuala-lumpur-malaysia', 'ho-chi-minh-vietnam', 'manila-philippines']
+  };
+}
+
+/**
+ * Embedded data for Singapore
+ */
+function getSingaporeData(): DestinationStatistics {
+  return {
+    id: 'singapore-singapore',
+    name: 'Singapore',
+    country: 'Singapore',
+    ratings: [
+      { category: 'Overall', score: 9.1, average: 7.0 },
+      { category: 'Cleanliness', score: 9.8, average: 7.0 },
+      { category: 'Food', score: 9.4, average: 7.5 },
+      { category: 'Safety', score: 9.7, average: 7.5 },
+      { category: 'Transportation', score: 9.6, average: 7.0 }
+    ],
+    expenses: [
+      { category: 'Accommodation', amount: 150 },
+      { category: 'Food', amount: 50 },
+      { category: 'Transportation', amount: 15 },
+      { category: 'Activities', amount: 60 },
+      { category: 'Miscellaneous', amount: 30 }
+    ],
+    visitorData: [
+      { month: 'Jan', visitors: 380, temperature: 27 },
+      { month: 'Feb', visitors: 360, temperature: 27 },
+      { month: 'Mar', visitors: 370, temperature: 28 },
+      { month: 'Apr', visitors: 360, temperature: 28 },
+      { month: 'May', visitors: 350, temperature: 29 },
+      { month: 'Jun', visitors: 390, temperature: 29 },
+      { month: 'Jul', visitors: 420, temperature: 28 },
+      { month: 'Aug', visitors: 430, temperature: 28 },
+      { month: 'Sep', visitors: 410, temperature: 28 },
+      { month: 'Oct', visitors: 400, temperature: 28 },
+      { month: 'Nov', visitors: 380, temperature: 27 },
+      { month: 'Dec', visitors: 410, temperature: 27 }
+    ],
+    activityDistribution: [
+      { name: 'Urban Attractions', value: 30 },
+      { name: 'Food Exploration', value: 25 },
+      { name: 'Shopping', value: 20 },
+      { name: 'Parks & Nature', value: 15 },
+      { name: 'Cultural Sites', value: 10 }
+    ],
+    seasonalRecommendations: [
+      { 
+        season: 'Northeast Monsoon (Dec-Mar)', 
+        score: 8.8, 
+        highlights: ['Chinese New Year celebrations', 'Occasional rain showers', 'Great for indoor activities'] 
+      },
+      { 
+        season: 'Inter-monsoon (Apr-May)', 
+        score: 8.5, 
+        highlights: ['Fewer tourists', 'Hot but manageable', 'Good shopping deals'] 
+      },
+      { 
+        season: 'Southwest Monsoon (Jun-Sep)', 
+        score: 8.7, 
+        highlights: ['Great Singapore Sale', 'Singapore Food Festival', 'Haze possibility'] 
+      },
+      { 
+        season: 'Year-End Holidays (Nov-Dec)', 
+        score: 9.2, 
+        highlights: ['Christmas decorations', 'New Year events', 'Shopping festivals'] 
+      }
+    ],
+    comparableDestinations: ['hong-kong-china', 'kuala-lumpur-malaysia', 'bangkok-thailand']
+  };
+}
+
+/**
+ * Embedded data for Seoul
+ */
+function getSeoulData(): DestinationStatistics {
+  return {
+    id: 'seoul-south-korea',
+    name: 'Seoul',
+    country: 'South Korea',
+    ratings: [
+      { category: 'Overall', score: 8.9, average: 7.0 },
+      { category: 'Technology', score: 9.5, average: 7.0 },
+      { category: 'Food', score: 9.2, average: 7.5 },
+      { category: 'Shopping', score: 9.3, average: 7.0 },
+      { category: 'Transportation', score: 9.4, average: 7.2 }
+    ],
+    expenses: [
+      { category: 'Accommodation', amount: 100 },
+      { category: 'Food', amount: 40 },
+      { category: 'Transportation', amount: 10 },
+      { category: 'Activities', amount: 45 },
+      { category: 'Miscellaneous', amount: 25 }
+    ],
+    visitorData: [
+      { month: 'Jan', visitors: 280, temperature: -3 },
+      { month: 'Feb', visitors: 290, temperature: 0 },
+      { month: 'Mar', visitors: 330, temperature: 6 },
+      { month: 'Apr', visitors: 380, temperature: 13 },
+      { month: 'May', visitors: 420, temperature: 18 },
+      { month: 'Jun', visitors: 400, temperature: 23 },
+      { month: 'Jul', visitors: 350, temperature: 26 },
+      { month: 'Aug', visitors: 360, temperature: 26 },
+      { month: 'Sep', visitors: 400, temperature: 21 },
+      { month: 'Oct', visitors: 430, temperature: 14 },
+      { month: 'Nov', visitors: 380, temperature: 7 },
+      { month: 'Dec', visitors: 310, temperature: -1 }
+    ],
+    activityDistribution: [
+      { name: 'K-Culture & Entertainment', value: 25 },
+      { name: 'Shopping', value: 25 },
+      { name: 'Food Tourism', value: 20 },
+      { name: 'Historical Sites', value: 20 },
+      { name: 'Technology', value: 10 }
+    ],
+    seasonalRecommendations: [
+      { 
+        season: 'Spring (Apr-May)', 
+        score: 9.5, 
+        highlights: ['Cherry blossom season', 'Perfect temperatures', 'Cultural festivals'] 
+      },
+      { 
+        season: 'Summer (Jun-Aug)', 
+        score: 7.8, 
+        highlights: ['Summer festivals', 'Hot and humid', 'Monsoon rains'] 
+      },
+      { 
+        season: 'Fall (Sep-Nov)', 
+        score: 9.3, 
+        highlights: ['Autumn foliage', 'Clear skies', 'Comfortable temperatures'] 
+      },
+      { 
+        season: 'Winter (Dec-Mar)', 
+        score: 7.5, 
+        highlights: ['Winter illuminations', 'Snow festivals', 'Cold temperatures'] 
+      }
+    ],
+    comparableDestinations: ['tokyo-japan', 'taipei-taiwan', 'beijing-china']
+  };
+}
+
+/**
+ * Embedded data for Hong Kong
+ */
+function getHongKongData(): DestinationStatistics {
+  return {
+    id: 'hong-kong-china',
+    name: 'Hong Kong',
+    country: 'China',
+    ratings: [
+      { category: 'Overall', score: 8.8, average: 7.0 },
+      { category: 'Skyline', score: 9.7, average: 7.0 },
+      { category: 'Food', score: 9.4, average: 7.5 },
+      { category: 'Shopping', score: 9.5, average: 7.0 },
+      { category: 'Transportation', score: 9.6, average: 7.2 }
+    ],
+    expenses: [
+      { category: 'Accommodation', amount: 140 },
+      { category: 'Food', amount: 50 },
+      { category: 'Transportation', amount: 10 },
+      { category: 'Activities', amount: 60 },
+      { category: 'Miscellaneous', amount: 30 }
+    ],
+    visitorData: [
+      { month: 'Jan', visitors: 350, temperature: 16 },
+      { month: 'Feb', visitors: 340, temperature: 17 },
+      { month: 'Mar', visitors: 360, temperature: 19 },
+      { month: 'Apr', visitors: 380, temperature: 23 },
+      { month: 'May', visitors: 350, temperature: 26 },
+      { month: 'Jun', visitors: 330, temperature: 28 },
+      { month: 'Jul', visitors: 370, temperature: 29 },
+      { month: 'Aug', visitors: 380, temperature: 29 },
+      { month: 'Sep', visitors: 370, temperature: 28 },
+      { month: 'Oct', visitors: 400, temperature: 26 },
+      { month: 'Nov', visitors: 420, temperature: 22 },
+      { month: 'Dec', visitors: 430, temperature: 18 }
+    ],
+    activityDistribution: [
+      { name: 'Urban Exploration', value: 25 },
+      { name: 'Shopping', value: 25 },
+      { name: 'Food Tourism', value: 20 },
+      { name: 'Theme Parks', value: 15 },
+      { name: 'Natural Attractions', value: 15 }
+    ],
+    seasonalRecommendations: [
+      { 
+        season: 'Autumn (Oct-Dec)', 
+        score: 9.4, 
+        highlights: ['Best weather', 'Clear skies', 'Outdoor activities'] 
+      },
+      { 
+        season: 'Winter (Jan-Feb)', 
+        score: 8.7, 
+        highlights: ['Chinese New Year', 'Shopping festivals', 'Mild temperatures'] 
+      },
+      { 
+        season: 'Spring (Mar-Apr)', 
+        score: 8.5, 
+        highlights: ['Flower shows', 'Art festivals', 'Increasing humidity'] 
+      },
+      { 
+        season: 'Summer (May-Sep)', 
+        score: 7.2, 
+        highlights: ['Summer sales', 'Indoor activities', 'Hot and humid'] 
+      }
+    ],
+    comparableDestinations: ['singapore-singapore', 'macau-china', 'guangzhou-china']
+  };
+}
+
+/**
+ * Embedded data for Beijing
+ */
+function getBeijingData(): DestinationStatistics {
+  return {
+    id: 'beijing-china',
+    name: 'Beijing',
+    country: 'China',
+    ratings: [
+      { category: 'Overall', score: 8.6, average: 7.0 },
+      { category: 'History', score: 9.6, average: 7.2 },
+      { category: 'Architecture', score: 9.3, average: 7.0 },
+      { category: 'Food', score: 9.0, average: 7.5 },
+      { category: 'Culture', score: 9.2, average: 7.0 }
+    ],
+    expenses: [
+      { category: 'Accommodation', amount: 80 },
+      { category: 'Food', amount: 30 },
+      { category: 'Transportation', amount: 10 },
+      { category: 'Activities', amount: 50 },
+      { category: 'Miscellaneous', amount: 20 }
+    ],
+    visitorData: [
+      { month: 'Jan', visitors: 240, temperature: -4 },
+      { month: 'Feb', visitors: 250, temperature: 0 },
+      { month: 'Mar', visitors: 300, temperature: 7 },
+      { month: 'Apr', visitors: 350, temperature: 14 },
+      { month: 'May', visitors: 400, temperature: 20 },
+      { month: 'Jun', visitors: 380, temperature: 25 },
+      { month: 'Jul', visitors: 360, temperature: 26 },
+      { month: 'Aug', visitors: 350, temperature: 25 },
+      { month: 'Sep', visitors: 420, temperature: 20 },
+      { month: 'Oct', visitors: 450, temperature: 13 },
+      { month: 'Nov', visitors: 320, temperature: 5 },
+      { month: 'Dec', visitors: 260, temperature: -2 }
+    ],
+    activityDistribution: [
+      { name: 'Historical Sites', value: 40 },
+      { name: 'Cultural Experiences', value: 20 },
+      { name: 'Culinary Tourism', value: 15 },
+      { name: 'Modern Attractions', value: 15 },
+      { name: 'Shopping', value: 10 }
+    ],
+    seasonalRecommendations: [
+      { 
+        season: 'Spring (Apr-May)', 
+        score: 9.2, 
+        highlights: ['Comfortable temperatures', 'Blooming flowers', 'Less air pollution'] 
+      },
+      { 
+        season: 'Autumn (Sep-Oct)', 
+        score: 9.5, 
+        highlights: ['Clear skies', 'Perfect temperatures', 'National holiday events'] 
+      },
+      { 
+        season: 'Summer (Jun-Aug)', 
+        score: 7.0, 
+        highlights: ['Extended opening hours', 'Summer festivals', 'Hot temperatures'] 
+      },
+      { 
+        season: 'Winter (Nov-Mar)', 
+        score: 7.2, 
+        highlights: ['Snow at Great Wall', 'Chinese New Year', 'Cold temperatures'] 
+      }
+    ],
+    comparableDestinations: ['shanghai-china', 'xian-china', 'seoul-south-korea']
+  };
+}
