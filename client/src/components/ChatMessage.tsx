@@ -196,8 +196,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   }
                   
                   return isInline 
-                    ? <code className="bg-gray-100 dark:bg-gray-800 rounded p-1 text-sm" {...props} />
-                    : <div className="bg-gray-100 dark:bg-gray-800 rounded-md p-4 text-sm font-mono overflow-x-auto my-3"><code {...props} /></div>
+                    ? <code className="bg-gray-100 rounded p-1 text-sm text-gray-800" {...props} />
+                    : <div className="bg-white border border-gray-200 rounded-md p-4 text-sm font-mono text-gray-800 overflow-x-auto my-3"><code {...props} /></div>
                 },
                 em: ({ node, ...props }) => <em className="text-primary dark:text-primary-dark" {...props} />,
                 strong: ({ node, ...props }) => <strong className="font-bold text-primary-dark" {...props} />,
