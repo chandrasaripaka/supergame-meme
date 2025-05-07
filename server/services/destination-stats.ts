@@ -326,6 +326,18 @@ function getEmbeddedDestinationData(destination: string): DestinationStatistics 
     return getBaliData();
   } else if (normalizedDestination.includes('rome') || normalizedDestination.includes('italy')) {
     return getRomeData();
+  } 
+  // Asian cities
+  else if (normalizedDestination.includes('bangkok') || normalizedDestination.includes('thailand')) {
+    return getBangkokData();
+  } else if (normalizedDestination.includes('singapore')) {
+    return getSingaporeData();
+  } else if (normalizedDestination.includes('seoul') || normalizedDestination.includes('korea')) {
+    return getSeoulData();
+  } else if (normalizedDestination.includes('hong kong')) {
+    return getHongKongData();
+  } else if (normalizedDestination.includes('beijing') || normalizedDestination.includes('china')) {
+    return getBeijingData();
   }
   
   // If no match, return null and let the application handle it
