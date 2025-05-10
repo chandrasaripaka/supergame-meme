@@ -34,8 +34,21 @@ export class ClaudeProvider implements LLMProvider {
         totalTokens: (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0)
       };
       
+      // Extract text from content safely
+      let contentText = "";
+      if (response.content && response.content.length > 0) {
+        // Try to extract text based on Anthropic's response structure
+        const firstContent = response.content[0] as any; // Use any to bypass type checking
+        if (firstContent && typeof firstContent.text === 'string') {
+          contentText = firstContent.text;
+        } else {
+          // Fallback - convert whole content to string
+          contentText = JSON.stringify(response.content);
+        }
+      }
+      
       return {
-        text: response.content[0].text,
+        text: contentText,
         model,
         provider: 'anthropic',
         usage,

@@ -15,14 +15,18 @@ import { z } from "zod";
 import authRoutes from "./routes/auth";
 import localAuthRoutes from "./routes/local-auth";
 import { isAuthenticated, createTemporarySession } from "./services/auth";
-import { generateTravelPlan as generateTravelPlanGemini, continueTravelConversation as continueTravelConversationGemini } from "./services/gemini";
-// Fallback to OpenAI when Gemini fails
-import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversation as continueTravelConversationOpenAI } from "./services/openai";
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
 import { generatePackingList, PackingListPreferences } from "./services/packing";
 import { getDestinationStatistics } from "./services/destination-stats";
 import { searchFlights, getFlightRecommendations, getCheapestFlightsByAirline, Flight, FlightSearch } from "./services/flights";
+
+// Import the new AI service with dynamic LLM Router
+import { generateTravelPlan, continueTravelConversation } from "./services/ai-service";
+
+// Keep the original services for fallback if needed
+import { generateTravelPlan as generateTravelPlanGemini, continueTravelConversation as continueTravelConversationGemini } from "./services/gemini";
+import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversation as continueTravelConversationOpenAI } from "./services/openai";
 
 /**
  * Extract potential destination names from a message

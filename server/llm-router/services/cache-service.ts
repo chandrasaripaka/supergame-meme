@@ -43,11 +43,18 @@ export class CacheService {
 
   private cleanExpiredEntries(): void {
     const now = Date.now();
+    const keysToDelete: string[] = [];
     
-    for (const [key, entry] of this.cache.entries()) {
+    // Simplified approach to avoid iterator issues
+    this.cache.forEach((entry, key) => {
       if (now > entry.expiresAt) {
-        this.cache.delete(key);
+        keysToDelete.push(key);
       }
-    }
+    });
+    
+    // Delete expired entries
+    keysToDelete.forEach(key => {
+      this.cache.delete(key);
+    });
   }
 }
