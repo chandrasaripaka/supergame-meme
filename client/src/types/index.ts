@@ -58,6 +58,11 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: string;
+  modelInfo?: {
+    provider?: string;
+    model?: string;
+    note?: string;
+  };
 }
 
 // Weather related types

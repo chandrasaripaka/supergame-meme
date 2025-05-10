@@ -35,8 +35,31 @@ export function ChatMessage({ message }: ChatMessageProps) {
       )}
 
       <div
-        className={`chat-message ${isUser ? "bg-primary text-white" : "bg-light text-gray-800"} rounded-lg p-3 shadow-sm`}
+        className={`chat-message ${isUser ? "bg-primary text-white" : "bg-light text-gray-800"} rounded-lg p-3 shadow-sm relative`}
       >
+        {/* Model info badge for AI messages */}
+        {!isUser && message.modelInfo && (
+          <div className="absolute top-0 right-0 transform -translate-y-3/4 bg-gray-100 text-xs text-gray-700 px-2 py-1 rounded-full shadow-sm">
+            {message.modelInfo.provider && message.modelInfo.model ? (
+              <span className="flex items-center">
+                <span className="font-medium">
+                  {message.modelInfo.provider === 'google' 
+                    ? 'Gemini' 
+                    : message.modelInfo.provider === 'anthropic' 
+                      ? 'Claude' 
+                      : message.modelInfo.provider}
+                </span>
+                <span className="mx-1">•</span>
+                <span className="text-gray-500">{message.modelInfo.model.split('-')[0]}</span>
+              </span>
+            ) : message.modelInfo.note ? (
+              <span>{message.modelInfo.note}</span>
+            ) : (
+              <span>AI</span>
+            )}
+          </div>
+        )}
+        
         {isUser ? (
           <p>{message.content}</p>
         ) : (

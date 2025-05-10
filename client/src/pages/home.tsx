@@ -12,7 +12,12 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello! I'm your AI Travel Concierge powered by Google's Gemini. I can help you plan your perfect trip. Just tell me where you'd like to go, your budget, and what you enjoy doing when you travel."
+      content: "Hello! I'm your AI Travel Concierge powered by advanced AI models. I can help you plan your perfect trip. Just tell me where you'd like to go, your budget, and what you enjoy doing when you travel.",
+      modelInfo: {
+        provider: "system",
+        model: "dynamic-llm-router",
+        note: "Dynamic LLM Router"
+      }
     }
   ]);
   

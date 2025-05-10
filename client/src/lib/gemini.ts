@@ -44,12 +44,17 @@ export async function sendMessageToAI(
   
   const data = await response.json();
   
-  // Create the AI response message
+  // Create the AI response message with model info if available
   const aiMessage: Message = {
     role: "assistant",
     content: data.content,
     userId,
-    tripId
+    tripId,
+    modelInfo: data.modelInfo || {
+      provider: "google", 
+      model: "gemini-2.0-flash",
+      note: "Dynamic LLM Router"
+    }
   };
   
   // Save AI message to the backend if user is logged in
