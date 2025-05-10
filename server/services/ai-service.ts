@@ -1,0 +1,222 @@
+// AI Service that uses the LLM Router for travel plans and conversations
+import { routePrompt, RequestOptions, LLMResponse } from '../llm-router';
+
+// Type for travel plan response (shared with existing services)
+interface TravelPlan {
+  destination: string;
+  duration: number;
+  budget: number;
+  remainingBudget: number;
+  weather: {
+    temp: string;
+    condition: string;
+  };
+  days: Array<{
+    day: number;
+    title: string;
+    activities: Array<{
+      type: string;
+      description: string;
+      cost: number;
+    }>;
+  }>;
+  budgetBreakdown: {
+    accommodation: number;
+    food: number;
+    activities: number;
+    transportation: number;
+    miscellaneous: number;
+  };
+  recommendations: Array<{
+    name: string;
+    rating: number;
+    description: string;
+  }>;
+}
+
+// Function to generate a travel plan using the dynamic LLM Router
+export async function generateTravelPlan(
+  destination: string,
+  duration: number,
+  budget: number,
+  interests: string[],
+  startDate?: string
+): Promise<TravelPlan> {
+  try {
+    const prompt = `
+      Generate a detailed travel plan for a ${duration}-day trip to ${destination} with a budget of $${budget}.
+      The traveler is interested in: ${interests.join(", ")}.
+      ${startDate ? `The trip will start on ${startDate}.` : ""}
+      
+      Please provide a comprehensive itinerary with the following information in JSON format:
+      1. Day-by-day activities with estimated costs
+      2. Budget breakdown (accommodation, food, activities, transportation, miscellaneous)
+      3. Recommendations for places to visit based on the interests
+      4. Estimated remaining budget
+      
+      Format the response as a valid JSON object with the following structure:
+      {
+        "destination": string,
+        "duration": number,
+        "budget": number,
+        "remainingBudget": number,
+        "weather": { "temp": string, "condition": string },
+        "days": [
+          {
+            "day": number,
+            "title": string,
+            "activities": [
+              {
+                "type": string, // One of: accommodation, food, activity, transportation
+                "description": string,
+                "cost": number
+              }
+            ]
+          }
+        ],
+        "budgetBreakdown": {
+          "accommodation": number,
+          "food": number,
+          "activities": number,
+          "transportation": number,
+          "miscellaneous": number
+        },
+        "recommendations": [
+          {
+            "name": string,
+            "rating": number,
+            "description": string
+          }
+        ]
+      }`;
+
+    // Set up options to prefer models with good reasoning and knowledge
+    const options: RequestOptions = {
+      minCapability: { reasoning: 7, knowledge: 7 },
+      temperature: 0.2, // Lower temperature for more structured output
+      maxTokens: 2048
+    };
+
+    // Route the prompt to the best available model
+    const response = await routePrompt(prompt, options);
+    
+    // Log which model was used
+    console.log(`Travel plan generated using ${response.provider}:${response.model}`);
+    
+    // Parse and validate the response
+    try {
+      const content = response.text;
+      const jsonContent = extractJSONFromText(content);
+      const travelPlan = JSON.parse(jsonContent) as TravelPlan;
+      return travelPlan;
+    } catch (parseError: any) {
+      console.error("Error parsing AI response as JSON:", parseError);
+      console.error("Raw response:", response.text);
+      throw new Error(`Failed to parse AI response as JSON: ${parseError.message}`);
+    }
+
+  } catch (error: any) {
+    console.error("Error generating travel plan with LLM Router:", error);
+    throw new Error(`Failed to generate travel plan: ${error.message}`);
+  }
+}
+
+// Function to continue a conversation with the AI using the dynamic LLM Router
+export async function continueTravelConversation(
+  messages: Array<{ role: string; content: string }>,
+  newMessage: string,
+  weatherData: any = null
+): Promise<{ text: string, modelInfo: { provider: string, model: string } }> {
+  try {
+    // Prepare system message content
+    let systemContent = `You are an AI travel concierge that helps plan personalized travel experiences. You provide helpful, friendly advice about destinations, activities, accommodations, and local customs. Always be conversational but focused on travel planning.`;
+    
+    // Add weather data if available
+    if (weatherData) {
+      const location = weatherData.location?.name || "the location";
+      const temp = weatherData.current?.temp_c;
+      const condition = weatherData.current?.condition?.text;
+      const forecast = weatherData.forecast?.forecastday || [];
+      
+      systemContent += `\\n\\nImportant: I've checked the current weather for ${location}:\\n`;
+      systemContent += `Current temperature: ${temp}°C\\n`;
+      systemContent += `Current conditions: ${condition}\\n`;
+      
+      if (forecast.length > 0) {
+        systemContent += `Forecast for the next ${forecast.length} days:\\n`;
+        forecast.forEach((day: any, index: number) => {
+          systemContent += `- Day ${index + 1}: High ${day.day.maxtemp_c}°C, Low ${day.day.mintemp_c}°C, ${day.day.condition.text}\\n`;
+        });
+      }
+    }
+    
+    systemContent += `\\n\\nImportant: Format your responses using markdown for better readability. Follow these formatting guidelines:\\n
+- Use headings (## and ###) for section titles
+- Use bullets for listing items
+- Use **bold** for emphasis
+- Use \`code blocks\` for quoting prices or specific details
+- Keep formatting consistent and clean for mobile viewing
+- Include emojis where appropriate to make the information engaging
+- For weather information, put it in a visually distinct section`;
+    
+    // Build the full prompt with message history
+    let fullPrompt = systemContent + "\\n\\n";
+    
+    // Only include the last 10 messages to avoid context window limits
+    const recentMessages = messages.slice(-10);
+    
+    // Add conversation history
+    recentMessages.forEach(msg => {
+      const role = msg.role === 'user' ? 'Traveler' : 'AI Travel Concierge';
+      fullPrompt += `${role}: ${msg.content}\\n\\n`;
+    });
+    
+    // Add the new message
+    fullPrompt += `Traveler: ${newMessage}\\n\\nAI Travel Concierge:`;
+    
+    // Set up options for conversation (prefer faster models with good creativity)
+    const options: RequestOptions = {
+      minCapability: { creativity: 7 },
+      temperature: 0.7, // Higher temperature for creative conversation
+      maxTokens: 1024
+    };
+    
+    // Route the prompt to the best available model
+    const response = await routePrompt(fullPrompt, options);
+    
+    // Log which model was used
+    console.log(`Travel conversation continued using ${response.provider}:${response.model}`);
+    
+    // Return both the text and model info
+    return {
+      text: response.text,
+      modelInfo: {
+        provider: response.provider,
+        model: response.model
+      }
+    };
+  } catch (error: any) {
+    console.error("Error continuing conversation with LLM Router:", error);
+    throw new Error(`Failed to continue conversation: ${error.message}`);
+  }
+}
+
+// Helper function to extract JSON from text (useful for JSON responses)
+function extractJSONFromText(text: string): string {
+  // Try to find JSON inside markdown code blocks first
+  const markdownMatch = text.match(/\`\`\`(?:json)?\s*(\{[\s\S]*\})\s*\`\`\`/);
+  if (markdownMatch) {
+    return markdownMatch[1];
+  }
+  
+  // Try to find starting and ending brackets for JSON object
+  const startIdx = text.indexOf('{');
+  const endIdx = text.lastIndexOf('}');
+  
+  if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+    return text.substring(startIdx, endIdx + 1);
+  }
+  
+  // If we couldn't extract JSON, return the whole text
+  return text;
+}
