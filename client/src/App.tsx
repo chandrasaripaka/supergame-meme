@@ -12,6 +12,7 @@ import DestinationInfoPage from "@/pages/destination-info";
 import PreferencesPage from "@/pages/preferences";
 import SavedTripsPage from "@/pages/saved-trips";
 import TravelCompanionsPage from "@/pages/travel-companions";
+import SafetyTestPage from "@/pages/safety-test";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -35,6 +36,7 @@ function Router() {
           <Route path="/preferences" component={PreferencesPage} />
           <Route path="/saved-trips" component={SavedTripsPage} />
           <Route path="/travel-companions" component={TravelCompanionsPage} />
+          <Route path="/safety-test" component={SafetyTestPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

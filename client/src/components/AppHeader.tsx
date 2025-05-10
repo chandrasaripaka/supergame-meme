@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { Settings, Bookmark, Users } from 'lucide-react';
+import { Settings, Bookmark, Users, Shield } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 
 export function AppHeader() {
@@ -29,6 +29,10 @@ export function AppHeader() {
           <Link href="/travel-companions" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
             <Users className="h-5 w-5" />
             <span className="hidden sm:inline-block ml-1">Companions</span>
+          </Link>
+          <Link href="/safety-test" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
+            <Shield className="h-5 w-5" />
+            <span className="hidden sm:inline-block ml-1">Safety Test</span>
           </Link>
           <UserProfile />
         </div>
