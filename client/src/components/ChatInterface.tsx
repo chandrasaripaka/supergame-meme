@@ -14,6 +14,7 @@ import { BudgetDashboard } from "./BudgetDashboard";
 import { AttractionCards } from "./AttractionCards";
 import { FlightComparison } from "./FlightComparison";
 import { SaveTripButton } from "./SaveTripButton";
+import { TravelSafetyAlert } from "./TravelSafetyAlert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -314,6 +315,9 @@ export function ChatInterface({
                 </div>
               </div>
               <div className="chat-message bg-light rounded-lg p-3 shadow-sm">
+                {/* Travel Safety Alert */}
+                <TravelSafetyAlert destination={(travelPlan as TravelPlan).destination} />
+                
                 <p className="text-gray-800 mb-3">
                   Here's what I recommend for your{" "}
                   {(travelPlan as TravelPlan).duration}-day trip to{" "}

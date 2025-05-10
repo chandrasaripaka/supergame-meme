@@ -126,3 +126,40 @@ export async function getDestinationStats(destination: string) {
   const response = await apiRequest("GET", `/api/destination-stats/${encodeURIComponent(destination)}`);
   return response.json();
 }
+
+// Travel safety related functions
+export interface SafetyLevel {
+  SAFE: 'safe';
+  CAUTION: 'caution';
+  RECONSIDER_TRAVEL: 'reconsider';
+  DO_NOT_TRAVEL: 'do_not_travel';
+}
+
+export interface SafetyAdvisory {
+  country: string;
+  level: string;
+  lastUpdated: string;
+  reason: string[];
+  details: string;
+  regions?: Array<{
+    name: string;
+    level: string;
+    reason: string[];
+  }>;
+  sanctions?: boolean;
+}
+
+export interface SafetyResponse {
+  safe: boolean;
+  advisory?: SafetyAdvisory;
+}
+
+export async function checkDestinationSafety(destination: string): Promise<SafetyResponse> {
+  const response = await apiRequest("GET", `/api/travel-safety/${encodeURIComponent(destination)}`);
+  return response.json();
+}
+
+export async function getHighRiskDestinations(): Promise<{destinations: string[]}> {
+  const response = await apiRequest("GET", "/api/travel-safety");
+  return response.json();
+}
