@@ -187,26 +187,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        // Get AI response with fallback
-        let aiResponse;
+        // Use the dynamic LLM Router for AI responses
         try {
-          // First try with Gemini
-          aiResponse = await continueTravelConversationGemini(
+          // Call our new AI service with LLM Router
+          const aiResult = await continueTravelConversation(
             messageHistory.slice(0, -1), // Previous messages
             lastMessage.content, // New message content
             weatherData
           );
+          
+          // Return both the response and model info
+          return res.status(200).json({ 
+            content: aiResult.text,
+            modelInfo: aiResult.modelInfo 
+          });
         } catch (err: any) {
-          console.log("Gemini API failed, falling back to OpenAI:", err?.message || String(err));
-          // Fallback to OpenAI if Gemini fails
-          aiResponse = await continueTravelConversationOpenAI(
-            messageHistory.slice(0, -1), // Previous messages
-            lastMessage.content, // New message content
-            weatherData
-          );
+          console.log("LLM Router failed, falling back to original providers:", err?.message || String(err));
+          
+          // Fallback to the original approach if the router fails
+          try {
+            // First try with Gemini
+            const aiResponse = await continueTravelConversationGemini(
+              messageHistory.slice(0, -1), // Previous messages
+              lastMessage.content, // New message content
+              weatherData
+            );
+            return res.status(200).json({ 
+              content: aiResponse,
+              modelInfo: { provider: 'google', model: 'gemini-2.0-flash' }
+            });
+          } catch (fallbackErr: any) {
+            console.log("Gemini API failed, falling back to OpenAI:", fallbackErr?.message || String(fallbackErr));
+            // Fallback to OpenAI if Gemini fails
+            const aiResponse = await continueTravelConversationOpenAI(
+              messageHistory.slice(0, -1), // Previous messages
+              lastMessage.content, // New message content
+              weatherData
+            );
+            return res.status(200).json({ 
+              content: aiResponse,
+              modelInfo: { provider: 'openai', model: 'gpt-4o' }
+            });
+          }
         }
-        
-        return res.status(200).json({ content: aiResponse });
       } else {
         // This is a message to be saved in the database
         const validatedData = insertMessageSchema.parse(req.body);
@@ -247,28 +270,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
         startDate: z.string().optional(),
       }).parse(req.body);
 
-      // Try Gemini first, fallback to OpenAI
-      let travelPlan;
+      // Use the dynamic LLM Router for travel plan generation
       try {
-        travelPlan = await generateTravelPlanGemini(
+        // Call our new AI service with LLM Router
+        const travelPlan = await generateTravelPlan(
           travelRequest.destination,
           travelRequest.duration,
           travelRequest.budget,
           travelRequest.interests,
           travelRequest.startDate
         );
+        
+        return res.status(200).json({
+          ...travelPlan,
+          _modelInfo: {
+            note: "Generated using Dynamic LLM Router"
+          }
+        });
       } catch (err: any) {
-        console.log("Gemini API failed for travel plan, falling back to OpenAI:", err?.message || String(err));
-        travelPlan = await generateTravelPlanOpenAI(
-          travelRequest.destination,
-          travelRequest.duration,
-          travelRequest.budget,
-          travelRequest.interests,
-          travelRequest.startDate
-        );
+        console.log("LLM Router failed for travel plan, falling back to original providers:", err?.message || String(err));
+        
+        // Fallback to the original approach if the router fails
+        try {
+          // Try Gemini first
+          const travelPlan = await generateTravelPlanGemini(
+            travelRequest.destination,
+            travelRequest.duration,
+            travelRequest.budget,
+            travelRequest.interests,
+            travelRequest.startDate
+          );
+          return res.status(200).json({
+            ...travelPlan,
+            _modelInfo: {
+              provider: "google",
+              model: "gemini-2.0-flash"
+            }
+          });
+        } catch (fallbackErr: any) {
+          console.log("Gemini API failed for travel plan, falling back to OpenAI:", fallbackErr?.message || String(fallbackErr));
+          // Fallback to OpenAI
+          const travelPlan = await generateTravelPlanOpenAI(
+            travelRequest.destination,
+            travelRequest.duration,
+            travelRequest.budget,
+            travelRequest.interests,
+            travelRequest.startDate
+          );
+          return res.status(200).json({
+            ...travelPlan,
+            _modelInfo: {
+              provider: "openai",
+              model: "gpt-4o"
+            }
+          });
+        }
       }
-
-      return res.status(200).json(travelPlan);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ errors: error.errors });

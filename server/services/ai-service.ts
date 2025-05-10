@@ -1,5 +1,6 @@
 // AI Service that uses the LLM Router for travel plans and conversations
-import { routePrompt, RequestOptions, LLMResponse } from '../llm-router';
+import { routePrompt } from '../llm-router';
+import type { RequestOptions, LLMResponse } from '../llm-router';
 
 // Type for travel plan response (shared with existing services)
 interface TravelPlan {

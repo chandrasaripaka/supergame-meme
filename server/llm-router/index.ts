@@ -4,7 +4,7 @@ import { OpenAIProvider } from './models/providers/openai-provider';
 import { ClaudeProvider } from './models/providers/claude-provider';
 import { GeminiProvider } from './models/providers/gemini-provider';
 import { defaultModelConfigs } from './config/model-configs';
-import { RequestOptions, LLMResponse } from './models/types';
+import type { RequestOptions, LLMResponse } from './models/types';
 
 // Initialize the router
 const router = new LLMRouter();
@@ -56,8 +56,14 @@ export async function routePrompt(prompt: string, options: RequestOptions = {}):
   return router.processPrompt(prompt, options);
 }
 
-// Export types
-export { RequestOptions, LLMResponse };
+// Re-export types
+export type { 
+  RequestOptions,
+  LLMResponse,
+  ModelConfig,
+  ModelCapabilities,
+  TaskComplexity
+} from './models/types';
 
 // Export for extensibility
 export { LLMRouter, OpenAIProvider, ClaudeProvider, GeminiProvider, defaultModelConfigs };
