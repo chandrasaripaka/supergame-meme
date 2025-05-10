@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Flight } from '@/lib/api';
+import { Flight } from '@/lib/apiClient';
 import { useMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
 import { 

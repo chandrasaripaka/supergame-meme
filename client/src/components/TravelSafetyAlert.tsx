@@ -14,36 +14,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { checkDestinationSafety, SafetyResponse, SafetyAdvisory } from "@/lib/apiClient";
 
 interface TravelSafetyAlertProps {
   destination: string;
 }
 
-interface SafetyLevel {
-  SAFE: 'safe';
-  CAUTION: 'caution';
-  RECONSIDER_TRAVEL: 'reconsider';
-  DO_NOT_TRAVEL: 'do_not_travel';
-}
-
-interface SafetyAdvisory {
-  country: string;
-  level: string;
-  lastUpdated: string;
-  reason: string[];
-  details: string;
-  regions?: Array<{
-    name: string;
-    level: string;
-    reason: string[];
-  }>;
-  sanctions?: boolean;
-}
-
-interface SafetyResponse {
-  safe: boolean;
-  advisory?: SafetyAdvisory;
-}
+// Types are now imported from apiClient
 
 export function TravelSafetyAlert({ destination }: TravelSafetyAlertProps) {
   const [safetyInfo, setSafetyInfo] = useState<SafetyResponse | null>(null);
@@ -59,13 +36,7 @@ export function TravelSafetyAlert({ destination }: TravelSafetyAlertProps) {
       setError(null);
       
       try {
-        const response = await fetch(`/api/travel-safety/${encodeURIComponent(destination)}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch safety information');
-        }
-        
-        const data = await response.json();
+        const data = await checkDestinationSafety(destination);
         setSafetyInfo(data);
       } catch (err) {
         console.error('Error fetching safety info:', err);

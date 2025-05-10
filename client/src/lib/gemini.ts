@@ -1,5 +1,5 @@
 import { Message } from "@/types";
-import { saveMessage } from "@/lib/api";
+import { saveMessage } from "@/lib/apiClient";
 
 // Function to send a message to the backend which will call Gemini AI
 export async function sendMessageToAI(

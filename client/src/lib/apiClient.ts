@@ -1,32 +1,66 @@
-import { apiRequest } from "@/lib/queryClient";
 import { Message, TravelPlan, Weather, Attraction, Trip } from "@/types";
+
+// Helper function for API requests
+async function apiRequest(method: string, endpoint: string, data?: any) {
+  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  
+  const options: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  };
+  
+  // Add body for non-GET requests if data is provided
+  if (method !== 'GET' && data) {
+    options.body = JSON.stringify(data);
+  }
+  
+  try {
+    const response = await fetch(path, options);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        message: `HTTP error ${response.status}`,
+      }));
+      throw new Error(errorData.message || `HTTP error ${response.status}`);
+    }
+    
+    // Handle both JSON and non-JSON responses
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('API request error:', error);
+    throw error;
+  }
+}
 
 // User-related API functions
 export async function createUser(username: string, password: string) {
-  const response = await apiRequest("POST", "/api/users", { username, password });
-  return response.json();
+  return apiRequest('POST', "/api/users", { username, password });
 }
 
 // Trip-related API functions
 export async function createTrip(tripData: Omit<Trip, "id" | "createdAt">) {
-  const response = await apiRequest("POST", "/api/trips", tripData);
-  return response.json();
+  return apiRequest('POST', "/api/trips", tripData);
 }
 
 export async function getUserTrips(userId: number) {
-  const response = await apiRequest("GET", `/api/trips/${userId}`);
-  return response.json();
+  return apiRequest('GET', `/api/trips/${userId}`);
 }
 
 // Message-related API functions
 export async function saveMessage(message: Omit<Message, "id" | "timestamp">) {
-  const response = await apiRequest("POST", "/api/messages", message);
-  return response.json();
+  return apiRequest('POST', "/api/messages", message);
 }
 
 export async function getTripMessages(tripId: number) {
-  const response = await apiRequest("GET", `/api/messages/${tripId}`);
-  return response.json();
+  return apiRequest('GET', `/api/messages/${tripId}`);
 }
 
 // Travel planning function
@@ -37,48 +71,33 @@ export async function generateTravelPlan(
   interests: string[],
   startDate?: string
 ): Promise<TravelPlan> {
-  const response = await apiRequest("POST", "/api/travel-plan", {
+  return apiRequest('POST', "/api/travel-plan", {
     destination,
     duration,
     budget,
     interests,
     startDate
   });
-  
-  return response.json();
 }
 
-// Weather function
+// Weather-related functions
 export async function getWeather(location: string): Promise<Weather> {
-  const response = await apiRequest("GET", `/api/weather/${encodeURIComponent(location)}`);
-  return response.json();
+  return apiRequest('GET', `/api/weather/${encodeURIComponent(location)}`);
 }
 
-// Places/Attractions function
+// Attractions-related functions
 export async function getAttractions(location: string): Promise<Attraction[]> {
-  const response = await apiRequest("GET", `/api/attractions/${encodeURIComponent(location)}`);
-  return response.json();
+  return apiRequest('GET', `/api/places/${encodeURIComponent(location)}`);
 }
 
-// Packing list generation 
-export interface PackingListRequest {
+// Packing list function
+export async function generatePackingList(request: {
   destination: string;
   duration: number;
   activities: string[];
-  preferences?: {
-    travelStyle?: string;
-    hasChildren?: boolean;
-    hasPets?: boolean;
-    hasSpecialEquipment?: boolean;
-    specialDietary?: boolean;
-    medicalNeeds?: boolean;
-    isBusinessTrip?: boolean;
-  };
-}
-
-export async function generatePackingList(request: PackingListRequest) {
-  const response = await apiRequest("POST", "/api/packing-list", request);
-  return response.json();
+  preferences?: Record<string, any>;
+}) {
+  return apiRequest('POST', "/api/packing-list", request);
 }
 
 // Flight-related API functions
@@ -112,27 +131,24 @@ export interface FlightRecommendationResponse {
 }
 
 export async function searchFlights(request: FlightSearch): Promise<Flight[]> {
-  const response = await apiRequest("POST", "/api/flights/search", request);
-  return response.json();
+  return apiRequest('POST', "/api/flights/search", request);
 }
 
 export async function getFlightRecommendations(destination: string): Promise<FlightRecommendationResponse> {
-  const response = await apiRequest("GET", `/api/flights/recommendations/${encodeURIComponent(destination)}`);
-  return response.json();
+  return apiRequest('GET', `/api/flights/recommendations/${encodeURIComponent(destination)}`);
 }
 
 // Destination statistics function
 export async function getDestinationStats(destination: string) {
-  const response = await apiRequest("GET", `/api/destination-stats/${encodeURIComponent(destination)}`);
-  return response.json();
+  return apiRequest('GET', `/api/destination-stats/${encodeURIComponent(destination)}`);
 }
 
 // Travel safety related functions
-export interface SafetyLevel {
-  SAFE: 'safe';
-  CAUTION: 'caution';
-  RECONSIDER_TRAVEL: 'reconsider';
-  DO_NOT_TRAVEL: 'do_not_travel';
+export enum SafetyLevel {
+  SAFE = 'safe',
+  CAUTION = 'caution',
+  RECONSIDER_TRAVEL = 'reconsider',
+  DO_NOT_TRAVEL = 'do_not_travel'
 }
 
 export interface SafetyAdvisory {
@@ -155,11 +171,9 @@ export interface SafetyResponse {
 }
 
 export async function checkDestinationSafety(destination: string): Promise<SafetyResponse> {
-  const response = await apiRequest("GET", `/api/travel-safety/${encodeURIComponent(destination)}`);
-  return response.json();
+  return apiRequest('GET', `/api/travel-safety/${encodeURIComponent(destination)}`);
 }
 
 export async function getHighRiskDestinations(): Promise<{destinations: string[]}> {
-  const response = await apiRequest("GET", "/api/travel-safety");
-  return response.json();
+  return apiRequest('GET', '/api/travel-safety');
 }

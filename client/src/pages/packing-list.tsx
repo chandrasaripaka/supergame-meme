@@ -14,7 +14,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { PackingList as PackingListComponent } from '@/components/PackingList';
 import { ActivityIcon, ClipboardCheck, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { generatePackingList, PackingListRequest } from '@/lib/api';
+import { generatePackingList } from '@/lib/apiClient';
+
+interface PackingListRequest {
+  destination: string;
+  duration: number;
+  activities: string[];
+  preferences?: {
+    travelStyle?: string;
+    hasChildren?: boolean;
+    hasPets?: boolean;
+    hasSpecialEquipment?: boolean;
+    specialDietary?: boolean;
+    medicalNeeds?: boolean;
+    isBusinessTrip?: boolean;
+  };
+}
 import { Separator } from '@/components/ui/separator';
 import { PackingList as PackingListType } from '@/types/index';
 

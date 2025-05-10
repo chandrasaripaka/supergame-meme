@@ -25,7 +25,7 @@ import {
   getAttractions,
   generateTravelPlan,
   getFlightRecommendations,
-} from "@/lib/api";
+} from "@/lib/apiClient";
 import { extractTravelIntent } from "@/lib/gemini";
 import { useMobile } from "@/hooks/use-mobile";
 

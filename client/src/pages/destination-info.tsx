@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { getDestinationStats, getWeather, getAttractions } from '@/lib/api';
+import { getDestinationStats, getWeather, getAttractions } from '@/lib/apiClient';
 import { Weather } from '@/types';
 import { DestinationStats } from '@/components/DestinationStats';
 import { WeatherWidget } from '@/components/WeatherWidget';
