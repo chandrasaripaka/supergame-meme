@@ -20,6 +20,7 @@ import { getPlaceDetails } from "./services/places";
 import { generatePackingList, PackingListPreferences } from "./services/packing";
 import { getDestinationStatistics } from "./services/destination-stats";
 import { searchFlights, getFlightRecommendations, getCheapestFlightsByAirline, Flight, FlightSearch } from "./services/flights";
+import { checkDestinationSafety, getHighRiskDestinations } from "./services/travel-safety";
 
 // Import the new AI service with dynamic LLM Router
 import { generateTravelPlan, continueTravelConversation } from "./services/ai-service";
@@ -466,6 +467,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(200).json(statistics);
     } catch (error) {
       console.error('Error getting destination statistics:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Travel safety check route
+  app.get(`${apiPrefix}/travel-safety/:destination`, async (req, res) => {
+    try {
+      const destination = req.params.destination;
+      const safetyInfo = checkDestinationSafety(destination);
+      return res.status(200).json(safetyInfo);
+    } catch (error) {
+      console.error('Error checking destination safety:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Get high-risk destinations route
+  app.get(`${apiPrefix}/travel-safety`, async (req, res) => {
+    try {
+      const highRiskDestinations = getHighRiskDestinations();
+      return res.status(200).json({ destinations: highRiskDestinations });
+    } catch (error) {
+      console.error('Error fetching high-risk destinations:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   });
