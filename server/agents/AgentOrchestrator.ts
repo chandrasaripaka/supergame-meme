@@ -176,13 +176,7 @@ export class AgentOrchestrator {
     
     // Process next tasks if any were returned in the result
     if (result && result.nextTasks && Array.isArray(result.nextTasks)) {
-      result.nextTasks.forEach((nextTask: {
-        title?: string;
-        description?: string;
-        agentType?: AgentType;
-        context?: TaskContext;
-        priority?: TaskPriority;
-      }) => {
+      result.nextTasks.forEach((nextTask: Partial<Task>) => {
         this.createTask(
           nextTask.title || 'Follow-up task',
           nextTask.description || '',
