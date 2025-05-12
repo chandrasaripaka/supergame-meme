@@ -13,6 +13,7 @@ import PreferencesPage from "@/pages/preferences";
 import SavedTripsPage from "@/pages/saved-trips";
 import TravelCompanionsPage from "@/pages/travel-companions";
 import SafetyTestPage from "@/pages/safety-test";
+import A2ADemoPage from "@/pages/a2a-demo";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -37,6 +38,7 @@ function Router() {
           <Route path="/saved-trips" component={SavedTripsPage} />
           <Route path="/travel-companions" component={TravelCompanionsPage} />
           <Route path="/safety-test" component={SafetyTestPage} />
+          <Route path="/a2a-demo" component={A2ADemoPage} />
           <Route component={NotFound} />
         </Switch>
       </main>
