@@ -29,6 +29,9 @@ import { generateTravelPlan, continueTravelConversation } from "./services/ai-se
 import { generateTravelPlan as generateTravelPlanGemini, continueTravelConversation as continueTravelConversationGemini } from "./services/gemini";
 import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversation as continueTravelConversationOpenAI } from "./services/openai";
 
+// Import the Agent-to-Agent (A2A) framework
+import { demonstrateTravelPlan } from "./agents";
+
 /**
  * Extract potential destination names from a message
  * @param message The message content to analyze
@@ -491,6 +494,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching high-risk destinations:', error);
       return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Agent-to-Agent (A2A) Travel Planning Demo
+  app.post(`${apiPrefix}/a2a/travel-plan`, async (req, res) => {
+    try {
+      const { destination, departureDate, returnDate, budget } = req.body;
+      
+      // Validate required fields
+      if (!destination || !departureDate || !returnDate || budget === undefined) {
+        return res.status(400).json({ 
+          error: 'Missing required fields', 
+          required: ['destination', 'departureDate', 'returnDate', 'budget'] 
+        });
+      }
+      
+      // Validate dates
+      const departureDateObj = new Date(departureDate);
+      const returnDateObj = new Date(returnDate);
+      const now = new Date();
+      
+      if (isNaN(departureDateObj.getTime()) || isNaN(returnDateObj.getTime())) {
+        return res.status(400).json({ 
+          error: 'Invalid date format. Use YYYY-MM-DD format.'
+        });
+      }
+      
+      if (departureDateObj < now) {
+        return res.status(400).json({ 
+          error: 'Departure date must be in the future'
+        });
+      }
+      
+      if (returnDateObj <= departureDateObj) {
+        return res.status(400).json({ 
+          error: 'Return date must be after departure date'
+        });
+      }
+      
+      // Validate budget
+      if (typeof budget !== 'number' || budget <= 0) {
+        return res.status(400).json({ 
+          error: 'Budget must be a positive number'
+        });
+      }
+      
+      // Run the A2A demonstration
+      const result = await demonstrateTravelPlan(
+        destination,
+        departureDate,
+        returnDate,
+        budget
+      );
+      
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Error in A2A travel planning:', error);
+      return res.status(500).json({ 
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
