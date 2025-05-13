@@ -289,8 +289,8 @@ function setupChatSessionsRoutes(app: Express) {
 
       // Get messages
       const messages = await db.query.chatMessages.findMany({
-        where: eq(chatMessages.chatSessionId, sessionId),
-        orderBy: [asc(chatMessages.createdAt)]
+        where: eq(chatMessages.sessionId, sessionId),
+        orderBy: [asc(chatMessages.timestamp)]
       });
 
       res.json(messages);
@@ -329,10 +329,10 @@ function setupChatSessionsRoutes(app: Express) {
 
       // Add message
       const [message] = await db.insert(chatMessages).values({
-        chatSessionId: sessionId,
+        sessionId: sessionId,
         content,
         role,
-        createdAt: new Date()
+        timestamp: new Date()
       }).returning();
 
       // Update session's updatedAt timestamp

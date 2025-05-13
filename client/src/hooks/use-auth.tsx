@@ -1,49 +1,51 @@
-import { createContext, ReactNode, useContext } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { User } from '@shared/schema';
+import { createContext, ReactNode, useContext } from "react";
+import {
+  useQuery,
+  useMutation,
+  UseMutationResult,
+} from "@tanstack/react-query";
+import { User } from "@shared/schema";
+import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
-interface AuthContextType {
+type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   error: Error | null;
   logout: () => Promise<void>;
-}
+};
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { toast } = useToast();
   const {
     data: user,
     error,
     isLoading,
-    refetch
-  } = useQuery({
-    queryKey: ['/api/auth/status'],
-    queryFn: async () => {
-      const res = await fetch('/api/auth/status');
-      if (!res.ok) {
-        if (res.status === 401) {
-          return null;
-        }
-        throw new Error('Failed to get auth status');
-      }
-      const data = await res.json();
-      return data.isAuthenticated ? data.user : null;
-    }
+  } = useQuery<User | null, Error>({
+    queryKey: ["/api/auth/status"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/auth/logout");
+    },
+    onSuccess: () => {
+      queryClient.setQueryData(["/api/auth/status"], null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Logout failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const logout = async () => {
-    try {
-      const res = await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
-      if (!res.ok) {
-        throw new Error('Failed to logout');
-      }
-      refetch();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+    await logoutMutation.mutateAsync();
   };
 
   return (
@@ -51,8 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user: user ?? null,
         isLoading,
-        error: error as Error | null,
-        logout
+        error,
+        logout,
       }}
     >
       {children}
@@ -63,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
