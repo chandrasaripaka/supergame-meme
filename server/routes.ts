@@ -32,6 +32,20 @@ import { generateTravelPlan as generateTravelPlanOpenAI, continueTravelConversat
 // Import the Agent-to-Agent (A2A) framework
 import { demonstrateTravelPlan } from "./agents";
 
+// Import Google Maps APIs
+import { 
+  searchHotels as searchGoogleHotels, 
+  getHotelPriceEstimate, 
+  getPlaceDetails as getGooglePlaceDetails, 
+  searchAirports, 
+  calculateDistance,
+  getPhotoUrl,
+  getStaticMapUrl,
+  searchFlights as searchGoogleFlights,
+  getHotelPricingTrends,
+  getFlightPricingTrends
+} from "./services/google-maps";
+
 /**
  * Extract potential destination names from a message
  * @param message The message content to analyze
