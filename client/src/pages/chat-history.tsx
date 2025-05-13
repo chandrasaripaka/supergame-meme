@@ -45,7 +45,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/lib/auth';
 import { ChatSession } from '@shared/schema';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 
