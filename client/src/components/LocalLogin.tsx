@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 
 export function LocalLogin() {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { checkAuthStatus } = useAuth();
+  const auth = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +31,8 @@ export function LocalLogin() {
       
       console.log('Local login successful:', response);
       
-      // Check auth status to update the UI
-      await checkAuthStatus();
+      // Refresh auth status by refetching
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/status'] });
     } catch (err: any) {
       console.error('Local login error:', err);
       setError(err.message || 'Login failed');
