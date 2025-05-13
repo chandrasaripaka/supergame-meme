@@ -77,7 +77,13 @@ export default function ChatHistoryPage() {
   // Helper function to delete a chat session
   const deleteSession = async (sessionId: number) => {
     try {
-      await apiRequest('DELETE', `/api/chat-sessions/${sessionId}`);
+      const response = await fetch(`/api/chat-sessions/${sessionId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete session');
+      }
       
       // Invalidate the query to refetch the data
       queryClient.invalidateQueries({queryKey: ['/api/chat-sessions']});
@@ -105,9 +111,7 @@ export default function ChatHistoryPage() {
   
   // Filter chat sessions based on search term and filter type
   const filteredSessions = chatSessions?.filter(session => {
-    const matchesSearch = 
-      session.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      session.summary?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = session.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
       
     if (filterType === 'all') return matchesSearch;
     if (filterType === 'temporary') return matchesSearch && session.isTemporary;
@@ -280,7 +284,7 @@ export default function ChatHistoryPage() {
                   </CardHeader>
                   <CardContent className="pb-2">
                     <p className="text-sm text-muted-foreground line-clamp-3">
-                      {session.summary || 'No summary available'}
+                      {session.title || 'No title available'}
                     </p>
                   </CardContent>
                   <CardFooter className="flex justify-between">

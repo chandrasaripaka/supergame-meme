@@ -107,16 +107,14 @@ function setupChatSessionsRoutes(app: Express) {
         return res.status(401).json({ error: 'User not authenticated' });
       }
 
-      const userId = req.user!.id;
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+      
       const sessions = await db.query.chatSessions.findMany({
         where: eq(chatSessions.userId, userId),
-        orderBy: [desc(chatSessions.updatedAt)],
-        with: {
-          messages: {
-            limit: 1,
-            orderBy: [desc(chatMessages.createdAt)]
-          }
-        }
+        orderBy: [desc(chatSessions.updatedAt)]
       });
 
       res.json(sessions);
@@ -211,7 +209,6 @@ function setupChatSessionsRoutes(app: Express) {
       const [updatedSession] = await db.update(chatSessions)
         .set({
           title: title !== undefined ? title : existingSession.title,
-          summary: summary !== undefined ? summary : existingSession.summary,
           isTemporary: isTemporary !== undefined ? isTemporary : existingSession.isTemporary,
           updatedAt: new Date()
         })
@@ -252,7 +249,7 @@ function setupChatSessionsRoutes(app: Express) {
 
       // Delete all associated messages first
       await db.delete(chatMessages)
-        .where(eq(chatMessages.chatSessionId, sessionId));
+        .where(eq(chatMessages.sessionId, sessionId));
 
       // Delete the session
       await db.delete(chatSessions)

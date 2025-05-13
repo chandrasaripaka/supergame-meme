@@ -10,12 +10,12 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/hooks/use-auth';
 import { UserIcon, LogOut, History, Settings } from 'lucide-react';
 
 export function UserProfile() {
   const [_, setLocation] = useLocation();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -37,7 +37,7 @@ export function UserProfile() {
       .toUpperCase();
   };
 
-  if (isAuthenticated && user) {
+  if (user) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
