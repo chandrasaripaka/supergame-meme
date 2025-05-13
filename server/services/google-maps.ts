@@ -194,7 +194,7 @@ export async function searchAirports(location: string, radius: number = 20000): 
         const name = (place.name || '').toLowerCase();
         const isAirport = name.includes('airport') || 
                           name.includes('international') ||
-                          place.types?.includes('airport');
+                          place.types?.some(type => type.toLowerCase() === 'airport');
         return isAirport;
       })
       .map(place => ({

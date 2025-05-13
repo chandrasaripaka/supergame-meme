@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { Settings, Bookmark, Users, Shield, LayoutGrid } from 'lucide-react';
+import { Settings, Bookmark, Users, Shield, LayoutGrid, DollarSign } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 
 export function AppHeader() {
@@ -37,6 +37,10 @@ export function AppHeader() {
           <Link href="/a2a-demo" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
             <LayoutGrid className="h-5 w-5" />
             <span className="hidden sm:inline-block ml-1">A2A Demo</span>
+          </Link>
+          <Link href="/price-comparison" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
+            <DollarSign className="h-5 w-5" />
+            <span className="hidden sm:inline-block ml-1">Price Compare</span>
           </Link>
           <UserProfile />
         </div>
