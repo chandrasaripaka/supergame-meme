@@ -6,11 +6,13 @@ import {
   trips, 
   attractions, 
   messages, 
+  chatSessions,
+  chatMessages,
   insertUserSchema, 
   insertTripSchema, 
   insertMessageSchema 
 } from "@shared/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, asc } from "drizzle-orm";
 import { z } from "zod";
 import authRoutes from "./routes/auth";
 import localAuthRoutes from "./routes/local-auth";
@@ -96,7 +98,262 @@ function extractPotentialDestinations(message: string): string[] {
   return destinations;
 }
 
+// Chat sessions API endpoints
+function setupChatSessionsRoutes(app: Express) {
+  // Get all chat sessions for the logged-in user
+  app.get('/api/chat-sessions', async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const userId = req.user!.id;
+      const sessions = await db.query.chatSessions.findMany({
+        where: eq(chatSessions.userId, userId),
+        orderBy: [desc(chatSessions.updatedAt)],
+        with: {
+          messages: {
+            limit: 1,
+            orderBy: [desc(chatMessages.createdAt)]
+          }
+        }
+      });
+
+      res.json(sessions);
+    } catch (error) {
+      console.error('Error fetching chat sessions:', error);
+      res.status(500).json({ error: 'Failed to fetch chat sessions' });
+    }
+  });
+
+  // Get a specific chat session by ID
+  app.get('/api/chat-sessions/:id', async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const sessionId = parseInt(req.params.id);
+      const userId = req.user!.id;
+
+      const session = await db.query.chatSessions.findFirst({
+        where: and(
+          eq(chatSessions.id, sessionId),
+          eq(chatSessions.userId, userId)
+        ),
+        with: {
+          messages: {
+            orderBy: [asc(chatMessages.createdAt)]
+          }
+        }
+      });
+
+      if (!session) {
+        return res.status(404).json({ error: 'Chat session not found' });
+      }
+
+      res.json(session);
+    } catch (error) {
+      console.error('Error fetching chat session:', error);
+      res.status(500).json({ error: 'Failed to fetch chat session' });
+    }
+  });
+
+  // Create a new chat session
+  app.post('/api/chat-sessions', async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const userId = req.user!.id;
+      const { title, isTemporary = false } = req.body;
+
+      const [session] = await db.insert(chatSessions).values({
+        userId,
+        title: title || 'New Chat',
+        isTemporary,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).returning();
+
+      res.status(201).json(session);
+    } catch (error) {
+      console.error('Error creating chat session:', error);
+      res.status(500).json({ error: 'Failed to create chat session' });
+    }
+  });
+
+  // Update a chat session
+  app.patch('/api/chat-sessions/:id', async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const sessionId = parseInt(req.params.id);
+      const userId = req.user!.id;
+      const { title, summary, isTemporary } = req.body;
+
+      // Check if the session exists and belongs to the user
+      const existingSession = await db.query.chatSessions.findFirst({
+        where: and(
+          eq(chatSessions.id, sessionId),
+          eq(chatSessions.userId, userId)
+        )
+      });
+
+      if (!existingSession) {
+        return res.status(404).json({ error: 'Chat session not found' });
+      }
+
+      // Update the session
+      const [updatedSession] = await db.update(chatSessions)
+        .set({
+          title: title !== undefined ? title : existingSession.title,
+          summary: summary !== undefined ? summary : existingSession.summary,
+          isTemporary: isTemporary !== undefined ? isTemporary : existingSession.isTemporary,
+          updatedAt: new Date()
+        })
+        .where(and(
+          eq(chatSessions.id, sessionId),
+          eq(chatSessions.userId, userId)
+        ))
+        .returning();
+
+      res.json(updatedSession);
+    } catch (error) {
+      console.error('Error updating chat session:', error);
+      res.status(500).json({ error: 'Failed to update chat session' });
+    }
+  });
+
+  // Delete a chat session
+  app.delete('/api/chat-sessions/:id', async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const sessionId = parseInt(req.params.id);
+      const userId = req.user!.id;
+
+      // Check if the session exists and belongs to the user
+      const existingSession = await db.query.chatSessions.findFirst({
+        where: and(
+          eq(chatSessions.id, sessionId),
+          eq(chatSessions.userId, userId)
+        )
+      });
+
+      if (!existingSession) {
+        return res.status(404).json({ error: 'Chat session not found' });
+      }
+
+      // Delete all associated messages first
+      await db.delete(chatMessages)
+        .where(eq(chatMessages.chatSessionId, sessionId));
+
+      // Delete the session
+      await db.delete(chatSessions)
+        .where(and(
+          eq(chatSessions.id, sessionId),
+          eq(chatSessions.userId, userId)
+        ));
+
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting chat session:', error);
+      res.status(500).json({ error: 'Failed to delete chat session' });
+    }
+  });
+
+  // Get messages for a chat session
+  app.get('/api/chat-sessions/:id/messages', async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const sessionId = parseInt(req.params.id);
+      const userId = req.user!.id;
+
+      // Check if the session exists and belongs to the user
+      const existingSession = await db.query.chatSessions.findFirst({
+        where: and(
+          eq(chatSessions.id, sessionId),
+          eq(chatSessions.userId, userId)
+        )
+      });
+
+      if (!existingSession) {
+        return res.status(404).json({ error: 'Chat session not found' });
+      }
+
+      // Get messages
+      const messages = await db.query.chatMessages.findMany({
+        where: eq(chatMessages.chatSessionId, sessionId),
+        orderBy: [asc(chatMessages.createdAt)]
+      });
+
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching chat messages:', error);
+      res.status(500).json({ error: 'Failed to fetch chat messages' });
+    }
+  });
+
+  // Add a message to a chat session
+  app.post('/api/chat-sessions/:id/messages', async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const sessionId = parseInt(req.params.id);
+      const userId = req.user!.id;
+      const { content, role } = req.body;
+
+      if (!content || !role) {
+        return res.status(400).json({ error: 'Content and role are required' });
+      }
+
+      // Check if the session exists and belongs to the user
+      const existingSession = await db.query.chatSessions.findFirst({
+        where: and(
+          eq(chatSessions.id, sessionId),
+          eq(chatSessions.userId, userId)
+        )
+      });
+
+      if (!existingSession) {
+        return res.status(404).json({ error: 'Chat session not found' });
+      }
+
+      // Add message
+      const [message] = await db.insert(chatMessages).values({
+        chatSessionId: sessionId,
+        content,
+        role,
+        createdAt: new Date()
+      }).returning();
+
+      // Update session's updatedAt timestamp
+      await db.update(chatSessions)
+        .set({ updatedAt: new Date() })
+        .where(eq(chatSessions.id, sessionId));
+
+      res.status(201).json(message);
+    } catch (error) {
+      console.error('Error adding chat message:', error);
+      res.status(500).json({ error: 'Failed to add chat message' });
+    }
+  });
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup chat sessions routes
+  setupChatSessionsRoutes(app);
   // API prefix
   const apiPrefix = "/api";
   
