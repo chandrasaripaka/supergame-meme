@@ -13,6 +13,7 @@ type AuthContextType = {
   isLoading: boolean;
   error: Error | null;
   logout: () => Promise<void>;
+  login: (username: string) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -20,10 +21,10 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const {
-    data: user,
+    data: authData,
     error,
     isLoading,
-  } = useQuery<User | null, Error>({
+  } = useQuery<{isAuthenticated: boolean, user: User | null}, Error>({
     queryKey: ["/api/auth/status"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
@@ -35,7 +36,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onSuccess: () => {
-      queryClient.setQueryData(["/api/auth/status"], null);
+      queryClient.setQueryData(["/api/auth/status"], { isAuthenticated: false, user: null });
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out",
+      });
     },
     onError: (error: Error) => {
       toast({
@@ -46,17 +51,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const loginMutation = useMutation<{success: boolean, user: User, isAuthenticated: boolean}, Error, string>({
+    mutationFn: async (username: string) => {
+      return await apiRequest('/api/local-auth/login', {
+        method: 'POST',
+        data: { username }
+      });
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(["/api/auth/status"], { 
+        isAuthenticated: true, 
+        user: data.user 
+      });
+      toast({
+        title: "Login successful",
+        description: `Welcome, ${data.user.username}!`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Login failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const logout = async () => {
     await logoutMutation.mutateAsync();
   };
 
+  const login = async (username: string) => {
+    await loginMutation.mutateAsync(username);
+  };
+
+  const user = authData?.user || null;
+
   return (
     <AuthContext.Provider
       value={{
-        user: user ?? null,
+        user,
         isLoading,
         error,
         logout,
+        login
       }}
     >
       {children}

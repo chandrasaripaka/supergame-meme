@@ -23,16 +23,8 @@ export function LocalLogin() {
     setError(null);
     
     try {
-      // Use our special local auth endpoint
-      const response = await apiRequest('/api/local-auth/login', {
-        method: 'POST',
-        data: { username }
-      });
-      
-      console.log('Local login successful:', response);
-      
-      // Refresh auth status by refetching
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/status'] });
+      // Use the login function from the auth context
+      await auth.login(username);
     } catch (err: any) {
       console.error('Local login error:', err);
       setError(err.message || 'Login failed');
