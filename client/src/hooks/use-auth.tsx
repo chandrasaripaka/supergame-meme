@@ -28,10 +28,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
-  const logoutMutation = useMutation({
+  const logoutMutation = useMutation<void, Error>({
     mutationFn: async () => {
       await apiRequest("/api/auth/logout", { 
-        method: "POST"
+        method: "POST" 
       });
     },
     onSuccess: () => {

@@ -7,14 +7,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useUser } from "@/lib/auth";
+import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
 export default function PreferencesPage() {
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user } = useAuth();
   
   // General preferences
   const [darkMode, setDarkMode] = useState(false);
