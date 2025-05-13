@@ -18,23 +18,35 @@ export async function apiRequest(
   const method = options?.method || 'GET';
   const data = options?.data;
   
-  const res = await fetch(url, {
-    method,
-    headers: {
-      ...(data ? { "Content-Type": "application/json" } : {}),
-      ...(options?.headers || {})
-    },
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
-
-  await throwIfResNotOk(res);
-  
-  // Try to parse as JSON, fall back to raw response
   try {
-    return await res.json();
-  } catch (e) {
-    return res;
+    const res = await fetch(url, {
+      method,
+      headers: {
+        ...(data ? { "Content-Type": "application/json" } : {}),
+        ...(options?.headers || {})
+      },
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(`API Error ${res.status}: ${text}`);
+      throw new Error(`Request failed with status ${res.status}`);
+    }
+    
+    // Try to parse as JSON, fall back to raw response
+    try {
+      const jsonData = await res.json();
+      return jsonData;
+    } catch (e) {
+      console.error("Error parsing JSON response:", e);
+      if (res.status === 200) return { success: true };
+      return res;
+    }
+  } catch (error) {
+    console.error("API request error:", error);
+    throw error;
   }
 }
 
@@ -44,16 +56,32 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
-    });
+    try {
+      const res = await fetch(queryKey[0] as string, {
+        credentials: "include",
+      });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error(`API Error ${res.status}: ${text}`);
+        throw new Error(`Request failed with status ${res.status}`);
+      }
+      
+      try {
+        return await res.json();
+      } catch (e) {
+        console.error("Error parsing JSON response:", e);
+        if (res.status === 200) return { success: true } as unknown as T;
+        return null;
+      }
+    } catch (error) {
+      console.error("Query function error:", error);
+      throw error;
     }
-
-    await throwIfResNotOk(res);
-    return await res.json();
   };
 
 export const queryClient = new QueryClient({

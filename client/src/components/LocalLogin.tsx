@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/lib/auth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export function LocalLogin() {
@@ -23,8 +23,16 @@ export function LocalLogin() {
     setError(null);
     
     try {
-      // Use the login function from the auth context
-      await auth.login(username);
+      // Use our special local auth endpoint
+      const response = await apiRequest('/api/local-auth/login', {
+        method: 'POST',
+        data: { username }
+      });
+      
+      console.log('Local login successful:', response);
+      
+      // Refresh auth status
+      await auth.checkAuthStatus();
     } catch (err: any) {
       console.error('Local login error:', err);
       setError(err.message || 'Login failed');
