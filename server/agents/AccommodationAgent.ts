@@ -12,6 +12,11 @@ import {
   AgentMessage,
   TaskResult
 } from './types';
+import { 
+  searchHotels as searchGoogleHotels,
+  getHotelPriceEstimate,
+  getHotelPricingTrends
+} from '../services/google-maps';
 
 // Simulated hotel data and service functions
 // In a real implementation, this would connect to an actual hotel API
@@ -282,7 +287,54 @@ export class AccommodationAgent extends BaseAgent {
       }
     }
     
-    // Proceed with hotel search
+    // Try Google Maps API first
+    try {
+      console.log(`[${this.name}] Searching hotels with Google Maps API`);
+      
+      const googleHotels = await searchGoogleHotels(
+        location,
+        checkIn,
+        checkOut,
+        guests || 2
+      );
+      
+      if (googleHotels && googleHotels.length > 0) {
+        console.log(`[${this.name}] Found ${googleHotels.length} hotels using Google Maps API`);
+        
+        // Filter by price if maxPrice is provided
+        const filteredHotels = maxPrice 
+          ? googleHotels.filter(hotel => hotel.pricePerNight <= maxPrice)
+          : googleHotels;
+        
+        // Also get pricing trends for more insight
+        try {
+          const pricingTrends = await getHotelPricingTrends(location);
+          
+          return {
+            success: true,
+            data: { 
+              hotels: filteredHotels,
+              pricingTrends,
+              source: 'google-maps-api' 
+            }
+          };
+        } catch (trendsError) {
+          console.warn(`[${this.name}] Error getting pricing trends:`, trendsError);
+          return {
+            success: true,
+            data: { 
+              hotels: filteredHotels,
+              source: 'google-maps-api' 
+            }
+          };
+        }
+      }
+    } catch (googleApiError) {
+      console.warn(`[${this.name}] Error using Google Maps API for hotels, falling back to legacy search:`, googleApiError);
+    }
+    
+    // Fall back to legacy hotel search if Google API fails or returns no results
+    console.log(`[${this.name}] Falling back to legacy hotel search service`);
     const hotels = await searchHotels(
       location, 
       checkIn, 
@@ -293,7 +345,10 @@ export class AccommodationAgent extends BaseAgent {
     
     return {
       success: true,
-      data: { hotels }
+      data: { 
+        hotels,
+        source: 'legacy-api' 
+      }
     };
   }
 
@@ -310,6 +365,49 @@ export class AccommodationAgent extends BaseAgent {
       };
     }
     
+    try {
+      // First try to get detailed pricing information using Google Maps API
+      console.log(`[${this.name}] Getting hotel details with Google Maps API for ID: ${hotelId}`);
+      
+      const priceEstimate = await getHotelPriceEstimate(hotelId);
+      
+      if (priceEstimate) {
+        console.log(`[${this.name}] Found hotel pricing details using Google Maps API`);
+        
+        // Merge with local hotel details for the most complete information
+        const localHotel = await getHotelDetails(hotelId);
+        
+        if (localHotel) {
+          const enhancedHotel = {
+            ...localHotel,
+            pricing: priceEstimate,
+            source: 'google-maps-enhanced'
+          };
+          
+          return {
+            success: true,
+            data: { hotel: enhancedHotel }
+          };
+        }
+        
+        // If we don't have local details, return just the pricing data
+        return {
+          success: true,
+          data: { 
+            hotel: {
+              id: hotelId,
+              ...priceEstimate,
+              source: 'google-maps-api'
+            }
+          }
+        };
+      }
+    } catch (googleApiError) {
+      console.warn(`[${this.name}] Error using Google Maps API for hotel details, falling back:`, googleApiError);
+    }
+    
+    // Fall back to legacy hotel details if Google API fails
+    console.log(`[${this.name}] Falling back to legacy hotel details service`);
     const hotel = await getHotelDetails(hotelId);
     
     if (!hotel) {
@@ -321,7 +419,10 @@ export class AccommodationAgent extends BaseAgent {
     
     return {
       success: true,
-      data: { hotel }
+      data: { 
+        hotel,
+        source: 'legacy-api'
+      }
     };
   }
 
@@ -389,6 +490,33 @@ export class AccommodationAgent extends BaseAgent {
       
       switch (query.type) {
         case 'hotel_availability': {
+          try {
+            // Try Google Maps API first
+            const googleHotels = await searchGoogleHotels(
+              query.location,
+              query.checkIn,
+              query.checkOut,
+              query.guests || 2
+            );
+            
+            if (googleHotels && googleHotels.length > 0) {
+              // Filter by price if maxPrice is provided
+              const filteredHotels = query.maxPrice 
+                ? googleHotels.filter(hotel => hotel.pricePerNight <= query.maxPrice)
+                : googleHotels;
+                
+              response = { 
+                hotels: filteredHotels, 
+                hasAvailability: filteredHotels.length > 0,
+                source: 'google-maps-api'
+              };
+              break;
+            }
+          } catch (googleApiError) {
+            console.warn(`[${this.name}] Error using Google Maps API for hotels in info request, falling back:`, googleApiError);
+          }
+          
+          // Fall back to legacy search
           const hotels = await searchHotels(
             query.location,
             query.checkIn,
@@ -398,13 +526,55 @@ export class AccommodationAgent extends BaseAgent {
           );
           response = { 
             hotels, 
-            hasAvailability: hotels.length > 0 
+            hasAvailability: hotels.length > 0,
+            source: 'legacy-api'
           };
           break;
         }
         case 'hotel_details': {
+          try {
+            // Try to get detailed pricing information using Google Maps API
+            const priceEstimate = await getHotelPriceEstimate(query.hotelId);
+            
+            if (priceEstimate) {
+              // Merge with local hotel details for the most complete information
+              const localHotel = await getHotelDetails(query.hotelId);
+              
+              if (localHotel) {
+                const enhancedHotel = {
+                  ...localHotel,
+                  pricing: priceEstimate,
+                  source: 'google-maps-enhanced'
+                };
+                
+                response = { 
+                  hotel: enhancedHotel,
+                  source: 'google-maps-enhanced'
+                };
+                break;
+              }
+              
+              // If we don't have local details, return just the pricing data
+              response = { 
+                hotel: {
+                  id: query.hotelId,
+                  ...priceEstimate,
+                  source: 'google-maps-api'
+                },
+                source: 'google-maps-api'
+              };
+              break;
+            }
+          } catch (googleApiError) {
+            console.warn(`[${this.name}] Error using Google Maps API for hotel details in info request, falling back:`, googleApiError);
+          }
+          
+          // Fall back to legacy hotel details if Google API fails
           const hotel = await getHotelDetails(query.hotelId);
-          response = { hotel };
+          response = { 
+            hotel,
+            source: hotel ? 'legacy-api' : null
+          };
           break;
         }
         case 'recommend_hotels': {

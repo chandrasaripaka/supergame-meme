@@ -19,6 +19,10 @@ import {
   Flight,
   FlightSearch 
 } from '../services/flights';
+import { 
+  searchFlights as searchGoogleFlights,
+  getFlightPricingTrends
+} from '../services/google-maps';
 
 export class FlightBookingAgent extends BaseAgent {
   constructor(name: string = 'Flight Booking Agent') {
@@ -219,12 +223,61 @@ export class FlightBookingAgent extends BaseAgent {
       }
     }
     
-    // Proceed with flight search
+    // Try Google Maps API first
+    try {
+      console.log(`[${this.name}] Searching flights with Google Maps API`);
+      
+      const googleFlights = await searchGoogleFlights(
+        searchCriteria.departureCity,
+        searchCriteria.arrivalCity,
+        searchCriteria.departureDate,
+        searchCriteria.returnDate,
+        1 // Default to 1 adult traveler
+      );
+      
+      if (googleFlights && googleFlights.length > 0) {
+        console.log(`[${this.name}] Found ${googleFlights.length} flights using Google Maps API`);
+        
+        // Also get pricing trends for more insight
+        try {
+          const pricingTrends = getFlightPricingTrends(
+            searchCriteria.departureCity,
+            searchCriteria.arrivalCity
+          );
+          
+          return {
+            success: true,
+            data: { 
+              flights: googleFlights,
+              pricingTrends,
+              source: 'google-maps-api' 
+            }
+          };
+        } catch (trendsError) {
+          console.warn(`[${this.name}] Error getting pricing trends:`, trendsError);
+          return {
+            success: true,
+            data: { 
+              flights: googleFlights,
+              source: 'google-maps-api' 
+            }
+          };
+        }
+      }
+    } catch (googleApiError) {
+      console.warn(`[${this.name}] Error using Google Maps API for flights, falling back to legacy search:`, googleApiError);
+    }
+    
+    // Fall back to legacy flight search if Google API fails or returns no results
+    console.log(`[${this.name}] Falling back to legacy flight search service`);
     const flights = await searchFlights(searchCriteria);
     
     return {
       success: true,
-      data: { flights }
+      data: { 
+        flights,
+        source: 'legacy-api' 
+      }
     };
   }
 
