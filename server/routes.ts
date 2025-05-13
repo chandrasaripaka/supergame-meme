@@ -661,6 +661,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Google Maps API Routes for Hotels and Flights
+  
+  // Search for hotels in a destination
+  app.get(`${apiPrefix}/hotels/search`, async (req, res) => {
+    try {
+      const { location, radius, minPrice, maxPrice } = req.query;
+      
+      if (!location) {
+        return res.status(400).json({ error: 'Location parameter is required' });
+      }
+      
+      const radiusNum = radius ? parseInt(radius as string) : undefined;
+      const minPriceNum = minPrice ? parseInt(minPrice as string) : undefined;
+      const maxPriceNum = maxPrice ? parseInt(maxPrice as string) : undefined;
+      
+      const hotels = await searchGoogleHotels(
+        location as string, 
+        radiusNum, 
+        minPriceNum, 
+        maxPriceNum
+      );
+      
+      // Add estimated prices based on price level
+      const hotelsWithPrices = hotels.map(hotel => {
+        const priceEstimate = getHotelPriceEstimate(hotel.priceLevel);
+        return {
+          ...hotel,
+          estimatedPriceRange: priceEstimate,
+          pricePerNight: Math.round((priceEstimate.min + priceEstimate.max) / 2)
+        };
+      });
+      
+      return res.status(200).json({ hotels: hotelsWithPrices });
+    } catch (error) {
+      console.error('Error searching for hotels:', error);
+      return res.status(500).json({ 
+        error: 'Error searching for hotels',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+  // Get hotel pricing trends for a destination
+  app.get(`${apiPrefix}/hotels/pricing-trends`, async (req, res) => {
+    try {
+      const { destination } = req.query;
+      
+      if (!destination) {
+        return res.status(400).json({ error: 'Destination parameter is required' });
+      }
+      
+      const pricingTrends = getHotelPricingTrends(destination as string);
+      
+      return res.status(200).json(pricingTrends);
+    } catch (error) {
+      console.error('Error getting hotel pricing trends:', error);
+      return res.status(500).json({ 
+        error: 'Error getting hotel pricing trends',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+  // Search for flights between destinations
+  app.get(`${apiPrefix}/flights/search`, async (req, res) => {
+    try {
+      const { origin, destination, departureDate, returnDate, adults } = req.query;
+      
+      if (!origin || !destination || !departureDate) {
+        return res.status(400).json({ 
+          error: 'Missing required parameters',
+          required: ['origin', 'destination', 'departureDate']
+        });
+      }
+      
+      const adultsNum = adults ? parseInt(adults as string) : 1;
+      
+      const flights = await searchGoogleFlights(
+        origin as string,
+        destination as string,
+        departureDate as string,
+        returnDate as string,
+        adultsNum
+      );
+      
+      return res.status(200).json({ flights });
+    } catch (error) {
+      console.error('Error searching for flights:', error);
+      return res.status(500).json({ 
+        error: 'Error searching for flights',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+  // Get flight pricing trends for a route
+  app.get(`${apiPrefix}/flights/pricing-trends`, async (req, res) => {
+    try {
+      const { origin, destination } = req.query;
+      
+      if (!origin || !destination) {
+        return res.status(400).json({ 
+          error: 'Missing required parameters',
+          required: ['origin', 'destination']
+        });
+      }
+      
+      const pricingTrends = getFlightPricingTrends(origin as string, destination as string);
+      
+      return res.status(200).json(pricingTrends);
+    } catch (error) {
+      console.error('Error getting flight pricing trends:', error);
+      return res.status(500).json({ 
+        error: 'Error getting flight pricing trends',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
