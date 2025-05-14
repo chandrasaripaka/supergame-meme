@@ -295,7 +295,10 @@ export class AccommodationAgent extends BaseAgent {
         location,
         checkIn,
         checkOut,
-        guests || 2
+        guests || 2,
+        5000,  // default radius
+        undefined,  // minPrice
+        maxPrice  // pass maxPrice parameter
       );
       
       if (googleHotels && googleHotels.length > 0) {

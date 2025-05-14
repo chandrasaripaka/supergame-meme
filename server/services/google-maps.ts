@@ -27,6 +27,9 @@ if (!GOOGLE_PLACES_API_KEY) {
  */
 export async function searchHotels(
   location: string,
+  checkIn?: string,  // Added for compatibility with AccommodationAgent
+  checkOut?: string,  // Added for compatibility with AccommodationAgent
+  guests: number = 2, // Added for compatibility with AccommodationAgent
   radius: number = 5000,
   minPrice?: number,
   maxPrice?: number,
@@ -414,9 +417,23 @@ function generateFlightData(
       departureAirport: origin.length === 3 ? origin : `${origin} Airport`,
       arrivalAirport: destination.length === 3 ? destination : `${destination} Airport`,
       returnFlight: returnDate ? {
+        // Calculate return flight times properly based on return date
         departureTime: `${(6 + Math.floor(Math.random() * 16)).toString().padStart(2, '0')}:${(Math.floor(Math.random() * 4) * 15).toString().padStart(2, '0')}`,
-        arrivalTime: `${(6 + Math.floor(Math.random() * 16)).toString().padStart(2, '0')}:${(Math.floor(Math.random() * 4) * 15).toString().padStart(2, '0')}`,
-        duration: `${durationHours}h ${Math.floor(Math.random() * 60)}m`,
+        duration: `${durationHours}h ${durationMinutes}m`, // Use same duration as outbound
+        // Calculate correct arrival time based on departure and duration
+        get arrivalTime() {
+          const depTimeParts = this.departureTime.split(':');
+          const depHour = parseInt(depTimeParts[0], 10);
+          const depMinute = parseInt(depTimeParts[1], 10);
+          
+          const durHours = parseInt(this.duration.split('h')[0], 10);
+          const durMinutes = parseInt(this.duration.split('h ')[1].split('m')[0], 10);
+          
+          const arrHour = (depHour + durHours + Math.floor((depMinute + durMinutes) / 60)) % 24;
+          const arrMinute = (depMinute + durMinutes) % 60;
+          
+          return `${arrHour.toString().padStart(2, '0')}:${arrMinute.toString().padStart(2, '0')}`;
+        }
       } : undefined
     });
   }
