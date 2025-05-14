@@ -49,7 +49,7 @@ export default function LoginPage() {
         <CardContent className="space-y-4 pt-4">
           {error && (
             <div className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm">
-              {error.message || 'Authentication error'}
+              {typeof error === 'object' && error?.message ? error.message : error || 'Authentication error'}
             </div>
           )}
           
