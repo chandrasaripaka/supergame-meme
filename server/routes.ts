@@ -16,6 +16,7 @@ import { eq, and, desc, asc } from "drizzle-orm";
 import { z } from "zod";
 import authRoutes from "./routes/auth";
 import localAuthRoutes from "./routes/local-auth";
+import bookingChatRoutes from "./routes/booking-chat";
 import { isAuthenticated, createTemporarySession } from "./services/auth";
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
@@ -359,6 +360,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register local auth routes for testing
   app.use('/api/local-auth', localAuthRoutes);
+  
+  // Register booking chat routes
+  app.use('/api/booking-chat', bookingChatRoutes);
 
   // User routes
   app.post(`${apiPrefix}/users`, async (req, res) => {
