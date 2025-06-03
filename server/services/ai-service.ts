@@ -130,8 +130,49 @@ export async function continueTravelConversation(
   weatherData: any = null
 ): Promise<{ text: string, modelInfo: { provider: string, model: string } }> {
   try {
+    // Extract destination from the conversation
+    const destination = extractDestinationFromMessage(newMessage);
+    let hotelRecommendations: any[] = [];
+    let eventRecommendations: any[] = [];
+    
+    // Get specific hotel and event recommendations if destination is identified
+    if (destination) {
+      hotelRecommendations = getHotelRecommendations(destination);
+      eventRecommendations = getEventRecommendations(destination);
+    }
+    
     // Prepare system message content
-    let systemContent = `You are an AI travel concierge that helps plan personalized travel experiences. You provide helpful, friendly advice about destinations, activities, accommodations, and local customs. Always be conversational but focused on travel planning.`;
+    let systemContent = `You are an AI travel concierge that helps plan personalized travel experiences. You provide helpful, friendly advice about destinations, activities, accommodations, and local customs. Always be conversational but focused on travel planning.
+    
+    When recommending hotels and activities, use ONLY the specific authentic recommendations provided in the context below. Do not invent or suggest any hotels, restaurants, or activities not listed here.`;
+
+    // Add specific hotel recommendations if available
+    if (hotelRecommendations.length > 0) {
+      systemContent += `\n\nAuthentic hotel recommendations for ${destination}:\n`;
+      hotelRecommendations.forEach((hotel, index) => {
+        systemContent += `${index + 1}. **${hotel.name}** (${hotel.brand})\n`;
+        systemContent += `   - Location: ${hotel.address}, ${hotel.district}\n`;
+        systemContent += `   - Rating: ${hotel.rating}/5\n`;
+        systemContent += `   - Price Range: $${hotel.priceRange.min}-${hotel.priceRange.max} ${hotel.priceRange.currency} per night\n`;
+        systemContent += `   - Category: ${hotel.category}\n`;
+        systemContent += `   - Amenities: ${hotel.amenities.join(', ')}\n`;
+        systemContent += `   - Highlights: ${hotel.highlights.join(', ')}\n\n`;
+      });
+    }
+
+    // Add specific event recommendations if available
+    if (eventRecommendations.length > 0) {
+      systemContent += `\n\nAuthentic activity and event recommendations for ${destination}:\n`;
+      eventRecommendations.forEach((event, index) => {
+        systemContent += `${index + 1}. **${event.name}** (${event.type})\n`;
+        systemContent += `   - Venue: ${event.venue}\n`;
+        systemContent += `   - Duration: ${event.duration}\n`;
+        systemContent += `   - Price Range: $${event.priceRange.min}-${event.priceRange.max} ${event.priceRange.currency}\n`;
+        systemContent += `   - Category: ${event.category}\n`;
+        systemContent += `   - Description: ${event.description}\n`;
+        systemContent += `   - Highlights: ${event.highlights.join(', ')}\n\n`;
+      });
+    }
     
     // Add weather data if available
     if (weatherData) {
@@ -201,6 +242,25 @@ export async function continueTravelConversation(
     console.error("Error continuing conversation with LLM Router:", error);
     throw new Error(`Failed to continue conversation: ${error.message}`);
   }
+}
+
+// Helper function to extract destination from user message
+function extractDestinationFromMessage(message: string): string | null {
+  const commonDestinations = [
+    'new york', 'tokyo', 'london', 'paris', 'rome', 'barcelona', 'amsterdam', 
+    'berlin', 'sydney', 'bangkok', 'singapore', 'hong kong', 'seoul', 'madrid',
+    'vienna', 'prague', 'budapest', 'lisbon', 'dublin', 'copenhagen'
+  ];
+  
+  const lowercaseMessage = message.toLowerCase();
+  
+  for (const destination of commonDestinations) {
+    if (lowercaseMessage.includes(destination)) {
+      return destination;
+    }
+  }
+  
+  return null;
 }
 
 // Helper function to extract JSON from text (useful for JSON responses)
