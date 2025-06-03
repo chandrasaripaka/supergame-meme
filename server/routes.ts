@@ -48,6 +48,7 @@ import {
   getHotelPricingTrends,
   getFlightPricingTrends
 } from "./services/google-maps";
+import { getHotelRecommendations, getEventRecommendations, getAllSupportedDestinations } from "./services/hotel-recommendations";
 
 /**
  * Extract potential destination names from a message
@@ -1033,6 +1034,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error getting flight pricing trends:', error);
       return res.status(500).json({ 
         error: 'Error getting flight pricing trends',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Hotel recommendations endpoint - specific hotels with authentic data
+  app.get(`${apiPrefix}/hotels/recommendations/:destination`, async (req, res) => {
+    try {
+      const destination = req.params.destination;
+      const budget = req.query.budget ? parseInt(req.query.budget as string) : undefined;
+      
+      const recommendations = getHotelRecommendations(destination, budget);
+      
+      if (recommendations.length === 0) {
+        return res.status(404).json({ 
+          error: 'No hotel recommendations available for this destination',
+          supportedDestinations: getAllSupportedDestinations()
+        });
+      }
+      
+      return res.status(200).json({ 
+        destination,
+        hotels: recommendations,
+        count: recommendations.length
+      });
+    } catch (error) {
+      console.error('Error getting hotel recommendations:', error);
+      return res.status(500).json({ 
+        error: 'Error getting hotel recommendations',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Event recommendations endpoint - specific events and activities
+  app.get(`${apiPrefix}/events/recommendations/:destination`, async (req, res) => {
+    try {
+      const destination = req.params.destination;
+      const interests = req.query.interests ? (req.query.interests as string).split(',') : undefined;
+      
+      const recommendations = getEventRecommendations(destination, interests);
+      
+      if (recommendations.length === 0) {
+        return res.status(404).json({ 
+          error: 'No event recommendations available for this destination',
+          supportedDestinations: getAllSupportedDestinations()
+        });
+      }
+      
+      return res.status(200).json({ 
+        destination,
+        events: recommendations,
+        count: recommendations.length
+      });
+    } catch (error) {
+      console.error('Error getting event recommendations:', error);
+      return res.status(500).json({ 
+        error: 'Error getting event recommendations',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Combined travel recommendations endpoint
+  app.get(`${apiPrefix}/travel/recommendations/:destination`, async (req, res) => {
+    try {
+      const destination = req.params.destination;
+      const budget = req.query.budget ? parseInt(req.query.budget as string) : undefined;
+      const interests = req.query.interests ? (req.query.interests as string).split(',') : undefined;
+      
+      const hotels = getHotelRecommendations(destination, budget);
+      const events = getEventRecommendations(destination, interests);
+      
+      if (hotels.length === 0 && events.length === 0) {
+        return res.status(404).json({ 
+          error: 'No recommendations available for this destination',
+          supportedDestinations: getAllSupportedDestinations()
+        });
+      }
+      
+      return res.status(200).json({ 
+        destination,
+        recommendations: {
+          hotels,
+          events,
+          summary: {
+            hotelCount: hotels.length,
+            eventCount: events.length,
+            priceRange: hotels.length > 0 ? {
+              min: Math.min(...hotels.map(h => h.priceRange.min)),
+              max: Math.max(...hotels.map(h => h.priceRange.max)),
+              currency: hotels[0].priceRange.currency
+            } : null
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error getting travel recommendations:', error);
+      return res.status(500).json({ 
+        error: 'Error getting travel recommendations',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Supported destinations endpoint
+  app.get(`${apiPrefix}/destinations/supported`, async (req, res) => {
+    try {
+      const destinations = getAllSupportedDestinations();
+      return res.status(200).json({ 
+        destinations,
+        count: destinations.length
+      });
+    } catch (error) {
+      console.error('Error getting supported destinations:', error);
+      return res.status(500).json({ 
+        error: 'Error getting supported destinations',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
