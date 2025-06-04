@@ -30,21 +30,9 @@ export function AppHeader() {
             <Users className="h-5 w-5" />
             <span className="hidden sm:inline-block ml-1">Companions</span>
           </Link>
-          <Link href="/safety-test" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
-            <Shield className="h-5 w-5" />
-            <span className="hidden sm:inline-block ml-1">Safety Test</span>
-          </Link>
-          <Link href="/a2a-demo" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
-            <LayoutGrid className="h-5 w-5" />
-            <span className="hidden sm:inline-block ml-1">A2A Demo</span>
-          </Link>
           <Link href="/chat-history" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
             <MessageCircle className="h-5 w-5" />
             <span className="hidden sm:inline-block ml-1">Chat History</span>
-          </Link>
-          <Link href="/price-comparison" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
-            <DollarSign className="h-5 w-5" />
-            <span className="hidden sm:inline-block ml-1">Price Compare</span>
           </Link>
           <UserProfile />
         </div>
