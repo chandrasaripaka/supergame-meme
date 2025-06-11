@@ -80,9 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setError(null);
       
-      await apiRequest('/auth/logout', {
-        method: 'POST'
-      });
+      await apiRequest('/auth/logout', { method: 'POST' });
       
       setUser(null);
       setIsAuthenticated(false);
