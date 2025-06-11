@@ -153,11 +153,60 @@ export const insertMessageSchema = createInsertSchema(messages).pick({
   content: true,
 });
 
+export const scrapbooks = pgTable("scrapbooks", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  theme: text("theme").notNull().default("modern"),
+  backgroundColor: text("background_color").notNull().default("#F8FAFC"),
+  textColor: text("text_color").notNull().default("#0F172A"),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertScrapbookSchema = createInsertSchema(scrapbooks).pick({
+  title: true,
+  theme: true,
+  backgroundColor: true,
+  textColor: true,
+  userId: true,
+});
+
+export const travelMemories = pgTable("travel_memories", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").default(""),
+  location: text("location").default(""),
+  date: text("date").notNull(),
+  images: text("images").array().default([]),
+  tags: text("tags").array().default([]),
+  rating: integer("rating").default(5),
+  transportMode: text("transport_mode").notNull().default("plane"),
+  isFavorite: boolean("is_favorite").default(false),
+  scrapbookId: integer("scrapbook_id").references(() => scrapbooks.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertTravelMemorySchema = createInsertSchema(travelMemories).pick({
+  title: true,
+  description: true,
+  location: true,
+  date: true,
+  images: true,
+  tags: true,
+  rating: true,
+  transportMode: true,
+  isFavorite: true,
+  scrapbookId: true,
+});
+
 // Define relations
 export const userRelations = relations(users, ({ many }) => ({
   trips: many(trips),
   messages: many(messages),
   chatSessions: many(chatSessions),
+  scrapbooks: many(scrapbooks),
 }));
 
 export const chatSessionRelations = relations(chatSessions, ({ one, many }) => ({
@@ -203,6 +252,21 @@ export const messageRelations = relations(messages, ({ one }) => ({
   }),
 }));
 
+export const scrapbookRelations = relations(scrapbooks, ({ one, many }) => ({
+  user: one(users, {
+    fields: [scrapbooks.userId],
+    references: [users.id],
+  }),
+  memories: many(travelMemories),
+}));
+
+export const travelMemoryRelations = relations(travelMemories, ({ one }) => ({
+  scrapbook: one(scrapbooks, {
+    fields: [travelMemories.scrapbookId],
+    references: [scrapbooks.id],
+  }),
+}));
+
 // Types
 export type User = typeof users.$inferSelect;
 export type ChatSession = typeof chatSessions.$inferSelect;
@@ -211,6 +275,8 @@ export type Trip = typeof trips.$inferSelect;
 export type Attraction = typeof attractions.$inferSelect;
 export type Message = typeof messages.$inferSelect;
 export type Hotel = typeof hotels.$inferSelect;
+export type Scrapbook = typeof scrapbooks.$inferSelect;
+export type TravelMemory = typeof travelMemories.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
@@ -219,3 +285,5 @@ export type InsertTrip = z.infer<typeof insertTripSchema>;
 export type InsertAttraction = z.infer<typeof insertAttractionSchema>;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
+export type InsertScrapbook = z.infer<typeof insertScrapbookSchema>;
+export type InsertTravelMemory = z.infer<typeof insertTravelMemorySchema>;

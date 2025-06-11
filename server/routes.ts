@@ -920,6 +920,310 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Scrapbook API Routes
+  
+  // Get all scrapbooks for the logged-in user
+  app.get(`${apiPrefix}/scrapbooks`, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+      
+      const userScrapbooks = await db.query.scrapbooks.findMany({
+        where: eq(scrapbooks.userId, userId),
+        orderBy: [desc(scrapbooks.updatedAt)],
+        with: {
+          memories: {
+            orderBy: [desc(travelMemories.createdAt)]
+          }
+        }
+      });
+      
+      return res.status(200).json(userScrapbooks);
+    } catch (error) {
+      console.error('Error fetching scrapbooks:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Create a new scrapbook
+  app.post(`${apiPrefix}/scrapbooks`, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+
+      const validatedData = insertScrapbookSchema.parse({
+        ...req.body,
+        userId
+      });
+      
+      const [newScrapbook] = await db.insert(scrapbooks).values(validatedData).returning();
+      return res.status(201).json(newScrapbook);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error creating scrapbook:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Get a specific scrapbook with memories
+  app.get(`${apiPrefix}/scrapbooks/:id`, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const userId = req.user?.id;
+      const scrapbookId = parseInt(req.params.id);
+      
+      if (!userId || isNaN(scrapbookId)) {
+        return res.status(400).json({ error: 'Invalid parameters' });
+      }
+      
+      const scrapbook = await db.query.scrapbooks.findFirst({
+        where: and(eq(scrapbooks.id, scrapbookId), eq(scrapbooks.userId, userId)),
+        with: {
+          memories: {
+            orderBy: [desc(travelMemories.createdAt)]
+          }
+        }
+      });
+      
+      if (!scrapbook) {
+        return res.status(404).json({ error: 'Scrapbook not found' });
+      }
+      
+      return res.status(200).json(scrapbook);
+    } catch (error) {
+      console.error('Error fetching scrapbook:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Update a scrapbook
+  app.put(`${apiPrefix}/scrapbooks/:id`, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const userId = req.user?.id;
+      const scrapbookId = parseInt(req.params.id);
+      
+      if (!userId || isNaN(scrapbookId)) {
+        return res.status(400).json({ error: 'Invalid parameters' });
+      }
+
+      // Verify ownership
+      const existingScrapbook = await db.query.scrapbooks.findFirst({
+        where: and(eq(scrapbooks.id, scrapbookId), eq(scrapbooks.userId, userId))
+      });
+      
+      if (!existingScrapbook) {
+        return res.status(404).json({ error: 'Scrapbook not found' });
+      }
+
+      const validatedData = insertScrapbookSchema.partial().parse(req.body);
+      
+      const [updatedScrapbook] = await db.update(scrapbooks)
+        .set({ ...validatedData, updatedAt: new Date() })
+        .where(eq(scrapbooks.id, scrapbookId))
+        .returning();
+        
+      return res.status(200).json(updatedScrapbook);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error updating scrapbook:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Delete a scrapbook
+  app.delete(`${apiPrefix}/scrapbooks/:id`, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const userId = req.user?.id;
+      const scrapbookId = parseInt(req.params.id);
+      
+      if (!userId || isNaN(scrapbookId)) {
+        return res.status(400).json({ error: 'Invalid parameters' });
+      }
+
+      // Verify ownership
+      const existingScrapbook = await db.query.scrapbooks.findFirst({
+        where: and(eq(scrapbooks.id, scrapbookId), eq(scrapbooks.userId, userId))
+      });
+      
+      if (!existingScrapbook) {
+        return res.status(404).json({ error: 'Scrapbook not found' });
+      }
+
+      // Delete all memories first
+      await db.delete(travelMemories).where(eq(travelMemories.scrapbookId, scrapbookId));
+      
+      // Delete the scrapbook
+      await db.delete(scrapbooks).where(eq(scrapbooks.id, scrapbookId));
+      
+      return res.status(200).json({ success: true, message: 'Scrapbook deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting scrapbook:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Travel Memory Routes
+
+  // Add a memory to a scrapbook
+  app.post(`${apiPrefix}/scrapbooks/:id/memories`, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const userId = req.user?.id;
+      const scrapbookId = parseInt(req.params.id);
+      
+      if (!userId || isNaN(scrapbookId)) {
+        return res.status(400).json({ error: 'Invalid parameters' });
+      }
+
+      // Verify scrapbook ownership
+      const scrapbook = await db.query.scrapbooks.findFirst({
+        where: and(eq(scrapbooks.id, scrapbookId), eq(scrapbooks.userId, userId))
+      });
+      
+      if (!scrapbook) {
+        return res.status(404).json({ error: 'Scrapbook not found' });
+      }
+
+      const validatedData = insertTravelMemorySchema.parse({
+        ...req.body,
+        scrapbookId
+      });
+      
+      const [newMemory] = await db.insert(travelMemories).values(validatedData).returning();
+      
+      // Update scrapbook timestamp
+      await db.update(scrapbooks)
+        .set({ updatedAt: new Date() })
+        .where(eq(scrapbooks.id, scrapbookId));
+      
+      return res.status(201).json(newMemory);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error creating memory:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Update a memory
+  app.put(`${apiPrefix}/memories/:id`, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const userId = req.user?.id;
+      const memoryId = parseInt(req.params.id);
+      
+      if (!userId || isNaN(memoryId)) {
+        return res.status(400).json({ error: 'Invalid parameters' });
+      }
+
+      // Verify memory ownership through scrapbook
+      const memory = await db.query.travelMemories.findFirst({
+        where: eq(travelMemories.id, memoryId),
+        with: {
+          scrapbook: true
+        }
+      });
+      
+      if (!memory || memory.scrapbook.userId !== userId) {
+        return res.status(404).json({ error: 'Memory not found' });
+      }
+
+      const validatedData = insertTravelMemorySchema.partial().parse(req.body);
+      
+      const [updatedMemory] = await db.update(travelMemories)
+        .set({ ...validatedData, updatedAt: new Date() })
+        .where(eq(travelMemories.id, memoryId))
+        .returning();
+        
+      // Update scrapbook timestamp
+      await db.update(scrapbooks)
+        .set({ updatedAt: new Date() })
+        .where(eq(scrapbooks.id, memory.scrapbookId));
+        
+      return res.status(200).json(updatedMemory);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error updating memory:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Delete a memory
+  app.delete(`${apiPrefix}/memories/:id`, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const userId = req.user?.id;
+      const memoryId = parseInt(req.params.id);
+      
+      if (!userId || isNaN(memoryId)) {
+        return res.status(400).json({ error: 'Invalid parameters' });
+      }
+
+      // Verify memory ownership through scrapbook
+      const memory = await db.query.travelMemories.findFirst({
+        where: eq(travelMemories.id, memoryId),
+        with: {
+          scrapbook: true
+        }
+      });
+      
+      if (!memory || memory.scrapbook.userId !== userId) {
+        return res.status(404).json({ error: 'Memory not found' });
+      }
+
+      await db.delete(travelMemories).where(eq(travelMemories.id, memoryId));
+      
+      // Update scrapbook timestamp
+      await db.update(scrapbooks)
+        .set({ updatedAt: new Date() })
+        .where(eq(scrapbooks.id, memory.scrapbookId));
+      
+      return res.status(200).json({ success: true, message: 'Memory deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting memory:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   // Google Maps API Routes for Hotels and Flights
   
   // Search for hotels in a destination
