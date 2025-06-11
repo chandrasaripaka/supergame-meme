@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { Settings, Bookmark, Users, Shield, LayoutGrid, DollarSign, MessageCircle } from 'lucide-react';
+import { Settings, Bookmark, Users, Shield, LayoutGrid, DollarSign, MessageCircle, Book } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 
 export function AppHeader() {
@@ -33,6 +33,10 @@ export function AppHeader() {
           <Link href="/chat-history" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
             <MessageCircle className="h-5 w-5" />
             <span className="hidden sm:inline-block ml-1">Chat History</span>
+          </Link>
+          <Link href="/scrapbook" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
+            <Book className="h-5 w-5" />
+            <span className="hidden sm:inline-block ml-1">Scrapbook</span>
           </Link>
           <UserProfile />
         </div>

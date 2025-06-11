@@ -16,6 +16,7 @@ import SafetyTestPage from "@/pages/safety-test";
 import A2ADemoPage from "@/pages/a2a-demo";
 import PriceComparisonPage from "@/pages/price-comparison";
 import BookingPage from "@/pages/booking";
+import ScrapbookPage from "@/pages/scrapbook";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -43,6 +44,7 @@ function Router() {
           <Route path="/a2a-demo" component={A2ADemoPage} />
           <Route path="/price-comparison" component={PriceComparisonPage} />
           <Route path="/booking" component={BookingPage} />
+          <Route path="/scrapbook" component={ScrapbookPage} />
           <Route component={NotFound} />
         </Switch>
       </main>
