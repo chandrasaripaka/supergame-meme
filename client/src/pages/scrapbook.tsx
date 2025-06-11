@@ -25,33 +25,17 @@ import {
   Plane,
   Car,
   Train,
-  Ship
+  Ship,
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import type { Scrapbook, TravelMemory, InsertScrapbook, InsertTravelMemory } from '@shared/schema';
 
-interface ScrapbookMemory {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  date: string;
-  images: string[];
-  tags: string[];
-  rating: number;
-  transportMode: 'plane' | 'car' | 'train' | 'ship' | 'walking';
-  isFavorite: boolean;
-  createdAt: Date;
-}
-
-interface ScrapbookPage {
-  id: string;
-  title: string;
-  theme: 'vintage' | 'modern' | 'nature' | 'city' | 'adventure';
-  memories: ScrapbookMemory[];
-  backgroundColor: string;
-  textColor: string;
-  createdAt: Date;
+interface ScrapbookWithMemories extends Scrapbook {
+  memories?: TravelMemory[];
 }
 
 const THEMES = {
@@ -98,85 +82,24 @@ const TRANSPORT_ICONS = {
 export default function ScrapbookPage() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [scrapbooks, setScrapbooks] = useState<ScrapbookPage[]>([
-    {
-      id: '1',
-      title: 'European Adventure',
-      theme: 'vintage',
-      backgroundColor: '#FEF3E2',
-      textColor: '#92400E',
-      memories: [
-        {
-          id: '1',
-          title: 'Eiffel Tower Sunset',
-          description: 'Watching the golden hour from Trocadéro with the love of my life',
-          location: 'Paris, France',
-          date: '2024-06-15',
-          images: [],
-          tags: ['romantic', 'iconic', 'sunset'],
-          rating: 5,
-          transportMode: 'plane',
-          isFavorite: true,
-          createdAt: new Date('2024-06-15')
-        },
-        {
-          id: '2',
-          title: 'Swiss Alps Hiking',
-          description: 'Breathtaking mountain views and crystal clear lakes',
-          location: 'Interlaken, Switzerland',
-          date: '2024-06-20',
-          images: [],
-          tags: ['adventure', 'nature', 'hiking'],
-          rating: 5,
-          transportMode: 'train',
-          isFavorite: false,
-          createdAt: new Date('2024-06-20')
-        }
-      ],
-      createdAt: new Date('2024-06-10')
-    },
-    {
-      id: '2',
-      title: 'Asian Food Journey',
-      theme: 'modern',
-      backgroundColor: '#F8FAFC',
-      textColor: '#0F172A',
-      memories: [
-        {
-          id: '3',
-          title: 'Tokyo Street Food',
-          description: 'Amazing ramen and takoyaki in Shibuya',
-          location: 'Tokyo, Japan',
-          date: '2024-08-10',
-          images: [],
-          tags: ['food', 'culture', 'street-food'],
-          rating: 4,
-          transportMode: 'walking',
-          isFavorite: true,
-          createdAt: new Date('2024-08-10')
-        }
-      ],
-      createdAt: new Date('2024-08-05')
-    }
-  ]);
-  
-  const [selectedScrapbook, setSelectedScrapbook] = useState<ScrapbookPage | null>(null);
+  // State management
+  const [selectedScrapbook, setSelectedScrapbook] = useState<ScrapbookWithMemories | null>(null);
   const [isCreatingScrapbook, setIsCreatingScrapbook] = useState(false);
   const [isCreatingMemory, setIsCreatingMemory] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
   
   // New scrapbook form state
   const [newScrapbookTitle, setNewScrapbookTitle] = useState('');
   const [newScrapbookTheme, setNewScrapbookTheme] = useState<keyof typeof THEMES>('modern');
   
   // New memory form state
-  const [newMemory, setNewMemory] = useState<Partial<ScrapbookMemory>>({
+  const [newMemory, setNewMemory] = useState<Partial<TravelMemory>>({
     title: '',
     description: '',
     location: '',
-    date: '',
+    date: new Date().toISOString().split('T')[0],
     images: [],
     tags: [],
     rating: 5,
@@ -184,6 +107,139 @@ export default function ScrapbookPage() {
     isFavorite: false
   });
   const [newTag, setNewTag] = useState('');
+
+  // Fetch scrapbooks from API
+  const { data: scrapbooks = [], isLoading: isLoadingScrapbooks } = useQuery<ScrapbookWithMemories[]>({
+    queryKey: ['/api/scrapbooks'],
+    enabled: isAuthenticated
+  });
+
+  // Create scrapbook mutation
+  const createScrapbookMutation = useMutation({
+    mutationFn: async (data: InsertScrapbook) => {
+      const response = await apiRequest('/api/scrapbooks', {
+        method: 'POST',
+        data
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/scrapbooks'] });
+      setNewScrapbookTitle('');
+      setIsCreatingScrapbook(false);
+      toast({
+        title: "Scrapbook Created",
+        description: "Your new scrapbook has been created successfully!"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create scrapbook",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Create memory mutation
+  const createMemoryMutation = useMutation({
+    mutationFn: async ({ scrapbookId, data }: { scrapbookId: number; data: InsertTravelMemory }) => {
+      const response = await apiRequest(`/api/scrapbooks/${scrapbookId}/memories`, {
+        method: 'POST',
+        data
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/scrapbooks'] });
+      if (selectedScrapbook) {
+        queryClient.invalidateQueries({ queryKey: [`/api/scrapbooks/${selectedScrapbook.id}`] });
+      }
+      resetMemoryForm();
+      setIsCreatingMemory(false);
+      toast({
+        title: "Memory Added",
+        description: "Your travel memory has been added to the scrapbook!"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add memory",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Update memory mutation
+  const updateMemoryMutation = useMutation({
+    mutationFn: async ({ memoryId, data }: { memoryId: number; data: Partial<TravelMemory> }) => {
+      const response = await apiRequest(`/api/memories/${memoryId}`, {
+        method: 'PUT',
+        data
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/scrapbooks'] });
+      if (selectedScrapbook) {
+        queryClient.invalidateQueries({ queryKey: [`/api/scrapbooks/${selectedScrapbook.id}`] });
+      }
+      toast({
+        title: "Memory Updated",
+        description: "Your travel memory has been updated successfully!"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update memory",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Delete memory mutation
+  const deleteMemoryMutation = useMutation({
+    mutationFn: async (memoryId: number) => {
+      const response = await apiRequest(`/api/memories/${memoryId}`, {
+        method: 'DELETE'
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/scrapbooks'] });
+      if (selectedScrapbook) {
+        queryClient.invalidateQueries({ queryKey: [`/api/scrapbooks/${selectedScrapbook.id}`] });
+      }
+      toast({
+        title: "Memory Deleted",
+        description: "The memory has been removed from your scrapbook"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete memory",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const resetMemoryForm = () => {
+    setNewMemory({
+      title: '',
+      description: '',
+      location: '',
+      date: new Date().toISOString().split('T')[0],
+      images: [],
+      tags: [],
+      rating: 5,
+      transportMode: 'plane',
+      isFavorite: false
+    });
+    setNewTag('');
+  };
 
   if (!isAuthenticated) {
     return (
@@ -216,23 +272,13 @@ export default function ScrapbookPage() {
       return;
     }
 
-    const newScrapbook: ScrapbookPage = {
-      id: Date.now().toString(),
+    const themeConfig = THEMES[newScrapbookTheme];
+    createScrapbookMutation.mutate({
       title: newScrapbookTitle,
       theme: newScrapbookTheme,
-      backgroundColor: THEMES[newScrapbookTheme].bg,
-      textColor: THEMES[newScrapbookTheme].text,
-      memories: [],
-      createdAt: new Date()
-    };
-
-    setScrapbooks(prev => [newScrapbook, ...prev]);
-    setNewScrapbookTitle('');
-    setIsCreatingScrapbook(false);
-    
-    toast({
-      title: "Scrapbook Created",
-      description: `"${newScrapbookTitle}" has been created successfully!`
+      backgroundColor: themeConfig.bg,
+      textColor: themeConfig.text,
+      userId: user?.id || 0
     });
   };
 
@@ -246,42 +292,19 @@ export default function ScrapbookPage() {
       return;
     }
 
-    const memory: ScrapbookMemory = {
-      id: Date.now().toString(),
-      title: newMemory.title!,
-      description: newMemory.description || '',
-      location: newMemory.location || '',
-      date: newMemory.date || new Date().toISOString().split('T')[0],
-      images: newMemory.images || [],
-      tags: newMemory.tags || [],
-      rating: newMemory.rating || 5,
-      transportMode: newMemory.transportMode || 'plane',
-      isFavorite: newMemory.isFavorite || false,
-      createdAt: new Date()
-    };
-
-    setScrapbooks(prev => prev.map(book => 
-      book.id === selectedScrapbook.id 
-        ? { ...book, memories: [...book.memories, memory] }
-        : book
-    ));
-
-    setNewMemory({
-      title: '',
-      description: '',
-      location: '',
-      date: '',
-      images: [],
-      tags: [],
-      rating: 5,
-      transportMode: 'plane',
-      isFavorite: false
-    });
-    setIsCreatingMemory(false);
-    
-    toast({
-      title: "Memory Added",
-      description: `"${memory.title}" has been added to your scrapbook!`
+    createMemoryMutation.mutate({
+      scrapbookId: selectedScrapbook.id,
+      data: {
+        title: newMemory.title,
+        description: newMemory.description || '',
+        location: newMemory.location || '',
+        date: newMemory.date || new Date().toISOString().split('T')[0],
+        images: newMemory.images || [],
+        tags: newMemory.tags || [],
+        rating: newMemory.rating || 5,
+        transportMode: newMemory.transportMode || 'plane',
+        isFavorite: newMemory.isFavorite || false
+      }
     });
   };
 
@@ -302,39 +325,15 @@ export default function ScrapbookPage() {
     }));
   };
 
-  const toggleFavorite = (memoryId: string) => {
-    if (!selectedScrapbook) return;
-
-    setScrapbooks(prev => prev.map(book => 
-      book.id === selectedScrapbook.id 
-        ? {
-            ...book,
-            memories: book.memories.map(memory =>
-              memory.id === memoryId
-                ? { ...memory, isFavorite: !memory.isFavorite }
-                : memory
-            )
-          }
-        : book
-    ));
+  const toggleFavorite = (memoryId: number) => {
+    updateMemoryMutation.mutate({
+      memoryId,
+      data: { isFavorite: true }
+    });
   };
 
-  const deleteMemory = (memoryId: string) => {
-    if (!selectedScrapbook) return;
-
-    setScrapbooks(prev => prev.map(book => 
-      book.id === selectedScrapbook.id 
-        ? {
-            ...book,
-            memories: book.memories.filter(memory => memory.id !== memoryId)
-          }
-        : book
-    ));
-    
-    toast({
-      title: "Memory Deleted",
-      description: "The memory has been removed from your scrapbook"
-    });
+  const deleteMemory = (memoryId: number) => {
+    deleteMemoryMutation.mutate(memoryId);
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

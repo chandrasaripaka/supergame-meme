@@ -8,9 +8,13 @@ import {
   messages, 
   chatSessions,
   chatMessages,
+  scrapbooks,
+  travelMemories,
   insertUserSchema, 
   insertTripSchema, 
-  insertMessageSchema 
+  insertMessageSchema,
+  insertScrapbookSchema,
+  insertTravelMemorySchema
 } from "@shared/schema";
 import { eq, and, desc, asc } from "drizzle-orm";
 import { z } from "zod";
