@@ -98,6 +98,38 @@ router.get('/status', (req, res) => {
   });
 });
 
+// Debug route to show current callback URL configuration
+router.get('/debug', (req, res) => {
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+  const host = req.headers.host || 'localhost:5000';
+  const callbackUrl = `${protocol}://${host}/auth/google/callback`;
+  
+  res.json({
+    environment: {
+      protocol,
+      host,
+      callbackUrl,
+      isReplit: host.includes('.replit.dev') || host.includes('.replit.app'),
+      headers: {
+        'x-forwarded-proto': req.headers['x-forwarded-proto'],
+        'host': req.headers.host
+      }
+    },
+    googleConfig: {
+      clientIdConfigured: !!process.env.GOOGLE_CLIENT_ID,
+      clientSecretConfigured: !!process.env.GOOGLE_CLIENT_SECRET,
+      clientIdLength: process.env.GOOGLE_CLIENT_ID?.length || 0
+    },
+    instructions: [
+      `1. Go to Google Cloud Console: https://console.cloud.google.com/`,
+      `2. Navigate to APIs & Services → Credentials`,
+      `3. Click on your OAuth 2.0 Client ID`,
+      `4. Add this URL to 'Authorized redirect URIs': ${callbackUrl}`,
+      `5. Click Save`
+    ]
+  });
+});
+
 // Logout route
 router.post('/logout', (req, res, next) => {
   req.logout((err) => {
