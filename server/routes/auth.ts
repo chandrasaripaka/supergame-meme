@@ -102,14 +102,26 @@ router.get('/status', (req, res) => {
 router.get('/debug', (req, res) => {
   const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
   const host = req.headers.host || 'localhost:5000';
-  const callbackUrl = `${protocol}://${host}/auth/google/callback`;
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isCustomDomain = host === 'wander-notes.com';
+  
+  // Determine the correct callback URL
+  let callbackUrl;
+  if (isProduction || isCustomDomain) {
+    callbackUrl = 'https://wander-notes.com/auth/google/callback';
+  } else {
+    callbackUrl = `${protocol}://${host}/auth/google/callback`;
+  }
   
   res.json({
     environment: {
       protocol,
       host,
       callbackUrl,
+      isProduction,
+      isCustomDomain,
       isReplit: host.includes('.replit.dev') || host.includes('.replit.app'),
+      nodeEnv: process.env.NODE_ENV,
       headers: {
         'x-forwarded-proto': req.headers['x-forwarded-proto'],
         'host': req.headers.host
@@ -124,7 +136,9 @@ router.get('/debug', (req, res) => {
       `1. Go to Google Cloud Console: https://console.cloud.google.com/`,
       `2. Navigate to APIs & Services → Credentials`,
       `3. Click on your OAuth 2.0 Client ID`,
-      `4. Add this URL to 'Authorized redirect URIs': ${callbackUrl}`,
+      `4. Add these URLs to 'Authorized redirect URIs':`,
+      `   - Production: https://wander-notes.com/auth/google/callback`,
+      `   - Development: ${protocol}://${host}/auth/google/callback`,
       `5. Click Save`
     ]
   });

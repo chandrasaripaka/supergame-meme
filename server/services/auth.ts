@@ -21,14 +21,32 @@ passport.deserializeUser(async (id: number, done) => {
   }
 });
 
+// Function to get the appropriate callback URL
+function getCallbackURL(req?: any): string {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const customDomain = 'wander-notes.com';
+  
+  if (req) {
+    const host = req.headers.host || 'localhost:5000';
+    if (host === customDomain || isProduction) {
+      return `https://${customDomain}/auth/google/callback`;
+    }
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    return `${protocol}://${host}/auth/google/callback`;
+  }
+  
+  return isProduction 
+    ? `https://${customDomain}/auth/google/callback`
+    : '/auth/google/callback';
+}
+
 // Configure Google Strategy
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      // Using the most generic callback path - we'll detect the full URL dynamically
-      callbackURL: '/auth/google/callback',
+      callbackURL: getCallbackURL(),
       // Add the following properties to handle redirect issues
       proxy: true, // Trust the reverse proxy
       passReqToCallback: true // Allow access to the request object
