@@ -45,6 +45,12 @@ export default function Home() {
   });
   
   const handleSendMessage = (message: string) => {
+    // Check if user wants to fill out travel details
+    const shouldShowForm = message.toLowerCase().includes('plan') || 
+                          message.toLowerCase().includes('trip') || 
+                          message.toLowerCase().includes('travel') ||
+                          message.includes('[Context:');
+    
     // Add user message to the chat
     const userMessage: Message = {
       role: 'user',
@@ -52,16 +58,101 @@ export default function Home() {
     };
     
     setMessages((prevMessages) => [...prevMessages, userMessage]);
-    
-    // Hide welcome card after first message
     setShowWelcome(false);
     
-    // Send message to AI
-    mutate(message);
+    // Show travel form for trip planning requests
+    if (shouldShowForm && !showTravelForm) {
+      setShowTravelForm(true);
+      
+      // Add a system message suggesting the form
+      const formMessage: Message = {
+        role: 'assistant',
+        content: "I'd be happy to help you plan your trip! Let me gather some details to create the perfect itinerary for you.",
+        modelInfo: {
+          provider: "system",
+          model: "travel-form",
+          note: "Travel Planning Form"
+        }
+      };
+      setMessages((prevMessages) => [...prevMessages, formMessage]);
+    } else {
+      // Send to AI with travel context if available
+      const contextualMessage = travelContext 
+        ? `${message}\n\nTravel Context: ${JSON.stringify(travelContext)}`
+        : message;
+      mutate(contextualMessage);
+    }
   };
-  
+
   const handleSuggestionClick = (suggestion: string) => {
     handleSendMessage(suggestion);
+  };
+
+  const handleTravelFormSubmit = (formData: any) => {
+    setTravelContext(formData);
+    setShowTravelForm(false);
+    
+    // Create a summary message with travel details
+    const travelSummary = `Perfect! Here are your travel details:
+    
+🌍 Destination: ${formData.destination}
+📅 Dates: ${formData.startDate ? new Date(formData.startDate).toLocaleDateString() : 'Flexible'} - ${formData.endDate ? new Date(formData.endDate).toLocaleDateString() : 'Flexible'}
+💰 Budget: ${getBudgetLabel(formData.budget)}
+👥 Travelers: ${getTravelersLabel(formData.travelers)}
+⏱️ Duration: ${getDurationLabel(formData.duration)}
+
+Let me create a personalized itinerary for you!`;
+
+    const summaryMessage: Message = {
+      role: 'assistant',
+      content: travelSummary,
+      modelInfo: {
+        provider: "system",
+        model: "travel-summary",
+        note: "Travel Details Summary"
+      }
+    };
+    
+    setMessages((prevMessages) => [...prevMessages, summaryMessage]);
+    
+    // Send the travel context to AI for planning
+    const planningPrompt = `Create a detailed travel itinerary with the following details: ${JSON.stringify(formData)}`;
+    mutate(planningPrompt);
+  };
+
+  const getBudgetLabel = (budget: string) => {
+    const labels: { [key: string]: string } = {
+      'under_500': 'Under $500',
+      '500_1000': '$500 - $1,000',
+      '1000_2500': '$1,000 - $2,500',
+      '2500_5000': '$2,500 - $5,000',
+      '5000_10000': '$5,000 - $10,000',
+      'over_10000': 'Over $10,000'
+    };
+    return labels[budget] || budget;
+  };
+
+  const getTravelersLabel = (travelers: string) => {
+    const labels: { [key: string]: string } = {
+      '1': 'Solo Traveler',
+      '2': '2 People',
+      '3': '3 People',
+      '4': '4 People',
+      '5': '5 People',
+      '6_plus': '6+ People'
+    };
+    return labels[travelers] || travelers;
+  };
+
+  const getDurationLabel = (duration: string) => {
+    const labels: { [key: string]: string } = {
+      'weekend': 'Weekend (2-3 days)',
+      'short': 'Short Trip (4-7 days)',
+      'medium': '1-2 Weeks',
+      'long': '2-4 Weeks',
+      'extended': 'Over a Month'
+    };
+    return labels[duration] || duration;
   };
   
   const handleSavePlan = () => {
@@ -114,6 +205,28 @@ export default function Home() {
           onModifyPlan={handleModifyPlan}
           isLoading={isPending}
         />
+        
+        {showTravelForm && (
+          <div className="max-w-4xl mx-auto px-4 mb-8">
+            <TravelQuickForm 
+              onSubmit={handleTravelFormSubmit}
+              onSkip={() => setShowTravelForm(false)}
+            />
+            <DestinationSuggestions 
+              onSelect={(destination) => {
+                // Auto-fill destination in form if visible
+                const event = new CustomEvent('autoFillDestination', { detail: destination });
+                window.dispatchEvent(event);
+              }}
+            />
+          </div>
+        )}
+        
+        {travelContext && travelContext.budget && (
+          <div className="max-w-4xl mx-auto px-4 mb-8">
+            <BudgetBreakdown budget={travelContext.budget} />
+          </div>
+        )}
         
         <PopularDestinations />
       </div>

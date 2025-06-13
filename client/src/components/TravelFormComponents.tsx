@@ -33,6 +33,16 @@ export function TravelQuickForm({ onSubmit, onSkip, initialData }: TravelFormPro
     duration: initialData?.duration || '',
   });
 
+  // Listen for auto-fill destination events
+  React.useEffect(() => {
+    const handleAutoFill = (event: CustomEvent) => {
+      setFormData(prev => ({ ...prev, destination: event.detail }));
+    };
+
+    window.addEventListener('autoFillDestination', handleAutoFill as EventListener);
+    return () => window.removeEventListener('autoFillDestination', handleAutoFill as EventListener);
+  }, []);
+
   const handleSubmit = () => {
     onSubmit(formData);
   };
