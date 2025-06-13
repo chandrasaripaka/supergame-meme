@@ -56,6 +56,11 @@ router.get('/google/callback', (req, res, next) => {
   
   // Handle authentication without option overrides to avoid TypeScript errors
   passport.authenticate('google', (err: any, user: any, info: any) => {
+    console.log('Google OAuth callback - Error:', err);
+    console.log('Google OAuth callback - User:', user);
+    console.log('Google OAuth callback - Info:', info);
+    console.log('Google OAuth callback - Query params:', req.query);
+    
     if (err) {
       console.error('Google OAuth error:', err);
       return res.redirect('/login?error=' + encodeURIComponent('Authentication error: ' + err.message));
@@ -63,17 +68,19 @@ router.get('/google/callback', (req, res, next) => {
     
     if (!user) {
       console.error('Google OAuth failed - No user returned:', info);
-      return res.redirect('/login?error=' + encodeURIComponent('Authentication failed'));
+      return res.redirect('/login?error=' + encodeURIComponent('Authentication failed: ' + (info?.message || 'Unknown error')));
     }
     
     // Log in the authenticated user
     req.login(user, (err) => {
       if (err) {
         console.error('Error in req.login():', err);
-        return res.redirect('/login?error=' + encodeURIComponent('Login error'));
+        return res.redirect('/login?error=' + encodeURIComponent('Login error: ' + err.message));
       }
       
       console.log('Google OAuth authentication successful for user:', user.username);
+      console.log('Session after login:', req.session);
+      console.log('isAuthenticated after login:', req.isAuthenticated());
       return res.redirect('/');
     });
   })(req, res, next);

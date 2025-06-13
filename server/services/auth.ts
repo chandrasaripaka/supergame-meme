@@ -26,18 +26,13 @@ function getCallbackURL(req?: any): string {
   const isProduction = process.env.NODE_ENV === 'production';
   const customDomain = 'wander-notes.com';
   
-  if (req) {
-    const host = req.headers.host || 'localhost:5000';
-    if (host === customDomain || isProduction) {
-      return `https://${customDomain}/auth/google/callback`;
-    }
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-    return `${protocol}://${host}/auth/google/callback`;
+  // For development, always use localhost with http
+  if (!isProduction) {
+    return 'http://localhost:5000/auth/google/callback';
   }
   
-  return isProduction 
-    ? `https://${customDomain}/auth/google/callback`
-    : '/auth/google/callback';
+  // For production, use custom domain with https
+  return `https://${customDomain}/auth/google/callback`;
 }
 
 // Configure Google Strategy
