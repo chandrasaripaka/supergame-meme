@@ -23,6 +23,22 @@ export default function LoginPage() {
     setLocation('/');
   };
 
+  // Handle test login (development only)
+  const handleTestLogin = async () => {
+    try {
+      const response = await fetch('/auth/test-login', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        setLocation('/');
+      }
+    } catch (error) {
+      console.error('Test login failed:', error);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen hero-gradient travel-bg-pattern p-4">
       <div className="relative z-10">
@@ -39,10 +55,13 @@ export default function LoginPage() {
               }}  
             />
           </div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent">
-            Welcome to AI Travel Concierge
+          <CardTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent leading-tight">
+            Travel Concierge
           </CardTitle>
-          <CardDescription className="text-gray-500 dark:text-gray-400">
+          <CardDescription className="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-2">
+            AI-POWERED JOURNEY PLANNING
+          </CardDescription>
+          <CardDescription className="text-gray-500 dark:text-gray-400 text-sm">
             Sign in to save your travel plans and chat history
           </CardDescription>
         </CardHeader>
@@ -50,7 +69,7 @@ export default function LoginPage() {
         <CardContent className="space-y-4 pt-4">
           {error && (
             <div className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-3 rounded-md text-sm">
-              {typeof error === 'object' && error?.message ? error.message : error || 'Authentication error'}
+              Authentication error occurred
             </div>
           )}
           
@@ -83,9 +102,19 @@ export default function LoginPage() {
           
           <div className="flex items-center gap-2 py-2">
             <Separator className="flex-1" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">testing only</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">development only</span>
             <Separator className="flex-1" />
           </div>
+          
+          <Button
+            variant="secondary"
+            size="lg"
+            className="w-full"
+            onClick={handleTestLogin}
+            disabled={isLoading || isRedirecting}
+          >
+            Test Login (Dev)
+          </Button>
           
           <LocalLogin />
         </CardContent>

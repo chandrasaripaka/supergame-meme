@@ -71,7 +71,7 @@ router.get('/google/callback', (req, res, next) => {
 router.get('/status', (req, res) => {
   console.log('Auth status check - Session ID:', req.sessionID);
   console.log('Auth status check - Session exists:', !!req.session);
-  console.log('Auth status check - Session passport:', req.session?.passport);
+  console.log('Auth status check - Session passport:', req.session && 'passport' in req.session ? req.session.passport : 'none');
   console.log('Auth status check - isAuthenticated:', req.isAuthenticated());
   console.log('Auth status check - User:', req.user);
   
