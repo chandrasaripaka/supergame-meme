@@ -15,8 +15,12 @@ import { UserIcon, LogOut, History, Settings } from 'lucide-react';
 
 export function UserProfile() {
   const [_, setLocation] = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Debug logging
+  console.log('UserProfile - user:', user);
+  console.log('UserProfile - isLoading:', isLoading);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
