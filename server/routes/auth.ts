@@ -8,29 +8,15 @@ const router = Router();
 
 // Google OAuth routes
 router.get('/google', (req, res, next) => {
-  // Detect the protocol, preferring x-forwarded-proto header (provided by Replit proxy)
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
-  
-  // Get host from request
-  const host = req.headers.host || 'localhost:5000';
-  
-  // Determine if we're in a Replit environment
-  const isReplit = host.includes('.replit.dev') || host.includes('.replit.app');
-  
-  // Determine if we're in production (replit.app)
-  const isProduction = host.includes('.replit.app');
-  
-  // Build the full callback URL
-  const callbackUrl = `${protocol}://${host}/auth/google/callback`;
+  // Use consistent callback URL logic
+  const callbackUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://wander-notes.com/auth/google/callback'
+    : 'http://localhost:5000/auth/google/callback';
   
   console.log('Starting Google OAuth flow');
-  console.log('Running on host:', host);
-  console.log('Protocol:', protocol);
+  console.log('Environment:', process.env.NODE_ENV);
   console.log('Callback URL:', callbackUrl);
-  console.log('Environment:', isReplit ? (isProduction ? 'production' : 'development') : 'local');
   console.log('Make sure this matches EXACTLY what you configured in Google Cloud Console');
-  
-  // No need to store in session - we'll reconstruct it on callback
   
   // Standard authentication - we're using @types/passport-google-oauth20
   passport.authenticate('google', { 
@@ -39,20 +25,15 @@ router.get('/google', (req, res, next) => {
 });
 
 router.get('/google/callback', (req, res, next) => {
-  // Detect the protocol, preferring x-forwarded-proto header (provided by Replit proxy)
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
-  
-  // Get host from request
-  const host = req.headers.host || 'localhost:5000';
-  
-  // Build the full callback URL
-  const callbackUrl = `${protocol}://${host}/auth/google/callback`;
+  // Use consistent callback URL logic
+  const callbackUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://wander-notes.com/auth/google/callback'
+    : 'http://localhost:5000/auth/google/callback';
   
   console.log('Google OAuth callback received');
-  console.log('Protocol:', protocol);
-  console.log('Host:', host);
+  console.log('Environment:', process.env.NODE_ENV);
   console.log('Original URL:', req.originalUrl);
-  console.log('Full callback URL:', callbackUrl);
+  console.log('Expected callback URL:', callbackUrl);
   
   // Handle authentication without option overrides to avoid TypeScript errors
   passport.authenticate('google', (err: any, user: any, info: any) => {
@@ -107,32 +88,18 @@ router.get('/status', (req, res) => {
 
 // Debug route to show current callback URL configuration
 router.get('/debug', (req, res) => {
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-  const host = req.headers.host || 'localhost:5000';
   const isProduction = process.env.NODE_ENV === 'production';
-  const isCustomDomain = host === 'wander-notes.com';
   
-  // Determine the correct callback URL
-  let callbackUrl;
-  if (isProduction || isCustomDomain) {
-    callbackUrl = 'https://wander-notes.com/auth/google/callback';
-  } else {
-    callbackUrl = `${protocol}://${host}/auth/google/callback`;
-  }
+  // Use consistent callback URL logic
+  const callbackUrl = isProduction 
+    ? 'https://wander-notes.com/auth/google/callback'
+    : 'http://localhost:5000/auth/google/callback';
   
   res.json({
     environment: {
-      protocol,
-      host,
       callbackUrl,
       isProduction,
-      isCustomDomain,
-      isReplit: host.includes('.replit.dev') || host.includes('.replit.app'),
-      nodeEnv: process.env.NODE_ENV,
-      headers: {
-        'x-forwarded-proto': req.headers['x-forwarded-proto'],
-        'host': req.headers.host
-      }
+      nodeEnv: process.env.NODE_ENV
     },
     googleConfig: {
       clientIdConfigured: !!process.env.GOOGLE_CLIENT_ID,
@@ -145,7 +112,7 @@ router.get('/debug', (req, res) => {
       `3. Click on your OAuth 2.0 Client ID`,
       `4. Add these URLs to 'Authorized redirect URIs':`,
       `   - Production: https://wander-notes.com/auth/google/callback`,
-      `   - Development: ${protocol}://${host}/auth/google/callback`,
+      `   - Development: http://localhost:5000/auth/google/callback`,
       `5. Click Save`
     ]
   });
