@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WelcomeCard } from '@/components/WelcomeCard';
 import { ChatInterface } from '@/components/ChatInterface';
+import { TravelQuickForm, BudgetBreakdown, DestinationSuggestions } from '@/components/TravelFormComponents';
 import { Message } from '@/types';
 import { useMutation } from '@tanstack/react-query';
 import { sendMessageToAI } from '@/lib/gemini';
@@ -9,6 +10,8 @@ import { PopularDestinations } from '@/components/PopularDestinations';
 
 export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showTravelForm, setShowTravelForm] = useState(false);
+  const [travelContext, setTravelContext] = useState<any>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',

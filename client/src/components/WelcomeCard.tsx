@@ -14,32 +14,74 @@ export function WelcomeCard({ onSuggestionClick, visible }: WelcomeCardProps) {
     {
       text: "Plan a weekend in New York",
       demographic: "Urban Explorer",
-      description: "Discover museums, Broadway shows, and hidden gems in the city that never sleeps"
+      description: "Discover museums, Broadway shows, and hidden gems in the city that never sleeps",
+      context: "destination:New York, duration:weekend, interests:museums,broadway,culture"
     },
     {
       text: "Family trip to Disney World with kids under 10",
-      demographic: "Family Traveler",
-      description: "Create magical memories with age-appropriate attractions and dining experiences"
+      demographic: "Family Traveler", 
+      description: "Create magical memories with age-appropriate attractions and dining experiences",
+      context: "destination:Orlando, travelers:family_with_kids, age_range:under_10, interests:theme_parks,family_activities"
     },
     {
       text: "Romantic getaway under $1000 for couples",
       demographic: "Couples",
-      description: "Intimate escapes with wine tastings, spa treatments, and scenic views"
+      description: "Intimate escapes with wine tastings, spa treatments, and scenic views",
+      context: "budget:under_1000, travelers:2, interests:romance,wine,spa,scenic_views"
     },
     {
       text: "Solo backpacking adventure through Southeast Asia",
       demographic: "Solo Adventurer",
-      description: "Budget-friendly hostels, street food tours, and cultural immersion experiences"
+      description: "Budget-friendly hostels, street food tours, and cultural immersion experiences",
+      context: "travelers:1, style:backpacking, region:southeast_asia, budget:budget_friendly, interests:culture,food,hostels"
     },
     {
       text: "Luxury spa retreat for seniors in Tuscany",
       demographic: "Luxury Traveler",
-      description: "Peaceful countryside, wellness treatments, and fine dining experiences"
+      description: "Peaceful countryside, wellness treatments, and fine dining experiences",
+      context: "destination:Tuscany, style:luxury, interests:spa,wellness,fine_dining, age_group:seniors"
     },
     {
       text: "Adventure sports weekend in Colorado",
       demographic: "Thrill Seeker",
-      description: "Rock climbing, white-water rafting, and mountain biking adventures"
+      description: "Rock climbing, white-water rafting, and mountain biking adventures",
+      context: "destination:Colorado, duration:weekend, interests:adventure_sports,rock_climbing,rafting,mountain_biking"
+    },
+    {
+      text: "Business trip to Tokyo with cultural experiences",
+      demographic: "Business Traveler",
+      description: "Combine work with authentic Japanese culture, temples, and cuisine",
+      context: "destination:Tokyo, purpose:business, interests:culture,temples,cuisine,authentic_experiences"
+    },
+    {
+      text: "European train journey across 5 countries",
+      demographic: "Rail Enthusiast",
+      description: "Scenic routes through Europe with historic cities and countryside views",
+      context: "region:Europe, transport:train, countries:5, interests:scenic_routes,historic_cities,countryside"
+    },
+    {
+      text: "Beach holiday in Maldives for honeymoon",
+      demographic: "Honeymooners",
+      description: "Private villas, crystal waters, and romantic sunset dinners",
+      context: "destination:Maldives, purpose:honeymoon, style:luxury, interests:beaches,private_villas,romantic_dining"
+    },
+    {
+      text: "Photography tour of Iceland's natural wonders",
+      demographic: "Photographers",
+      description: "Capture Northern Lights, waterfalls, and dramatic landscapes",
+      context: "destination:Iceland, purpose:photography, interests:northern_lights,waterfalls,landscapes,nature"
+    },
+    {
+      text: "Food and wine tour through France",
+      demographic: "Food Enthusiasts",
+      description: "Vineyard visits, cooking classes, and Michelin-starred restaurants",
+      context: "destination:France, interests:food,wine,cooking_classes,michelin_restaurants,vineyards"
+    },
+    {
+      text: "Budget backpacking through Central America",
+      demographic: "Budget Backpackers",
+      description: "Hostels, local transport, and authentic cultural experiences",
+      context: "region:Central_America, style:backpacking, budget:budget, interests:culture,authentic_experiences,hostels"
     }
   ];
   
@@ -50,45 +92,73 @@ export function WelcomeCard({ onSuggestionClick, visible }: WelcomeCardProps) {
         <p className="text-xl text-gray-700 max-w-3xl mx-auto">Tell me where you want to go, your budget, interests, and travel dates. I'll help you create the perfect trip tailored just for you!</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mx-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mx-4">
         {suggestions.map((suggestion, index) => (
           <div
             key={index}
-            onClick={() => onSuggestionClick(suggestion.text)}
+            onClick={() => onSuggestionClick(`${suggestion.text} [Context: ${suggestion.context}]`)}
             className="card-glass rounded-xl p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl group"
           >
             <div className="mb-4">
               <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                {index === 0 && (
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                    <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+                {suggestion.demographic === "Urban Explorer" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                   </svg>
                 )}
-                {index === 1 && (
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                {suggestion.demographic === "Family Traveler" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.5 7h-5c-.8 0-1.5.7-1.5 1.5v6c0 .8.7 1.5 1.5 1.5H16v6h4zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zm1.5 1h-2c-.83 0-1.5.67-1.5 1.5v6h2V22h2v-2.5h2v-6c0-.83-.67-1.5-1.5-1.5z"/>
                   </svg>
                 )}
-                {index === 2 && (
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"/>
+                {suggestion.demographic === "Couples" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                   </svg>
                 )}
-                {index === 3 && (
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"/>
+                {suggestion.demographic === "Solo Adventurer" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                   </svg>
                 )}
-                {index === 4 && (
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                {suggestion.demographic === "Luxury Traveler" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-2V2.5C17 2.22 16.78 2 16.5 2h-9C7.22 2 7 2.22 7 2.5V4H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-4 2V3h-2v3H9V3H7v3h10z"/>
                   </svg>
                 )}
-                {index === 5 && (
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                {suggestion.demographic === "Thrill Seeker" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                )}
+                {suggestion.demographic === "Business Traveler" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14 6V4h-4v2h4zM4 8v11h16V8H4zm16-2c1.11 0 2 .89 2 2v11c0 1.11-.89 2-2 2H4c-1.11 0-2-.89-2-2l.01-11c0-1.11.88-2 1.99-2h4V4c0-1.11.89-2 2-2h4c1.11 0 2 .89 2 2v2h4z"/>
+                  </svg>
+                )}
+                {suggestion.demographic === "Rail Enthusiast" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 15.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h12v-.5L16.5 19c1.93 0 3.5-1.57 3.5-3.5V5c0-3.5-3.58-4-8-4s-8 .5-8 4v10.5zm8 1.5c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm6-7H6V5h12v5z"/>
+                  </svg>
+                )}
+                {suggestion.demographic === "Honeymooners" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                )}
+                {suggestion.demographic === "Photographers" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 15.5c1.93 0 3.5-1.57 3.5-3.5S13.93 8.5 12 8.5 8.5 10.07 8.5 12s1.57 3.5 3.5 3.5zM17.5 9c.28 0 .5-.22.5-.5s-.22-.5-.5-.5-.5.22-.5.5.22.5.5.5zM20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/>
+                  </svg>
+                )}
+                {suggestion.demographic === "Food Enthusiasts" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.20-1.10-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z"/>
+                  </svg>
+                )}
+                {suggestion.demographic === "Budget Backpackers" && (
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 8h-3V6c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v10h20V10c0-1.1-.9-2-2-2zM9 6h6v2H9V6z"/>
                   </svg>
                 )}
               </div>
