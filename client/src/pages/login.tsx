@@ -24,9 +24,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-sky-100 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="pb-2 text-center">
+    <div className="flex items-center justify-center min-h-screen hero-gradient travel-bg-pattern p-4">
+      <div className="relative z-10">
+        <Card className="w-full max-w-md shadow-2xl card-glass border-0">
+          <CardHeader className="pb-2 text-center">
           <div className="flex justify-center py-4">
             <img 
               src="/logo.svg" 
@@ -94,7 +95,29 @@ export default function LoginPage() {
             Guest sessions will only be saved on this device and may be removed after a period of inactivity.
           </p>
         </CardFooter>
-      </Card>
+        </Card>
+      </div>
+      
+      {/* Floating travel elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="floating-animation absolute top-10 left-10 opacity-30">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <path d="M40 10L50 30H45V50H35V30H30L40 10Z" fill="white"/>
+            <circle cx="40" cy="65" r="10" fill="white"/>
+          </svg>
+        </div>
+        <div className="floating-animation absolute top-1/4 right-10 opacity-30" style={{animationDelay: '2s'}}>
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+            <path d="M30 5L45 30L30 55L15 30L30 5Z" fill="white"/>
+          </svg>
+        </div>
+        <div className="floating-animation absolute bottom-20 left-1/4 opacity-30" style={{animationDelay: '4s'}}>
+          <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+            <circle cx="45" cy="45" r="40" stroke="white" strokeWidth="3" fill="none"/>
+            <path d="M25 45L45 25L65 45L45 65L25 45Z" fill="white"/>
+          </svg>
+        </div>
+      </div>
     </div>
   );
 }

@@ -96,22 +96,45 @@ export default function Home() {
   };
   
   return (
-    <>
-      <WelcomeCard 
-        onSuggestionClick={handleSuggestionClick}
-        visible={showWelcome}
-      />
+    <div className="min-h-screen hero-gradient travel-bg-pattern">
+      <div className="relative z-10">
+        <WelcomeCard 
+          onSuggestionClick={handleSuggestionClick}
+          visible={showWelcome}
+        />
+        
+        <ChatInterface
+          messages={messages}
+          onSendMessage={handleSendMessage}
+          onSavePlan={handleSavePlan}
+          onExportPDF={handleExportPDF}
+          onModifyPlan={handleModifyPlan}
+          isLoading={isPending}
+        />
+        
+        <PopularDestinations />
+      </div>
       
-      <ChatInterface
-        messages={messages}
-        onSendMessage={handleSendMessage}
-        onSavePlan={handleSavePlan}
-        onExportPDF={handleExportPDF}
-        onModifyPlan={handleModifyPlan}
-        isLoading={isPending}
-      />
-      
-      <PopularDestinations />
-    </>
+      {/* Floating travel elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="floating-animation absolute top-20 left-10 opacity-20">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+            <path d="M30 5L40 20H35V35H25V20H20L30 5Z" fill="white"/>
+            <circle cx="30" cy="45" r="8" fill="white"/>
+          </svg>
+        </div>
+        <div className="floating-animation absolute top-40 right-20 opacity-20" style={{animationDelay: '2s'}}>
+          <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
+            <path d="M25 10L35 25L25 40L15 25L25 10Z" fill="white"/>
+          </svg>
+        </div>
+        <div className="floating-animation absolute bottom-20 left-20 opacity-20" style={{animationDelay: '4s'}}>
+          <svg width="70" height="70" viewBox="0 0 70 70" fill="none">
+            <circle cx="35" cy="35" r="30" stroke="white" strokeWidth="2" fill="none"/>
+            <path d="M20 35L35 20L50 35L35 50L20 35Z" fill="white"/>
+          </svg>
+        </div>
+      </div>
+    </div>
   );
 }
