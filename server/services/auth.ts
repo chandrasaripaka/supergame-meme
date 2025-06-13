@@ -48,10 +48,15 @@ passport.use(
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
+        console.log('Google Strategy - Profile received:', JSON.stringify(profile, null, 2));
+        console.log('Google Strategy - Access token exists:', !!accessToken);
+
         // Check if user exists by Google ID
         let user = await db.query.users.findFirst({
           where: eq(users.googleId, profile.id)
         });
+
+        console.log('Google Strategy - User found by Google ID:', !!user);
 
         // If no user found with this Google ID, check by email
         if (!user && profile.emails && profile.emails.length > 0) {
@@ -59,11 +64,13 @@ passport.use(
           user = await db.query.users.findFirst({
             where: eq(users.email, email)
           });
+          console.log('Google Strategy - User found by email:', !!user);
         }
 
         // If no user found, create a new one
         if (!user) {
           if (!profile.emails || profile.emails.length === 0) {
+            console.error('Google Strategy - No email found in profile');
             return done(new Error('No email found in Google profile'), undefined);
           }
 
@@ -72,6 +79,8 @@ passport.use(
           const profilePicture = profile.photos && profile.photos.length > 0
             ? profile.photos[0].value
             : undefined;
+
+          console.log('Google Strategy - Creating new user:', { displayName, email, googleId: profile.id });
 
           // Create new user
           const newUser = {
@@ -85,11 +94,13 @@ passport.use(
           const validatedUser = insertUserSchema.parse(newUser);
           const [createdUser] = await db.insert(users).values(validatedUser).returning();
           
+          console.log('Google Strategy - User created successfully:', createdUser.id);
           return done(null, createdUser);
         }
 
         // If user exists but doesn't have googleId, update it
         if (user && !user.googleId) {
+          console.log('Google Strategy - Updating existing user with Google ID');
           const [updatedUser] = await db
             .update(users)
             .set({ 
@@ -101,12 +112,15 @@ passport.use(
             .where(eq(users.id, user.id))
             .returning();
           
+          console.log('Google Strategy - User updated successfully');
           return done(null, updatedUser);
         }
 
         // Return existing user
+        console.log('Google Strategy - Returning existing user:', user.id);
         return done(null, user);
       } catch (error) {
+        console.error('Google Strategy - Error:', error);
         return done(error, undefined);
       }
     }

@@ -69,7 +69,9 @@ router.get('/google/callback', (req, res, next) => {
 
 // Login status route
 router.get('/status', (req, res) => {
-  console.log('Auth status check - Session:', req.session);
+  console.log('Auth status check - Session ID:', req.sessionID);
+  console.log('Auth status check - Session exists:', !!req.session);
+  console.log('Auth status check - Session passport:', req.session?.passport);
   console.log('Auth status check - isAuthenticated:', req.isAuthenticated());
   console.log('Auth status check - User:', req.user);
   
@@ -116,6 +118,47 @@ router.get('/debug', (req, res) => {
       `5. Click Save`
     ]
   });
+});
+
+// Test authentication route for development
+router.post('/test-login', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'Test login not available in production' });
+  }
+
+  try {
+    // Find or create a test user
+    let testUser = await db.query.users.findFirst({
+      where: eq(users.email, 'test@wandernotes.com')
+    });
+
+    if (!testUser) {
+      const [createdUser] = await db.insert(users).values({
+        username: 'Test User',
+        email: 'test@wandernotes.com',
+        googleId: 'test-google-id'
+      }).returning();
+      testUser = createdUser;
+    }
+
+    // Log in the test user
+    req.login(testUser, (err) => {
+      if (err) {
+        console.error('Test login error:', err);
+        return res.status(500).json({ error: 'Test login failed' });
+      }
+      
+      console.log('Test user logged in successfully:', testUser.username);
+      res.json({
+        success: true,
+        message: 'Test login successful',
+        user: testUser
+      });
+    });
+  } catch (error) {
+    console.error('Test login error:', error);
+    res.status(500).json({ error: 'Test login failed' });
+  }
 });
 
 // Logout route

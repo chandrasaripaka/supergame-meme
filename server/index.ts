@@ -15,16 +15,20 @@ const PgSessionStore = pgSession(session);
 app.use(session({
   store: new PgSessionStore({
     pool,
-    tableName: 'session' // Default is "session"
+    tableName: 'session',
+    createTableIfMissing: true
   }),
-  secret: process.env.SESSION_SECRET || 'travel-planner-secret',
+  secret: process.env.SESSION_SECRET || 'travel-planner-secret-key-12345',
   resave: false,
   saveUninitialized: false,
+  rolling: true, // Reset maxAge on activity
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000 // 1 week
-  }
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+  },
+  name: 'wandernotes.sid'
 }));
 
 // Initialize passport middleware
