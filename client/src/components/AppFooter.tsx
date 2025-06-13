@@ -22,7 +22,7 @@ export function AppFooter() {
               />
             </svg>
             <span className="text-gray-800 font-medium">
-              TravelAI Concierge
+              WanderNotes
             </span>
           </div>
           <div className="flex space-x-4 text-gray-600">
@@ -35,15 +35,17 @@ export function AppFooter() {
             <Link href="#" className="hover:text-primary transition">
               Terms
             </Link>
-            <Link href="#" className="hover:text-primary transition">
-              Help
-            </Link>
+            <a href="mailto:reach@wander-notes.com" className="hover:text-primary transition">
+              Contact
+            </a>
           </div>
         </div>
         <div className="mt-4 text-center text-sm text-gray-500">
           <p>
-            © {new Date().getFullYear()} TravelAI. Powered by Agentic AI. All
-            rights reserved.
+            © {new Date().getFullYear()} WanderNotes. Your AI Travel Concierge. All rights reserved.
+          </p>
+          <p className="mt-1">
+            Contact us: <a href="mailto:reach@wander-notes.com" className="hover:text-primary transition">reach@wander-notes.com</a>
           </p>
         </div>
       </div>
