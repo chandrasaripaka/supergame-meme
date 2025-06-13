@@ -18,9 +18,9 @@ export function UserProfile() {
   const { user, logout, isLoading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Debug logging
-  console.log('UserProfile - user:', user);
-  console.log('UserProfile - isLoading:', isLoading);
+  // Debug logging (remove in production)
+  // console.log('UserProfile - user:', user);
+  // console.log('UserProfile - isLoading:', isLoading);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -40,6 +40,15 @@ export function UserProfile() {
       .join('')
       .toUpperCase();
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+        <span className="text-sm text-gray-500">Loading...</span>
+      </div>
+    );
+  }
 
   if (user) {
     return (

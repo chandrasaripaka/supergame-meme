@@ -14,7 +14,7 @@ export function AppHeader() {
               alt="Logo" 
               className="h-8 w-auto"
             />
-            <h1 className="text-xl font-semibold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent">AI Travel Concierge</h1>
+            <h1 className="text-xl font-semibold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent">WanderNotes</h1>
           </Link>
         </div>
         <div className="flex items-center space-x-4">
