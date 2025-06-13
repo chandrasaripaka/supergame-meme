@@ -28,11 +28,15 @@ export default function LoginPage() {
     try {
       const response = await fetch('/auth/test-login', {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
       
       if (response.ok) {
-        setLocation('/');
+        // Force reload to pick up the new session
+        window.location.href = '/';
       }
     } catch (error) {
       console.error('Test login failed:', error);
