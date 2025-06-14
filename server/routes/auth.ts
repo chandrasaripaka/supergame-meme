@@ -95,11 +95,24 @@ router.get('/status', (req, res) => {
   console.log('Auth status check - User:', req.user);
   
   if (req.isAuthenticated()) {
+    // Set auth state cookie for frontend detection
+    res.cookie('auth_state', 'authenticated', {
+      httpOnly: false,
+      maxAge: 300000, // 5 minutes
+      sameSite: 'lax'
+    });
+    
     return res.json({
       isAuthenticated: true,
       user: req.user
     });
   }
+  
+  res.cookie('auth_state', 'unauthenticated', {
+    httpOnly: false,
+    maxAge: 300000, // 5 minutes
+    sameSite: 'lax'
+  });
   
   res.json({
     isAuthenticated: false,

@@ -41,7 +41,7 @@ app.use(session({
   }),
   secret: process.env.SESSION_SECRET || 'travel-planner-secret-key-12345',
   resave: false,
-  saveUninitialized: true, // Changed to true for OAuth
+  saveUninitialized: false, // Keep false for security
   rolling: true, // Reset maxAge on activity
   cookie: {
     secure: false, // Allow HTTP in development

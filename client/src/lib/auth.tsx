@@ -44,20 +44,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     checkAuthStatus();
     
-    // Check for OAuth success cookie and refresh auth state
-    const checkOAuthSuccess = () => {
+    // Check for authentication state changes via cookies
+    const checkAuthStateChange = () => {
       const oauthSuccess = document.cookie.includes('oauth_success=true');
-      if (oauthSuccess) {
-        console.log('OAuth success detected, refreshing auth state');
+      const authState = document.cookie.includes('auth_state=authenticated');
+      
+      if (oauthSuccess || authState) {
+        console.log('Authentication state change detected, refreshing auth status');
         checkAuthStatus();
-        // Remove the cookie
-        document.cookie = 'oauth_success=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        
+        // Clean up temporary cookies
+        if (oauthSuccess) {
+          document.cookie = 'oauth_success=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        }
       }
     };
     
-    // Check immediately and set up polling
-    checkOAuthSuccess();
-    const oauthCheckInterval = setInterval(checkOAuthSuccess, 1000);
+    // Check immediately and set up polling for auth state changes
+    checkAuthStateChange();
+    const authCheckInterval = setInterval(checkAuthStateChange, 2000);
     
     // Listen for storage events to handle auth state changes from other tabs/OAuth callbacks
     const handleStorageChange = () => {
@@ -68,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.addEventListener('focus', checkAuthStatus);
     
     return () => {
-      clearInterval(oauthCheckInterval);
+      clearInterval(authCheckInterval);
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('focus', checkAuthStatus);
     };
