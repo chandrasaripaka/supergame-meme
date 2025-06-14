@@ -107,9 +107,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
     
-    // Check immediately and set up polling for auth state changes
+    // Check immediately and set up polling for auth state changes (every hour)
     checkAuthStateChange();
-    const authCheckInterval = setInterval(checkAuthStateChange, 2000);
+    const authCheckInterval = setInterval(checkAuthStateChange, 60 * 60 * 1000); // 1 hour
     
     // Listen for storage events to handle auth state changes from other tabs/OAuth callbacks
     const handleStorageChange = () => {
