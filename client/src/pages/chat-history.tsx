@@ -69,7 +69,9 @@ export default function ChatHistoryPage() {
   } = useQuery({
     queryKey: ['/api/chat-sessions'],
     queryFn: async () => {
-      const response = await fetch('/api/chat-sessions');
+      const response = await fetch('/api/chat-sessions', {
+        credentials: 'include'
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch chat history');
       }
@@ -83,6 +85,7 @@ export default function ChatHistoryPage() {
     try {
       const response = await fetch(`/api/chat-sessions/${sessionId}`, {
         method: 'DELETE',
+        credentials: 'include'
       });
       
       if (!response.ok) {
