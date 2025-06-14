@@ -11,9 +11,11 @@ import { Message } from "@/types";
 
 interface TravelChatInterfaceProps {
   onClose?: () => void;
+  initialPrompt?: string;
+  onPromptSent?: () => void;
 }
 
-export function TravelChatInterface({ onClose }: TravelChatInterfaceProps) {
+export function TravelChatInterface({ onClose, initialPrompt, onPromptSent }: TravelChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isListening, setIsListening] = useState(false);

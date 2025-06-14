@@ -11,6 +11,82 @@ import { MapPin, Calendar, Users, Search, Plane, Hotel, Car, Camera, Star, Arrow
 export function TravelPlatformLayout() {
   const [activeTab, setActiveTab] = useState("destinations");
   const [showChat, setShowChat] = useState(false);
+  const [searchForm, setSearchForm] = useState({
+    destination: "",
+    checkIn: "",
+    checkOut: "",
+    travelers: "2"
+  });
+
+  const generateAIPrompt = () => {
+    const { destination, checkIn, checkOut, travelers } = searchForm;
+    
+    if (!destination && !checkIn && !checkOut) {
+      return "Help me plan a trip. What destinations would you recommend?";
+    }
+
+    let prompt = `Help me plan a trip`;
+    
+    if (destination) {
+      prompt += ` to ${destination}`;
+    }
+    
+    if (checkIn && checkOut) {
+      const checkInDate = new Date(checkIn).toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      const checkOutDate = new Date(checkOut).toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      prompt += ` from ${checkInDate} to ${checkOutDate}`;
+    } else if (checkIn) {
+      const checkInDate = new Date(checkIn).toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      prompt += ` starting ${checkInDate}`;
+    }
+    
+    if (travelers && travelers !== "1") {
+      const travelerCount = parseInt(travelers);
+      if (travelerCount === 2) {
+        prompt += ` for 2 travelers`;
+      } else if (travelerCount >= 4) {
+        prompt += ` for a group of ${travelerCount}+ people`;
+      } else {
+        prompt += ` for ${travelers} travelers`;
+      }
+    } else if (travelers === "1") {
+      prompt += ` for solo travel`;
+    }
+
+    // Add context based on active tab
+    switch (activeTab) {
+      case "flights":
+        prompt += ". Please show me flight options with prices and duration.";
+        break;
+      case "hotels":
+        prompt += ". I need hotel recommendations with ratings and amenities.";
+        break;
+      case "experiences":
+        prompt += ". Suggest unique experiences and activities for my trip.";
+        break;
+      default:
+        prompt += ". Include flights, hotels, activities, and dining recommendations.";
+    }
+
+    return prompt;
+  };
+
+  const [initialPrompt, setInitialPrompt] = useState("");
+
+  const handleSearchWithAI = () => {
+    const prompt = generateAIPrompt();
+    setInitialPrompt(prompt);
+    setShowChat(true);
+  };
 
   const destinations = [
     {
@@ -122,6 +198,8 @@ export function TravelPlatformLayout() {
                       <MapPin className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
                       <Input 
                         placeholder="Where do you want to go?" 
+                        value={searchForm.destination}
+                        onChange={(e) => setSearchForm(prev => ({ ...prev, destination: e.target.value }))}
                         className="pl-12 h-14 text-lg border-gray-200 focus:ring-2 focus:ring-blue-500 rounded-xl"
                       />
                     </div>
@@ -129,6 +207,8 @@ export function TravelPlatformLayout() {
                       <Calendar className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
                       <Input 
                         type="date" 
+                        value={searchForm.checkIn}
+                        onChange={(e) => setSearchForm(prev => ({ ...prev, checkIn: e.target.value }))}
                         className="pl-12 h-14 text-lg border-gray-200 focus:ring-2 focus:ring-blue-500 rounded-xl"
                       />
                     </div>
@@ -136,12 +216,14 @@ export function TravelPlatformLayout() {
                       <Calendar className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
                       <Input 
                         type="date" 
+                        value={searchForm.checkOut}
+                        onChange={(e) => setSearchForm(prev => ({ ...prev, checkOut: e.target.value }))}
                         className="pl-12 h-14 text-lg border-gray-200 focus:ring-2 focus:ring-blue-500 rounded-xl"
                       />
                     </div>
                     <div className="relative">
                       <Users className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
-                      <Select>
+                      <Select value={searchForm.travelers} onValueChange={(value) => setSearchForm(prev => ({ ...prev, travelers: value }))}>
                         <SelectTrigger className="pl-12 h-14 text-lg border-gray-200 focus:ring-2 focus:ring-blue-500 rounded-xl">
                           <SelectValue placeholder="Travelers" />
                         </SelectTrigger>
@@ -154,24 +236,14 @@ export function TravelPlatformLayout() {
                       </Select>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Button 
-                      size="lg"
-                      className="flex-1 h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold text-lg rounded-xl shadow-lg transition-all duration-200"
-                      onClick={() => setShowChat(true)}
-                    >
-                      <Zap className="mr-2 h-5 w-5" />
-                      Plan with AI Assistant
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="lg"
-                      className="h-14 border-2 border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold text-lg rounded-xl"
-                    >
-                      <Camera className="mr-2 h-5 w-5" />
-                      Get Inspired
-                    </Button>
-                  </div>
+                  <Button 
+                    size="lg"
+                    className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold text-lg rounded-xl shadow-lg transition-all duration-200"
+                    onClick={handleSearchWithAI}
+                  >
+                    <Zap className="mr-2 h-5 w-5" />
+                    Plan with AI Assistant
+                  </Button>
                 </CardContent>
               </Card>
             </div>
@@ -183,7 +255,11 @@ export function TravelPlatformLayout() {
       {showChat && (
         <div className="bg-white dark:bg-gray-800 border-b shadow-xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <TravelChatInterface onClose={() => setShowChat(false)} />
+            <TravelChatInterface 
+              onClose={() => setShowChat(false)} 
+              initialPrompt={initialPrompt}
+              onPromptSent={() => setInitialPrompt("")}
+            />
           </div>
         </div>
       )}
