@@ -29,8 +29,8 @@ function getCallbackURL(req?: any): string {
   // For development, check if running on Replit
   if (!isProduction) {
     // Check if we're running on replit.dev
-    if (process.env.REPL_ID && process.env.REPL_OWNER) {
-      return `https://${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co/auth/google/callback`;
+    if (process.env.REPL_ID) {
+      return `https://${process.env.REPL_ID}--5000.repl.co/auth/google/callback`;
     }
     // Fallback to localhost for local development
     return 'http://localhost:5000/auth/google/callback';

@@ -9,14 +9,22 @@ const router = Router();
 // Google OAuth routes
 router.get('/google', (req, res, next) => {
   // Use consistent callback URL logic
-  const callbackUrl = process.env.NODE_ENV === 'production' 
-    ? 'https://wander-notes.com/auth/google/callback'
-    : 'http://localhost:5000/auth/google/callback';
+  const isProduction = process.env.NODE_ENV === 'production';
+  let callbackUrl;
+  
+  if (isProduction) {
+    callbackUrl = 'https://wander-notes.com/auth/google/callback';
+  } else if (process.env.REPL_ID) {
+    callbackUrl = `https://${process.env.REPL_ID}--5000.repl.co/auth/google/callback`;
+  } else {
+    callbackUrl = 'http://localhost:5000/auth/google/callback';
+  }
   
   console.log('Starting Google OAuth flow');
-  console.log('Environment:', process.env.NODE_ENV);
+  console.log('Environment:', process.env.NODE_ENV || 'development');
+  console.log('REPL_ID:', process.env.REPL_ID);
   console.log('Callback URL:', callbackUrl);
-  console.log('Make sure this matches EXACTLY what you configured in Google Cloud Console');
+  console.log('Add this URL to Google Cloud Console Authorized redirect URIs:', callbackUrl);
   
   // Standard authentication - we're using @types/passport-google-oauth20
   passport.authenticate('google', { 
