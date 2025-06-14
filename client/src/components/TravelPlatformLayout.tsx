@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TravelChatInterface } from "@/components/TravelChatInterface";
-import { MapPin, Calendar, Users, Search, Plane, Hotel, Car, Camera, Star, ArrowRight, Globe, Clock, Zap, Menu, User, Settings, LogOut, MessageCircle, Compass, TrendingUp } from "lucide-react";
+import { ScrapbookManager } from "@/components/ScrapbookManager";
+import { MapPin, Calendar, Users, Search, Plane, Hotel, Car, Camera, Star, ArrowRight, Globe, Clock, Zap, Menu, User, Settings, LogOut, MessageCircle, Compass, TrendingUp, BookOpen } from "lucide-react";
 
 export function TravelPlatformLayout() {
   const [activeTab, setActiveTab] = useState("destinations");
@@ -217,6 +218,15 @@ export function TravelPlatformLayout() {
               </Button>
 
               <Button 
+                variant={activeTab === "scrapbook" ? "default" : "ghost"} 
+                onClick={() => setActiveTab("scrapbook")}
+                className="flex items-center space-x-2"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>Scrapbook</span>
+              </Button>
+
+              <Button 
                 variant="ghost"
                 className="flex items-center space-x-2"
               >
@@ -237,9 +247,14 @@ export function TravelPlatformLayout() {
                 <span className="hidden sm:inline">AI Assistant</span>
               </Button>
               
-              <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="flex items-center space-x-2"
+                onClick={() => window.location.href = '/api/auth/google'}
+              >
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Account</span>
+                <span className="hidden sm:inline">Sign In</span>
               </Button>
 
               <Button variant="ghost" size="sm">
