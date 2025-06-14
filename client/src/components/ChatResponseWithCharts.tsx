@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, DollarSign, Plane, Hotel, Star } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MapPin, Calendar, DollarSign, Plane, Hotel, Star, MapPin as Destination, Activity } from "lucide-react";
 import { Message } from "@/types";
 
 interface ChatResponseWithChartsProps {
@@ -14,13 +15,211 @@ const COLORS = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#6366F1'
 
 export function ChatResponseWithCharts({ message }: ChatResponseWithChartsProps) {
   const isUser = message.role === 'user';
+  const [activeTab, setActiveTab] = useState('flights');
+  
+  // Check if we have categorized data (Budget/Luxury structure)
+  const hasCategorizedData = (data: any) => {
+    return data && (data.budget || data.luxury);
+  };
+  
+  // Render categorized recommendations with Budget/Luxury tabs
+  const renderCategorizedRecommendations = (data: any, type: string) => {
+    if (!hasCategorizedData(data)) return null;
+    
+    const Icon = type === 'flights' ? Plane : type === 'hotels' ? Hotel : type === 'experiences' ? Activity : Destination;
+    
+    return (
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2">
+            <Icon className="h-5 w-5" />
+            {type.charAt(0).toUpperCase() + type.slice(1)} Recommendations
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue={data.budget ? 'budget' : 'luxury'} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              {data.budget && <TabsTrigger value="budget">Budget Options</TabsTrigger>}
+              {data.luxury && <TabsTrigger value="luxury">Luxury Options</TabsTrigger>}
+            </TabsList>
+            
+            {data.budget && (
+              <TabsContent value="budget" className="mt-4">
+                <div className="grid gap-4">
+                  {data.budget.map((item: any, index: number) => (
+                    <div key={index} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                      {renderRecommendationCard(item, type)}
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            )}
+            
+            {data.luxury && (
+              <TabsContent value="luxury" className="mt-4">
+                <div className="grid gap-4">
+                  {data.luxury.map((item: any, index: number) => (
+                    <div key={index} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                      {renderRecommendationCard(item, type)}
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            )}
+          </Tabs>
+        </CardContent>
+      </Card>
+    );
+  };
+  
+  // Render individual recommendation card based on type
+  const renderRecommendationCard = (item: any, type: string) => {
+    switch (type) {
+      case 'flights':
+        return (
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-semibold">{item.airline}</span>
+                <Badge variant={item.category === 'Budget' ? 'secondary' : 'default'}>
+                  {item.category}
+                </Badge>
+              </div>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <div>Departure: {item.departure} → Arrival: {item.arrival}</div>
+                <div>Duration: {item.duration} | Stops: {item.stops}</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold">${item.price}</div>
+              <Button size="sm" className="mt-2">Book Now</Button>
+            </div>
+          </div>
+        );
+      
+      case 'hotels':
+        return (
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-semibold">{item.name}</span>
+                <Badge variant={item.category === 'Budget' ? 'secondary' : 'default'}>
+                  {item.category}
+                </Badge>
+              </div>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {item.location}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                  {item.rating}/5
+                </div>
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {item.amenities?.slice(0, 3).map((amenity: string, i: number) => (
+                    <Badge key={i} variant="outline" className="text-xs">{amenity}</Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold">${item.price}</div>
+              <div className="text-xs text-muted-foreground">per night</div>
+              <Button size="sm" className="mt-2">Book Now</Button>
+            </div>
+          </div>
+        );
+      
+      case 'experiences':
+        return (
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-semibold">{item.name}</span>
+                <Badge variant={item.category === 'Budget' ? 'secondary' : 'default'}>
+                  {item.category}
+                </Badge>
+                <Badge variant="outline">{item.type}</Badge>
+              </div>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <div>{item.description}</div>
+                <div className="flex items-center gap-1">
+                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                  {item.rating}/5
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold">
+                {item.price === 0 ? 'Free' : `$${item.price}`}
+              </div>
+              <Button size="sm" className="mt-2">Learn More</Button>
+            </div>
+          </div>
+        );
+      
+      case 'restaurants':
+        return (
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-semibold">{item.name}</span>
+                <Badge variant={item.category === 'Budget' ? 'secondary' : 'default'}>
+                  {item.category}
+                </Badge>
+                <Badge variant="outline">{item.cuisine}</Badge>
+              </div>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {item.location}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                  {item.rating}/5 • {item.price}
+                </div>
+                <div>{item.description}</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <Button size="sm" className="mt-2" disabled={!item.bookingAvailable}>
+                {item.bookingAvailable ? 'Reserve' : 'View Menu'}
+              </Button>
+            </div>
+          </div>
+        );
+      
+      default:
+        return <div>{JSON.stringify(item)}</div>;
+    }
+  };
   
   // Parse structured data for charts
   const parseChartData = (content: string, data?: any) => {
     const charts = [];
     
-    // Price comparison chart
-    if (data?.flights?.length > 0) {
+    // For categorized data, create comparison charts
+    if (data?.flights && hasCategorizedData(data.flights)) {
+      const allFlights = [...(data.flights.budget || []), ...(data.flights.luxury || [])];
+      const flightData = allFlights.slice(0, 6).map((flight: any) => ({
+        airline: flight.airline,
+        price: flight.price,
+        category: flight.category,
+        duration: flight.duration
+      }));
+      
+      charts.push({
+        type: 'bar',
+        title: 'Flight Price Comparison (Budget vs Luxury)',
+        data: flightData,
+        dataKey: 'price',
+        xAxisKey: 'airline'
+      });
+    }
+    
+    // Legacy support for non-categorized data
+    else if (data?.flights?.length > 0) {
       const flightData = data.flights.slice(0, 5).map((flight: any, index: number) => ({
         airline: flight.airline || `Option ${index + 1}`,
         price: flight.price || Math.floor(Math.random() * 500) + 200,
@@ -216,107 +415,113 @@ export function ChatResponseWithCharts({ message }: ChatResponseWithChartsProps)
           </Card>
         ))}
 
-        {/* Structured Data Display */}
-        {message.data && (
-          <>
-            {message.data.hotels && (
-              <Card className="mt-3 bg-white dark:bg-gray-800 shadow-sm">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <Hotel className="w-4 h-4" />
-                    Top Hotel Recommendations
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-2">
-                    {message.data.hotels.slice(0, 3).map((hotel: any, index: number) => (
-                      <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                        <div>
-                          <p className="font-medium text-sm">{hotel.name}</p>
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-xs text-gray-600">{hotel.rating}/5</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-sm">${hotel.price}</p>
-                          <p className="text-xs text-gray-500">per night</p>
-                        </div>
-                      </div>
-                    ))}
+        {/* Categorized Travel Recommendations */}
+        {message.data && (message.data.flights || message.data.hotels || message.data.experiences || message.data.restaurants) && (
+          <div className="mt-4">
+            <Tabs defaultValue="flights" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="flights" className="flex items-center gap-2">
+                  <Plane className="h-4 w-4" />
+                  Flights
+                </TabsTrigger>
+                <TabsTrigger value="hotels" className="flex items-center gap-2">
+                  <Hotel className="h-4 w-4" />
+                  Hotels
+                </TabsTrigger>
+                <TabsTrigger value="experiences" className="flex items-center gap-2">
+                  <Activity className="h-4 w-4" />
+                  Experiences
+                </TabsTrigger>
+                <TabsTrigger value="destinations" className="flex items-center gap-2">
+                  <Destination className="h-4 w-4" />
+                  Dining
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="flights" className="mt-4">
+                {message.data?.flights ? renderCategorizedRecommendations(message.data.flights, 'flights') : 
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Plane className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>No flight recommendations available for this query.</p>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                }
+              </TabsContent>
+              
+              <TabsContent value="hotels" className="mt-4">
+                {message.data?.hotels ? renderCategorizedRecommendations(message.data.hotels, 'hotels') : 
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Hotel className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>No hotel recommendations available for this query.</p>
+                  </div>
+                }
+              </TabsContent>
+              
+              <TabsContent value="experiences" className="mt-4">
+                {message.data?.experiences ? renderCategorizedRecommendations(message.data.experiences, 'experiences') : 
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Activity className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>No experience recommendations available for this query.</p>
+                  </div>
+                }
+              </TabsContent>
+              
+              <TabsContent value="destinations" className="mt-4">
+                {message.data?.restaurants ? renderCategorizedRecommendations(message.data.restaurants, 'restaurants') : 
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Destination className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>No restaurant recommendations available for this query.</p>
+                  </div>
+                }
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
 
-            {message.data.attractions && (
-              <Card className="mt-3 bg-white dark:bg-gray-800 shadow-sm">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    Must-Visit Attractions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-2">
-                    {message.data.attractions.slice(0, 3).map((attraction: any, index: number) => (
-                      <div key={index} className="p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                        <p className="font-medium text-sm">{attraction.name}</p>
-                        <p className="text-xs text-gray-600 mt-1">{attraction.description}</p>
-                        <Badge variant="outline" className="mt-1 text-xs">{attraction.type}</Badge>
+        {/* Legacy support for old restaurant format */}
+        {message.data?.restaurants && !hasCategorizedData(message.data.restaurants) && (
+          <Card className="mt-3 bg-white dark:bg-gray-800 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Restaurant Recommendations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3">
+                {message.data.restaurants.map((restaurant: any, index: number) => (
+                  <div key={index} className="border rounded-lg overflow-hidden bg-white dark:bg-gray-700">
+                    <div className="relative">
+                      <img 
+                        src={restaurant.image} 
+                        alt={restaurant.name}
+                        className="w-full h-24 object-cover"
+                      />
+                      <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span className="text-xs font-semibold">{restaurant.rating}</span>
                       </div>
-                    ))}
+                    </div>
+                    <div className="p-3">
+                      <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                        {restaurant.name}
+                      </h4>
+                      <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
+                        {restaurant.cuisine} • {restaurant.location} • {restaurant.price}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
+                        {restaurant.description}
+                      </p>
+                      {restaurant.bookingAvailable && (
+                        <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs">
+                          Book Table
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {message.data.restaurants && (
-              <Card className="mt-3 bg-white dark:bg-gray-800 shadow-sm">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    Restaurant Recommendations
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-3">
-                    {message.data.restaurants.map((restaurant: any, index: number) => (
-                      <div key={index} className="border rounded-lg overflow-hidden bg-white dark:bg-gray-700">
-                        <div className="relative">
-                          <img 
-                            src={restaurant.image} 
-                            alt={restaurant.name}
-                            className="w-full h-24 object-cover"
-                          />
-                          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
-                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-xs font-semibold">{restaurant.rating}</span>
-                          </div>
-                        </div>
-                        <div className="p-3">
-                          <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
-                            {restaurant.name}
-                          </h4>
-                          <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
-                            {restaurant.cuisine} • {restaurant.location} • {restaurant.price}
-                          </p>
-                          <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
-                            {restaurant.description}
-                          </p>
-                          {restaurant.bookingAvailable && (
-                            <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs">
-                              Book Table
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
