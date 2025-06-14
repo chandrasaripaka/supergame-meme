@@ -71,6 +71,15 @@ router.get('/google/callback', (req, res, next) => {
         }
         
         console.log('Session saved successfully, redirecting to home');
+        console.log('Session cookie will be:', req.sessionID);
+        
+        // Add a flag to indicate successful OAuth login
+        res.cookie('oauth_success', 'true', { 
+          maxAge: 5000, // 5 seconds
+          httpOnly: false, // Allow frontend to read this
+          sameSite: 'lax'
+        });
+        
         return res.redirect('/');
       });
     });

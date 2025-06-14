@@ -43,6 +43,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     
     checkAuthStatus();
+    
+    // Check for OAuth success cookie and refresh auth state
+    const checkOAuthSuccess = () => {
+      const oauthSuccess = document.cookie.includes('oauth_success=true');
+      if (oauthSuccess) {
+        console.log('OAuth success detected, refreshing auth state');
+        checkAuthStatus();
+        // Remove the cookie
+        document.cookie = 'oauth_success=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      }
+    };
+    
+    // Check immediately and set up polling
+    checkOAuthSuccess();
+    const oauthCheckInterval = setInterval(checkOAuthSuccess, 1000);
+    
+    // Listen for storage events to handle auth state changes from other tabs/OAuth callbacks
+    const handleStorageChange = () => {
+      checkAuthStatus();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', checkAuthStatus);
+    
+    return () => {
+      clearInterval(oauthCheckInterval);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', checkAuthStatus);
+    };
   }, []);
 
   // Function to check if user is authenticated
