@@ -26,8 +26,13 @@ function getCallbackURL(req?: any): string {
   const isProduction = process.env.NODE_ENV === 'production';
   const customDomain = 'wander-notes.com';
   
-  // For development, always use localhost with http
+  // For development, check if running on Replit
   if (!isProduction) {
+    // Check if we're running on replit.dev
+    if (process.env.REPL_ID && process.env.REPL_OWNER) {
+      return `https://${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co/auth/google/callback`;
+    }
+    // Fallback to localhost for local development
     return 'http://localhost:5000/auth/google/callback';
   }
   

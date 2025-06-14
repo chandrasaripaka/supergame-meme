@@ -14,7 +14,7 @@ app.set('trust proxy', 1);
 // Configure CORS for proper session handling
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (origin && (origin.includes('localhost') || origin.includes('replit'))) {
+  if (origin && (origin.includes('localhost') || origin.includes('replit') || origin.includes('replit.dev'))) {
     res.header('Access-Control-Allow-Origin', origin);
   }
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -44,11 +44,11 @@ app.use(session({
   saveUninitialized: false, // Keep false for security
   rolling: true, // Reset maxAge on activity
   cookie: {
-    secure: false, // Allow HTTP in development
+    secure: process.env.NODE_ENV === 'production' || process.env.REPL_ID ? true : false, // HTTPS for production and Replit
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     sameSite: 'lax', // Required for OAuth redirects
-    domain: undefined // Don't restrict domain in development
+    domain: undefined // Don't restrict domain
   },
   name: 'connect.sid' // Use standard session name
 }));
