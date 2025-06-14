@@ -29,6 +29,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Function to check if user is authenticated
+  const checkAuthStatus = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      console.log("Checking auth status...");
+      const response = await apiRequest('/auth/status');
+      console.log("Auth status response:", response);
+      
+      if (response.isAuthenticated) {
+        console.log("User is authenticated:", response.user);
+        setUser(response.user);
+        setIsAuthenticated(true);
+      } else {
+        console.log("User is not authenticated");
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    } catch (err) {
+      console.error('Error checking authentication status:', err);
+      setError('Failed to check authentication status');
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Function to logout
+  const logout = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      await apiRequest('/auth/logout', { method: 'POST' });
+      
+      setUser(null);
+      setIsAuthenticated(false);
+    } catch (err) {
+      console.error('Error during logout:', err);
+      setError('Failed to logout');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Check authentication status on mount and handle URL error parameters
   useEffect(() => {
     // Check for error params in URL (e.g., from failed OAuth)
@@ -78,53 +125,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('focus', checkAuthStatus);
     };
   }, []);
-
-  // Function to check if user is authenticated
-  const checkAuthStatus = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      console.log("Checking auth status...");
-      const response = await apiRequest('/auth/status');
-      console.log("Auth status response:", response);
-      
-      if (response.isAuthenticated) {
-        console.log("User is authenticated:", response.user);
-        setUser(response.user);
-        setIsAuthenticated(true);
-      } else {
-        console.log("User is not authenticated");
-        setUser(null);
-        setIsAuthenticated(false);
-      }
-    } catch (err) {
-      console.error('Error checking authentication status:', err);
-      setError('Failed to check authentication status');
-      setUser(null);
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Function to logout
-  const logout = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      await apiRequest('/auth/logout', { method: 'POST' });
-      
-      setUser(null);
-      setIsAuthenticated(false);
-    } catch (err) {
-      console.error('Error during logout:', err);
-      setError('Failed to logout');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const value = {
     user,
