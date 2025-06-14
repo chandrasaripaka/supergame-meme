@@ -7,13 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { ChatResponseWithCharts } from "./ChatResponseWithCharts";
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  data?: any;
-  timestamp?: Date;
-}
+import { Message } from "@/types";
 
 interface TravelChatInterfaceProps {
   onClose?: () => void;
@@ -59,12 +53,12 @@ export function TravelChatInterface({ onClose }: TravelChatInterfaceProps) {
         role: 'assistant',
         content: data.content || data.message || 'I received your message.',
         data: data.data,
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       };
       
       setMessages(prev => [
         ...prev,
-        { role: 'user', content: inputValue, timestamp: new Date() },
+        { role: 'user', content: inputValue, timestamp: new Date().toISOString() },
         assistantMessage
       ]);
       setInputValue("");

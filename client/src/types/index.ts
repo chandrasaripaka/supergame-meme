@@ -63,6 +63,35 @@ export interface Message {
     model?: string;
     note?: string;
   };
+  data?: {
+    flights?: Array<{
+      airline: string;
+      price: number;
+      duration: string;
+      stops: number;
+    }>;
+    hotels?: Array<{
+      name: string;
+      price: number;
+      rating: number;
+      amenities: string[];
+    }>;
+    attractions?: Array<{
+      name: string;
+      description: string;
+      type: string;
+      rating: number;
+    }>;
+    budget?: {
+      total: number;
+      breakdown: Record<string, number>;
+    };
+    destination?: string;
+    price?: number;
+    duration?: string;
+    weather?: Weather;
+    [key: string]: any;
+  };
 }
 
 // Weather related types
@@ -107,6 +136,8 @@ export interface Attraction {
   rating: string;
   type: string;
 }
+
+
 
 export interface PackingItem {
   id: string;
