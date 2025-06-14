@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TravelChatInterface } from "@/components/TravelChatInterface";
-import { MapPin, Calendar, Users, Search, Plane, Hotel, Car, Camera, Star, ArrowRight, Globe, Clock, Zap } from "lucide-react";
+import { MapPin, Calendar, Users, Search, Plane, Hotel, Car, Camera, Star, ArrowRight, Globe, Clock, Zap, Menu, User, Settings, LogOut, MessageCircle, Compass, TrendingUp } from "lucide-react";
 
 export function TravelPlatformLayout() {
   const [activeTab, setActiveTab] = useState("destinations");
@@ -168,6 +168,93 @@ export function TravelPlatformLayout() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      {/* Top Navigation Menu */}
+      <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo and Brand */}
+            <div className="flex items-center space-x-4">
+              <Globe className="h-8 w-8 text-blue-600" />
+              <span className="text-xl font-bold text-gray-900 dark:text-white">WanderNotes</span>
+            </div>
+
+            {/* Main Navigation Links */}
+            <div className="hidden md:flex items-center space-x-8">
+              <Button 
+                variant={activeTab === "destinations" ? "default" : "ghost"} 
+                onClick={() => setActiveTab("destinations")}
+                className="flex items-center space-x-2"
+              >
+                <Compass className="h-4 w-4" />
+                <span>Destinations</span>
+              </Button>
+              
+              <Button 
+                variant={activeTab === "flights" ? "default" : "ghost"} 
+                onClick={() => setActiveTab("flights")}
+                className="flex items-center space-x-2"
+              >
+                <Plane className="h-4 w-4" />
+                <span>Flights</span>
+              </Button>
+              
+              <Button 
+                variant={activeTab === "hotels" ? "default" : "ghost"} 
+                onClick={() => setActiveTab("hotels")}
+                className="flex items-center space-x-2"
+              >
+                <Hotel className="h-4 w-4" />
+                <span>Hotels</span>
+              </Button>
+              
+              <Button 
+                variant={activeTab === "experiences" ? "default" : "ghost"} 
+                onClick={() => setActiveTab("experiences")}
+                className="flex items-center space-x-2"
+              >
+                <Camera className="h-4 w-4" />
+                <span>Experiences</span>
+              </Button>
+
+              <Button 
+                variant="ghost"
+                className="flex items-center space-x-2"
+              >
+                <TrendingUp className="h-4 w-4" />
+                <span>Price Alerts</span>
+              </Button>
+            </div>
+
+            {/* Right Side Actions */}
+            <div className="flex items-center space-x-4">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowChat(!showChat)}
+                className="flex items-center space-x-2"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span className="hidden sm:inline">AI Assistant</span>
+              </Button>
+              
+              <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Account</span>
+              </Button>
+
+              <Button variant="ghost" size="sm">
+                <Settings className="h-4 w-4" />
+              </Button>
+
+              {/* Mobile Menu Button */}
+              <Button variant="ghost" size="sm" className="md:hidden">
+                <Menu className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section with Search */}
       <div className="relative overflow-hidden">
         <div 
