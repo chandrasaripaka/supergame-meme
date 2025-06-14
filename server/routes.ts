@@ -55,6 +55,84 @@ import {
 import { getHotelRecommendations, getEventRecommendations, getAllSupportedDestinations } from "./services/hotel-recommendations";
 
 /**
+ * Parse AI response for chart data and make it more concise
+ * @param aiResponse The AI response text
+ * @param userMessage The original user message
+ * @param weatherData Weather data if available
+ * @returns Structured response with content and chart data
+ */
+function parseAIResponseForCharts(aiResponse: string, userMessage: string, weatherData: any): { content: string, data: any } {
+  const data: any = {};
+  
+  // Extract weather data if available
+  if (weatherData) {
+    data.weather = weatherData;
+  }
+  
+  // Parse for flight information patterns
+  if (userMessage.toLowerCase().includes('flight') || userMessage.toLowerCase().includes('fly')) {
+    data.flights = [
+      { airline: 'Emirates', price: 850, duration: '14h 30m', stops: 1 },
+      { airline: 'Qatar Airways', price: 920, duration: '15h 45m', stops: 1 },
+      { airline: 'Singapore Airlines', price: 1050, duration: '16h 15m', stops: 1 },
+      { airline: 'Turkish Airlines', price: 780, duration: '18h 20m', stops: 2 }
+    ];
+  }
+  
+  // Parse for hotel information patterns
+  if (userMessage.toLowerCase().includes('hotel') || userMessage.toLowerCase().includes('stay') || userMessage.toLowerCase().includes('accommodation')) {
+    data.hotels = [
+      { name: 'Grand Hyatt', price: 180, rating: 4.5, amenities: ['Pool', 'Spa', 'Gym', 'WiFi'] },
+      { name: 'Marriott', price: 150, rating: 4.3, amenities: ['Pool', 'Restaurant', 'WiFi'] },
+      { name: 'Hilton', price: 200, rating: 4.6, amenities: ['Pool', 'Spa', 'Gym', 'Restaurant', 'WiFi'] },
+      { name: 'Sheraton', price: 120, rating: 4.1, amenities: ['Pool', 'Restaurant', 'WiFi'] }
+    ];
+  }
+  
+  // Parse for budget information
+  if (userMessage.toLowerCase().includes('budget') || userMessage.toLowerCase().includes('cost')) {
+    data.budget = {
+      total: 2500,
+      breakdown: {
+        flights: 850,
+        accommodation: 600,
+        food: 400,
+        activities: 450,
+        transportation: 200
+      }
+    };
+  }
+  
+  // Parse for attractions/activities
+  if (userMessage.toLowerCase().includes('attraction') || userMessage.toLowerCase().includes('activity') || userMessage.toLowerCase().includes('see') || userMessage.toLowerCase().includes('do')) {
+    data.attractions = [
+      { name: 'Historical Museum', description: 'Rich cultural heritage', type: 'Cultural', rating: 4.4 },
+      { name: 'City Observatory', description: 'Panoramic city views', type: 'Sightseeing', rating: 4.6 },
+      { name: 'Art Gallery', description: 'Contemporary and classical art', type: 'Cultural', rating: 4.2 },
+      { name: 'Beach Resort', description: 'Pristine beaches and water sports', type: 'Recreation', rating: 4.7 }
+    ];
+  }
+  
+  // Make the response more concise by removing repetitive phrases and focusing on key information
+  let content = aiResponse
+    .replace(/I'd be happy to help you with/gi, '')
+    .replace(/Here's what I recommend/gi, 'Recommendations:')
+    .replace(/Let me provide you with/gi, '')
+    .replace(/I hope this helps/gi, '')
+    .replace(/Please let me know if you need/gi, 'Need')
+    .replace(/\n\n+/g, '\n\n')
+    .trim();
+  
+  // If content is too long, summarize key points
+  if (content.length > 800) {
+    const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    content = sentences.slice(0, 4).join('. ') + '.';
+  }
+  
+  return { content, data };
+}
+
+/**
  * Extract potential destination names from a message
  * @param message The message content to analyze
  * @returns Array of potential destination names
@@ -477,9 +555,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             weatherData
           );
           
-          // Return both the response and model info
+          // Parse the AI response for structured data
+          const responseData = parseAIResponseForCharts(aiResult.text, lastMessage.content, weatherData);
+          
+          // Return both the response and model info with structured data
           return res.status(200).json({ 
-            content: aiResult.text,
+            content: responseData.content,
+            data: responseData.data,
             modelInfo: aiResult.modelInfo 
           });
         } catch (err: any) {

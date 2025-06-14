@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { Message } from "@/types";
-import { ChatResponseWithCharts } from "./ChatResponseWithCharts";
+import { ChatResponseWithCharts } from "@/components/ChatResponseWithCharts";
 
 interface ModernChatInterfaceProps {
   onNewChat?: () => void;

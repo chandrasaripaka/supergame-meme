@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TravelChatInterface } from "./TravelChatInterface";
+import { TravelChatInterface } from "@/components/TravelChatInterface";
 
 export function TravelPlatformLayout() {
   const [activeTab, setActiveTab] = useState("flights");
