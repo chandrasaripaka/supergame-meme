@@ -15,9 +15,9 @@ declare global {
     interface User {
       id: number;
       username: string;
-      email: string;
-      googleId?: string;
-      profilePicture?: string;
+      email: string | null;
+      googleId?: string | null;
+      profilePicture?: string | null;
       createdAt: Date;
     }
   }

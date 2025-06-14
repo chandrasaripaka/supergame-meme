@@ -628,6 +628,28 @@ export function TravelPlatformLayout() {
           </div>
         </div>
       </div>
+
+      {/* Scrapbook Section */}
+      {activeTab === "scrapbook" && (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-8">
+          <ScrapbookManager />
+        </div>
+      )}
+
+      {/* Show Chat Interface */}
+      {showChat && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">AI Travel Assistant</h2>
+              <Button variant="ghost" onClick={() => setShowChat(false)}>×</Button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <TravelChatInterface initialPrompt={initialPrompt} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
