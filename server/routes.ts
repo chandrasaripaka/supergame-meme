@@ -575,8 +575,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               lastMessage.content, // New message content
               weatherData
             );
+            const responseData = parseAIResponseForCharts(aiResponse, lastMessage.content, weatherData);
             return res.status(200).json({ 
-              content: aiResponse,
+              content: responseData.content,
+              data: responseData.data,
               modelInfo: { provider: 'google', model: 'gemini-2.0-flash' }
             });
           } catch (fallbackErr: any) {
@@ -587,8 +589,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               lastMessage.content, // New message content
               weatherData
             );
+            const responseData = parseAIResponseForCharts(aiResponse, lastMessage.content, weatherData);
             return res.status(200).json({ 
-              content: aiResponse,
+              content: responseData.content,
+              data: responseData.data,
               modelInfo: { provider: 'openai', model: 'gpt-4o' }
             });
           }
