@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
+import passport from "./services/auth";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { pool } from "../db";
@@ -52,7 +53,9 @@ app.use(session({
   name: 'connect.sid' // Use standard session name
 }));
 
-// Passport will be initialized in registerRoutes through setupAuth
+// Initialize passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use((req, res, next) => {
   const start = Date.now();
