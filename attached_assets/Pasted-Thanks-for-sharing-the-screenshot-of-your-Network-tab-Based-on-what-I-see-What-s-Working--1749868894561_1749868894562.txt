@@ -1,0 +1,82 @@
+Thanks for sharing the screenshot of your Network tab. Based on what I see:
+
+### ✅ What’s Working:
+
+1. **Google Auth flow is starting**:
+
+   * `consent?...` and `callback?code=...` are both **302 redirects** — this is correct behavior for OAuth.
+   * So, the **Google login completes successfully**, and your app is getting an **authorization code** from Google.
+
+2. The callback is going to:
+
+   ```
+   /auth/google/callback?code=...
+   ```
+
+   — which is expected in a standard OAuth flow.
+
+3. The `status` request is returning a `304 Not Modified`, which means it’s checking auth status correctly but **still sees the user as unauthenticated**.
+
+---
+
+### ❌ What’s Likely Broken:
+
+You're **not preserving the session** after Google login completes. This is why `isAuthenticated: false` keeps showing even after a successful callback.
+
+### Most Common Causes:
+
+| Issue                           | Fix                                                                               |
+| ------------------------------- | --------------------------------------------------------------------------------- |
+| Cookie/session not persisted    | Frontend must send credentials: `axios.get('/status', { withCredentials: true })` |
+| Backend not setting cookie      | Backend must send `Set-Cookie` **with proper CORS headers**                       |
+| CORS misconfiguration           | `Access-Control-Allow-Credentials: true` must be set on backend                   |
+| Secure cookies on non-HTTPS dev | Cookies with `Secure` flag won’t work on `http://localhost`                       |
+
+---
+
+### 🔧 Fix Steps
+
+**Frontend**
+
+* In `axios` or `fetch`, add:
+
+  ```js
+  axios.post('/auth/google', { ... }, { withCredentials: true })
+  axios.get('/status', { withCredentials: true })
+  ```
+
+**Backend (Node/Express)**
+
+1. Set cookies with `res.cookie()` including:
+
+   ```js
+   res.cookie('token', jwt, {
+     httpOnly: true,
+     secure: true,           // Only on HTTPS
+     sameSite: 'None'        // Required for cross-origin cookies
+   });
+   ```
+
+2. Set CORS middleware correctly:
+
+   ```js
+   app.use(cors({
+     origin: 'https://wander-notes.com',
+     credentials: true
+   }));
+   ```
+
+3. Make sure you’re using something like `express-session` **or** setting your own JWT token in the cookie.
+
+---
+
+### ✅ To Confirm It's Fixed
+
+After the Google callback:
+
+* You should see a `Set-Cookie` header in the response from `/auth/google/callback`
+* Then, the `/status` call should return `isAuthenticated: true` and user info
+
+---
+
+Would you like help reviewing your backend Google auth + session handling code? If you can share it (Node/Express), I can pinpoint the exact fix.

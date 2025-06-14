@@ -62,7 +62,17 @@ router.get('/google/callback', (req, res, next) => {
       console.log('Google OAuth authentication successful for user:', user.username);
       console.log('Session after login:', req.session);
       console.log('isAuthenticated after login:', req.isAuthenticated());
-      return res.redirect('/');
+      
+      // Ensure session is saved before redirect
+      req.session.save((err) => {
+        if (err) {
+          console.error('Error saving session:', err);
+          return res.redirect('/login?error=' + encodeURIComponent('Session save error: ' + err.message));
+        }
+        
+        console.log('Session saved successfully, redirecting to home');
+        return res.redirect('/');
+      });
     });
   })(req, res, next);
 });
