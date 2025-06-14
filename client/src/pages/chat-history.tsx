@@ -73,11 +73,16 @@ export default function ChatHistoryPage() {
         credentials: 'include'
       });
       if (!response.ok) {
+        if (response.status === 401) {
+          // Return empty array for unauthorized users instead of throwing
+          return [];
+        }
         throw new Error('Failed to fetch chat history');
       }
       return response.json() as Promise<ChatSession[]>;
     },
     enabled: !!user, // Only fetch if user is logged in
+    retry: false, // Don't retry on authentication errors
   });
 
   // Helper function to delete a chat session
@@ -347,7 +352,7 @@ export default function ChatHistoryPage() {
         <div className="flex justify-center items-center h-40">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      ) : error ? (
+      ) : error && user ? (
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-destructive">
