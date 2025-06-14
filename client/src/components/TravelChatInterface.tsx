@@ -24,6 +24,20 @@ export function TravelChatInterface({ onClose, initialPrompt, onPromptSent }: Tr
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  // Function to send a message
+  const sendMessage = (message: string) => {
+    setIsLoading(true);
+    sendMessageMutation.mutate(message);
+  };
+
+  // Handle initial prompt from search form
+  React.useEffect(() => {
+    if (initialPrompt && initialPrompt.trim()) {
+      sendMessage(initialPrompt);
+      onPromptSent?.();
+    }
+  }, [initialPrompt]);
+
   // Quick suggestions based on travel context
   const suggestions = [
     "Find flights to Tokyo under $800",
@@ -34,7 +48,7 @@ export function TravelChatInterface({ onClose, initialPrompt, onPromptSent }: Tr
 
   // Send message mutation
   const sendMessageMutation = useMutation({
-    mutationFn: async (message: string) => {
+    mutationFn: async (messageContent: string) => {
       const response = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,15 +56,15 @@ export function TravelChatInterface({ onClose, initialPrompt, onPromptSent }: Tr
         body: JSON.stringify({
           messages: [
             ...messages,
-            { role: 'user', content: message }
+            { role: 'user', content: messageContent }
           ]
         })
       });
       
       if (!response.ok) throw new Error('Failed to send message');
-      return response.json();
+      return { data: await response.json(), messageContent };
     },
-    onSuccess: (data) => {
+    onSuccess: ({ data, messageContent }) => {
       const assistantMessage: Message = {
         role: 'assistant',
         content: data.content || data.message || 'I received your message.',
@@ -60,7 +74,7 @@ export function TravelChatInterface({ onClose, initialPrompt, onPromptSent }: Tr
       
       setMessages(prev => [
         ...prev,
-        { role: 'user', content: inputValue, timestamp: new Date().toISOString() },
+        { role: 'user', content: messageContent, timestamp: new Date().toISOString() },
         assistantMessage
       ]);
       setInputValue("");
