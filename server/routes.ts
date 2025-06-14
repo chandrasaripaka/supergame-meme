@@ -185,16 +185,124 @@ function generateCategorizedFlightData(destination: string, isBudget: boolean, i
   const flightsByDestination: { [key: string]: any } = {
     'Tokyo': {
       budget: [
-        { airline: 'AirAsia X', departure: '11:30 PM', arrival: '6:45 AM+2', price: 580, duration: '16h 15m', stops: '2 Stops', category: 'Budget' },
-        { airline: 'Scoot', departure: '2:15 AM', arrival: '4:30 PM', price: 620, duration: '18h 15m', stops: '2 Stops', category: 'Budget' },
-        { airline: 'Jetstar', departure: '5:45 PM', arrival: '11:20 AM+1', price: 680, duration: '17h 35m', stops: '2 Stops', category: 'Budget' },
-        { airline: 'Cebu Pacific', departure: '8:20 PM', arrival: '2:45 PM+1', price: 590, duration: '19h 25m', stops: '2 Stops', category: 'Budget' }
+        { 
+          airline: 'AirAsia X', 
+          flightNumber: 'D7 001',
+          logo: 'https://www.gstatic.com/flights/airline_logos/70px/D7.png',
+          departure: '11:30 PM', 
+          arrival: '6:45 AM+2', 
+          price: 580, 
+          duration: '16h 15m', 
+          stops: '2 Stops', 
+          category: 'Budget',
+          aircraft: 'Airbus A330-300',
+          departureAirport: 'LAX',
+          arrivalAirport: 'NRT'
+        },
+        { 
+          airline: 'Scoot', 
+          flightNumber: 'TR 802',
+          logo: 'https://www.gstatic.com/flights/airline_logos/70px/TR.png',
+          departure: '2:15 AM', 
+          arrival: '4:30 PM', 
+          price: 620, 
+          duration: '18h 15m', 
+          stops: '2 Stops', 
+          category: 'Budget',
+          aircraft: 'Boeing 787-9',
+          departureAirport: 'LAX',
+          arrivalAirport: 'NRT'
+        },
+        { 
+          airline: 'Jetstar Airways', 
+          flightNumber: 'JQ 007',
+          logo: 'https://www.gstatic.com/flights/airline_logos/70px/JQ.png',
+          departure: '5:45 PM', 
+          arrival: '11:20 AM+1', 
+          price: 680, 
+          duration: '17h 35m', 
+          stops: '2 Stops', 
+          category: 'Budget',
+          aircraft: 'Boeing 787-8',
+          departureAirport: 'LAX',
+          arrivalAirport: 'NRT'
+        },
+        { 
+          airline: 'Cebu Pacific', 
+          flightNumber: '5J 055',
+          logo: 'https://www.gstatic.com/flights/airline_logos/70px/5J.png',
+          departure: '8:20 PM', 
+          arrival: '2:45 PM+1', 
+          price: 590, 
+          duration: '19h 25m', 
+          stops: '2 Stops', 
+          category: 'Budget',
+          aircraft: 'Airbus A330-300',
+          departureAirport: 'LAX',
+          arrivalAirport: 'NRT'
+        }
       ],
       luxury: [
-        { airline: 'JAL First Class', departure: '11:30 AM', arrival: '3:45 PM+1', price: 2800, duration: '14h 15m', stops: 'Direct', category: 'Luxury' },
-        { airline: 'ANA Business', departure: '10:45 PM', arrival: '6:20 AM+2', price: 2200, duration: '15h 35m', stops: 'Direct', category: 'Luxury' },
-        { airline: 'Singapore Airlines Suites', departure: '2:15 PM', arrival: '8:30 AM+1', price: 3500, duration: '16h 15m', stops: '1 Stop', category: 'Luxury' },
-        { airline: 'Emirates First', departure: '9:20 AM', arrival: '11:45 PM', price: 2950, duration: '18h 25m', stops: '1 Stop', category: 'Luxury' }
+        { 
+          airline: 'Japan Airlines', 
+          flightNumber: 'JL 011',
+          logo: 'https://www.gstatic.com/flights/airline_logos/70px/JL.png',
+          departure: '11:30 AM', 
+          arrival: '3:45 PM+1', 
+          price: 2800, 
+          duration: '14h 15m', 
+          stops: 'Direct', 
+          category: 'Luxury',
+          aircraft: 'Boeing 777-300ER',
+          cabin: 'First Class',
+          departureAirport: 'LAX',
+          arrivalAirport: 'NRT'
+        },
+        { 
+          airline: 'All Nippon Airways', 
+          flightNumber: 'NH 005',
+          logo: 'https://www.gstatic.com/flights/airline_logos/70px/NH.png',
+          departure: '10:45 PM', 
+          arrival: '6:20 AM+2', 
+          price: 2200, 
+          duration: '15h 35m', 
+          stops: 'Direct', 
+          category: 'Luxury',
+          aircraft: 'Boeing 787-10',
+          cabin: 'Business Class',
+          departureAirport: 'LAX',
+          arrivalAirport: 'HND'
+        },
+        { 
+          airline: 'Singapore Airlines', 
+          flightNumber: 'SQ 012',
+          logo: 'https://www.gstatic.com/flights/airline_logos/70px/SQ.png',
+          departure: '2:15 PM', 
+          arrival: '8:30 AM+1', 
+          price: 3500, 
+          duration: '16h 15m', 
+          stops: '1 Stop', 
+          category: 'Luxury',
+          aircraft: 'Airbus A380-800',
+          cabin: 'Suites Class',
+          departureAirport: 'LAX',
+          arrivalAirport: 'NRT'
+        },
+        { 
+          airline: 'Emirates', 
+          flightNumber: 'EK 215',
+          logo: 'https://www.gstatic.com/flights/airline_logos/70px/EK.png',
+          departure: '9:20 AM', 
+          arrival: '11:45 PM', 
+          price: 2950, 
+          duration: '18h 25m', 
+          stops: '1 Stop', 
+          category: 'Luxury',
+          aircraft: 'Airbus A380-800',
+          cabin: 'First Class',
+          departureAirport: 'LAX',
+          arrivalAirport: 'NRT'
+        }
       ]
     },
     'Paris': {

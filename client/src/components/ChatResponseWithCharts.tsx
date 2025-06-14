@@ -78,20 +78,36 @@ export function ChatResponseWithCharts({ message }: ChatResponseWithChartsProps)
       case 'flights':
         return (
           <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-semibold">{item.airline}</span>
-                <Badge variant={item.category === 'Budget' ? 'secondary' : 'default'}>
-                  {item.category}
-                </Badge>
-              </div>
-              <div className="text-sm text-muted-foreground space-y-1">
-                <div>Departure: {item.departure} → Arrival: {item.arrival}</div>
-                <div>Duration: {item.duration} | Stops: {item.stops}</div>
+            <div className="flex items-start gap-3 flex-1">
+              {item.logo && (
+                <img 
+                  src={item.logo} 
+                  alt={`${item.airline} logo`}
+                  className="w-8 h-8 object-contain mt-1"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              )}
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-semibold text-lg">{item.airline}</span>
+                  <Badge variant={item.category === 'Budget' ? 'secondary' : 'default'}>
+                    {item.category}
+                  </Badge>
+                </div>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <div className="font-medium">{item.flightNumber || 'Flight'}</div>
+                  <div>{item.departureAirport || 'DEP'} {item.departure} → {item.arrivalAirport || 'ARR'} {item.arrival}</div>
+                  <div>Duration: {item.duration} | Stops: {item.stops}</div>
+                  {item.aircraft && <div>Aircraft: {item.aircraft}</div>}
+                  {item.cabin && <div className="text-blue-600 font-medium">{item.cabin}</div>}
+                </div>
               </div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold">${item.price}</div>
+              <div className="text-xs text-muted-foreground">per person</div>
               <Button size="sm" className="mt-2">Book Now</Button>
             </div>
           </div>
