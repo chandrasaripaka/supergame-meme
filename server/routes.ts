@@ -21,6 +21,7 @@ import { z } from "zod";
 import authRoutes from "./routes/auth";
 import localAuthRoutes from "./routes/local-auth";
 import bookingChatRoutes from "./routes/booking-chat";
+import { setupAuth } from "./auth";
 import { isAuthenticated, createTemporarySession } from "./services/auth";
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
@@ -965,13 +966,13 @@ function setupChatSessionsRoutes(app: Express) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication first
+  setupAuth(app);
+  
   // Setup chat sessions routes
   setupChatSessionsRoutes(app);
   // API prefix
   const apiPrefix = "/api";
-  
-  // Register authentication routes
-  app.use('/auth', authRoutes);
   
   // Register local auth routes for testing
   app.use('/api/local-auth', localAuthRoutes);
