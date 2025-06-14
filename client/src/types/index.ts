@@ -90,6 +90,16 @@ export interface Message {
     price?: number;
     duration?: string;
     weather?: Weather;
+    restaurants?: Array<{
+      name: string;
+      location: string;
+      cuisine: string;
+      rating: number;
+      price: string;
+      description: string;
+      image: string;
+      bookingAvailable: boolean;
+    }>;
     [key: string]: any;
   };
 }

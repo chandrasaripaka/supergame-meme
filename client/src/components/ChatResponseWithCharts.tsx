@@ -2,6 +2,7 @@ import React from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, DollarSign, Plane, Hotel, Star } from "lucide-react";
 import { Message } from "@/types";
 
@@ -263,6 +264,52 @@ export function ChatResponseWithCharts({ message }: ChatResponseWithChartsProps)
                         <p className="font-medium text-sm">{attraction.name}</p>
                         <p className="text-xs text-gray-600 mt-1">{attraction.description}</p>
                         <Badge variant="outline" className="mt-1 text-xs">{attraction.type}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {message.data.restaurants && (
+              <Card className="mt-3 bg-white dark:bg-gray-800 shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Restaurant Recommendations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3">
+                    {message.data.restaurants.map((restaurant: any, index: number) => (
+                      <div key={index} className="border rounded-lg overflow-hidden bg-white dark:bg-gray-700">
+                        <div className="relative">
+                          <img 
+                            src={restaurant.image} 
+                            alt={restaurant.name}
+                            className="w-full h-24 object-cover"
+                          />
+                          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            <span className="text-xs font-semibold">{restaurant.rating}</span>
+                          </div>
+                        </div>
+                        <div className="p-3">
+                          <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                            {restaurant.name}
+                          </h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
+                            {restaurant.cuisine} • {restaurant.location} • {restaurant.price}
+                          </p>
+                          <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
+                            {restaurant.description}
+                          </p>
+                          {restaurant.bookingAvailable && (
+                            <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs">
+                              Book Table
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

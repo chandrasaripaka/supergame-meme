@@ -113,6 +113,52 @@ function parseAIResponseForCharts(aiResponse: string, userMessage: string, weath
     ];
   }
   
+  // Parse for restaurant/dining requests
+  if (userMessage.toLowerCase().includes('restaurant') || userMessage.toLowerCase().includes('dinner') || userMessage.toLowerCase().includes('eat') || userMessage.toLowerCase().includes('food') || userMessage.toLowerCase().includes('dining')) {
+    data.restaurants = [
+      { 
+        name: 'ULA, Palm Jumeirah', 
+        location: 'Dubai', 
+        cuisine: 'Mediterranean',
+        rating: 4.8, 
+        price: '$$$',
+        description: 'Great spot with sea view',
+        image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop&crop=entropy&auto=format',
+        bookingAvailable: true
+      },
+      { 
+        name: 'Atmosphere Restaurant', 
+        location: 'Burj Khalifa', 
+        cuisine: 'International',
+        rating: 4.9, 
+        price: '$$$$',
+        description: 'Fine dining with panoramic city views',
+        image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop&crop=entropy&auto=format',
+        bookingAvailable: true
+      },
+      { 
+        name: 'Zuma Dubai', 
+        location: 'DIFC', 
+        cuisine: 'Japanese',
+        rating: 4.7, 
+        price: '$$$$',
+        description: 'Contemporary Japanese cuisine',
+        image: 'https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=400&h=300&fit=crop&crop=entropy&auto=format',
+        bookingAvailable: true
+      },
+      { 
+        name: 'La Petite Maison', 
+        location: 'DIFC', 
+        cuisine: 'French',
+        rating: 4.6, 
+        price: '$$$',
+        description: 'Authentic French bistro experience',
+        image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop&crop=entropy&auto=format',
+        bookingAvailable: true
+      }
+    ];
+  }
+  
   // Make the response more concise by removing repetitive phrases and focusing on key information
   let content = aiResponse
     .replace(/I'd be happy to help you with/gi, '')
