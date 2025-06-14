@@ -115,7 +115,6 @@ export default function PreferencesPage() {
     // Collect all preferences
     const preferences = {
       // General
-      darkMode,
       receiveNotifications,
       saveSearchHistory,
       
@@ -163,13 +162,13 @@ export default function PreferencesPage() {
   };
   
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 bg-background dark:bg-background">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+        <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-transparent bg-clip-text">
           Travel Preferences
         </h1>
         
@@ -206,7 +205,7 @@ export default function PreferencesPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-base">Notifications</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Receive notifications about travel deals and offers
                     </p>
                   </div>
@@ -219,7 +218,7 @@ export default function PreferencesPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-base">Save Search History</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Save your travel searches for a more personalized experience
                     </p>
                   </div>
@@ -241,7 +240,7 @@ export default function PreferencesPage() {
                       </div>
                       <div>
                         <p className="font-medium">Google Account</p>
-                        <p className="text-sm text-gray-500">{user ? user.email : 'Not connected'}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{user ? user.email : 'Not connected'}</p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm">
@@ -265,7 +264,7 @@ export default function PreferencesPage() {
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label>Budget Level</Label>
-                  <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
                     <span>Budget</span>
                     <span>Moderate</span>
                     <span>Luxury</span>
