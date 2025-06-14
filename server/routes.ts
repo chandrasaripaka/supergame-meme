@@ -64,6 +64,12 @@ import { getHotelRecommendations, getEventRecommendations, getAllSupportedDestin
 function parseAIResponseForCharts(aiResponse: string, userMessage: string, weatherData: any): { content: string, data: any } {
   const data: any = {};
   
+  // Extract destination and budget preference
+  const destinations = extractPotentialDestinations(userMessage);
+  const primaryDestination = destinations[0] || 'destination';
+  const isBudgetTrip = userMessage.toLowerCase().includes('budget') || userMessage.toLowerCase().includes('cheap') || userMessage.toLowerCase().includes('affordable');
+  const isLuxuryTrip = userMessage.toLowerCase().includes('luxury') || userMessage.toLowerCase().includes('premium') || userMessage.toLowerCase().includes('high-end');
+  
   // Extract weather data if available
   if (weatherData) {
     data.weather = weatherData;
@@ -71,22 +77,12 @@ function parseAIResponseForCharts(aiResponse: string, userMessage: string, weath
   
   // Parse for flight information patterns
   if (userMessage.toLowerCase().includes('flight') || userMessage.toLowerCase().includes('fly')) {
-    data.flights = [
-      { airline: 'Emirates', price: 850, duration: '14h 30m', stops: 1 },
-      { airline: 'Qatar Airways', price: 920, duration: '15h 45m', stops: 1 },
-      { airline: 'Singapore Airlines', price: 1050, duration: '16h 15m', stops: 1 },
-      { airline: 'Turkish Airlines', price: 780, duration: '18h 20m', stops: 2 }
-    ];
+    data.flights = generateCategorizedFlightData(primaryDestination, isBudgetTrip, isLuxuryTrip);
   }
   
   // Parse for hotel information patterns
   if (userMessage.toLowerCase().includes('hotel') || userMessage.toLowerCase().includes('stay') || userMessage.toLowerCase().includes('accommodation')) {
-    data.hotels = [
-      { name: 'Grand Hyatt', price: 180, rating: 4.5, amenities: ['Pool', 'Spa', 'Gym', 'WiFi'] },
-      { name: 'Marriott', price: 150, rating: 4.3, amenities: ['Pool', 'Restaurant', 'WiFi'] },
-      { name: 'Hilton', price: 200, rating: 4.6, amenities: ['Pool', 'Spa', 'Gym', 'Restaurant', 'WiFi'] },
-      { name: 'Sheraton', price: 120, rating: 4.1, amenities: ['Pool', 'Restaurant', 'WiFi'] }
-    ];
+    data.hotels = generateCategorizedHotelData(primaryDestination, isBudgetTrip, isLuxuryTrip);
   }
   
   // Parse for budget information
@@ -103,60 +99,14 @@ function parseAIResponseForCharts(aiResponse: string, userMessage: string, weath
     };
   }
   
-  // Parse for attractions/activities
-  if (userMessage.toLowerCase().includes('attraction') || userMessage.toLowerCase().includes('activity') || userMessage.toLowerCase().includes('see') || userMessage.toLowerCase().includes('do')) {
-    data.attractions = [
-      { name: 'Historical Museum', description: 'Rich cultural heritage', type: 'Cultural', rating: 4.4 },
-      { name: 'City Observatory', description: 'Panoramic city views', type: 'Sightseeing', rating: 4.6 },
-      { name: 'Art Gallery', description: 'Contemporary and classical art', type: 'Cultural', rating: 4.2 },
-      { name: 'Beach Resort', description: 'Pristine beaches and water sports', type: 'Recreation', rating: 4.7 }
-    ];
+  // Parse for attractions/activities  
+  if (userMessage.toLowerCase().includes('attraction') || userMessage.toLowerCase().includes('activity') || userMessage.toLowerCase().includes('see') || userMessage.toLowerCase().includes('do') || userMessage.toLowerCase().includes('experience')) {
+    data.experiences = generateCategorizedExperiencesData(primaryDestination, isBudgetTrip, isLuxuryTrip);
   }
   
   // Parse for restaurant/dining requests
   if (userMessage.toLowerCase().includes('restaurant') || userMessage.toLowerCase().includes('dinner') || userMessage.toLowerCase().includes('eat') || userMessage.toLowerCase().includes('food') || userMessage.toLowerCase().includes('dining')) {
-    data.restaurants = [
-      { 
-        name: 'ULA, Palm Jumeirah', 
-        location: 'Dubai', 
-        cuisine: 'Mediterranean',
-        rating: 4.8, 
-        price: '$$$',
-        description: 'Great spot with sea view',
-        image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop&crop=entropy&auto=format',
-        bookingAvailable: true
-      },
-      { 
-        name: 'Atmosphere Restaurant', 
-        location: 'Burj Khalifa', 
-        cuisine: 'International',
-        rating: 4.9, 
-        price: '$$$$',
-        description: 'Fine dining with panoramic city views',
-        image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop&crop=entropy&auto=format',
-        bookingAvailable: true
-      },
-      { 
-        name: 'Zuma Dubai', 
-        location: 'DIFC', 
-        cuisine: 'Japanese',
-        rating: 4.7, 
-        price: '$$$$',
-        description: 'Contemporary Japanese cuisine',
-        image: 'https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=400&h=300&fit=crop&crop=entropy&auto=format',
-        bookingAvailable: true
-      },
-      { 
-        name: 'La Petite Maison', 
-        location: 'DIFC', 
-        cuisine: 'French',
-        rating: 4.6, 
-        price: '$$$',
-        description: 'Authentic French bistro experience',
-        image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop&crop=entropy&auto=format',
-        bookingAvailable: true
-      }
-    ];
+    data.restaurants = generateCategorizedRestaurantData(primaryDestination, isBudgetTrip, isLuxuryTrip);
   }
   
   // Make the response more concise by removing repetitive phrases and focusing on key information
@@ -226,6 +176,434 @@ function extractPotentialDestinations(message: string): string[] {
   }
   
   return destinations;
+}
+
+/**
+ * Generate categorized flight data based on destination and budget preference
+ */
+function generateCategorizedFlightData(destination: string, isBudget: boolean, isLuxury: boolean) {
+  const flightsByDestination: { [key: string]: any } = {
+    'Tokyo': {
+      budget: [
+        { airline: 'AirAsia X', departure: '11:30 PM', arrival: '6:45 AM+2', price: 580, duration: '16h 15m', stops: '2 Stops', category: 'Budget' },
+        { airline: 'Scoot', departure: '2:15 AM', arrival: '4:30 PM', price: 620, duration: '18h 15m', stops: '2 Stops', category: 'Budget' },
+        { airline: 'Jetstar', departure: '5:45 PM', arrival: '11:20 AM+1', price: 680, duration: '17h 35m', stops: '2 Stops', category: 'Budget' },
+        { airline: 'Cebu Pacific', departure: '8:20 PM', arrival: '2:45 PM+1', price: 590, duration: '19h 25m', stops: '2 Stops', category: 'Budget' }
+      ],
+      luxury: [
+        { airline: 'JAL First Class', departure: '11:30 AM', arrival: '3:45 PM+1', price: 2800, duration: '14h 15m', stops: 'Direct', category: 'Luxury' },
+        { airline: 'ANA Business', departure: '10:45 PM', arrival: '6:20 AM+2', price: 2200, duration: '15h 35m', stops: 'Direct', category: 'Luxury' },
+        { airline: 'Singapore Airlines Suites', departure: '2:15 PM', arrival: '8:30 AM+1', price: 3500, duration: '16h 15m', stops: '1 Stop', category: 'Luxury' },
+        { airline: 'Emirates First', departure: '9:20 AM', arrival: '11:45 PM', price: 2950, duration: '18h 25m', stops: '1 Stop', category: 'Luxury' }
+      ]
+    },
+    'Paris': {
+      budget: [
+        { airline: 'Ryanair', departure: '6:30 AM', arrival: '9:45 AM', price: 89, duration: '7h 15m', stops: '1 Stop', category: 'Budget' },
+        { airline: 'EasyJet', departure: '2:45 PM', arrival: '7:20 PM', price: 120, duration: '8h 35m', stops: '1 Stop', category: 'Budget' },
+        { airline: 'Wizz Air', departure: '11:15 PM', arrival: '6:30 AM+1', price: 105, duration: '9h 15m', stops: '1 Stop', category: 'Budget' },
+        { airline: 'Vueling', departure: '4:20 PM', arrival: '10:45 PM', price: 95, duration: '8h 25m', stops: '1 Stop', category: 'Budget' }
+      ],
+      luxury: [
+        { airline: 'Air France La Première', departure: '2:30 PM', arrival: '7:45 PM', price: 1800, duration: '7h 15m', stops: 'Direct', category: 'Luxury' },
+        { airline: 'Lufthansa First', departure: '9:45 AM', arrival: '4:20 PM', price: 1650, duration: '8h 35m', stops: 'Direct', category: 'Luxury' },
+        { airline: 'British Airways First', departure: '11:15 AM', arrival: '6:30 PM', price: 1750, duration: '9h 15m', stops: 'Direct', category: 'Luxury' },
+        { airline: 'Emirates Business', departure: '6:20 PM', arrival: '12:45 AM+1', price: 1200, duration: '8h 25m', stops: 'Direct', category: 'Luxury' }
+      ]
+    },
+    'London': {
+      budget: [
+        { airline: 'Ryanair', departure: '5:30 AM', arrival: '8:45 AM', price: 75, duration: '6h 15m', stops: '1 Stop', category: 'Budget' },
+        { airline: 'EasyJet', departure: '1:45 PM', arrival: '5:20 PM', price: 95, duration: '6h 35m', stops: 'Direct', category: 'Budget' },
+        { airline: 'Wizz Air', departure: '10:15 PM', arrival: '2:30 AM+1', price: 85, duration: '7h 15m', stops: '1 Stop', category: 'Budget' },
+        { airline: 'Norwegian', departure: '3:20 PM', arrival: '7:45 PM', price: 110, duration: '6h 25m', stops: 'Direct', category: 'Budget' }
+      ],
+      luxury: [
+        { airline: 'British Airways First', departure: '1:30 PM', arrival: '6:45 PM', price: 1450, duration: '7h 15m', stops: 'Direct', category: 'Luxury' },
+        { airline: 'Virgin Atlantic Upper', departure: '10:45 AM', arrival: '3:20 PM', price: 1200, duration: '6h 35m', stops: 'Direct', category: 'Luxury' },
+        { airline: 'Lufthansa Business', departure: '8:15 AM', arrival: '2:30 PM', price: 980, duration: '8h 15m', stops: '1 Stop', category: 'Luxury' },
+        { airline: 'Emirates First', departure: '11:20 PM', arrival: '6:45 AM+1', price: 1650, duration: '7h 25m', stops: 'Direct', category: 'Luxury' }
+      ]
+    }
+  };
+
+  const defaultFlights = {
+    budget: [
+      { airline: 'Budget Airline', departure: '6:30 AM', arrival: '2:45 PM', price: 350, duration: '12h 15m', stops: '2 Stops', category: 'Budget' },
+      { airline: 'Economy Express', departure: '11:45 PM', arrival: '8:20 AM+1', price: 420, duration: '14h 35m', stops: '1 Stop', category: 'Budget' },
+      { airline: 'Value Air', departure: '3:15 PM', arrival: '11:30 PM', price: 380, duration: '16h 15m', stops: '2 Stops', category: 'Budget' },
+      { airline: 'Discount Wings', departure: '8:20 AM', arrival: '6:45 PM', price: 290, duration: '18h 25m', stops: '2 Stops', category: 'Budget' }
+    ],
+    luxury: [
+      { airline: 'Premium Airways First', departure: '10:30 AM', arrival: '2:45 PM', price: 2200, duration: '8h 15m', stops: 'Direct', category: 'Luxury' },
+      { airline: 'Luxury Lines Business', departure: '2:45 PM', arrival: '6:20 AM+1', price: 1800, duration: '9h 35m', stops: 'Direct', category: 'Luxury' },
+      { airline: 'Elite Air Suites', departure: '6:15 PM', arrival: '11:30 PM', price: 2500, duration: '12h 15m', stops: '1 Stop', category: 'Luxury' },
+      { airline: 'First Class Express', departure: '12:20 PM', arrival: '4:45 PM', price: 1950, duration: '14h 25m', stops: '1 Stop', category: 'Luxury' }
+    ]
+  };
+
+  const flights = flightsByDestination[destination] || defaultFlights;
+
+  if (isBudget) return { budget: flights.budget };
+  if (isLuxury) return { luxury: flights.luxury };
+  return flights; // Return both categories
+}
+
+/**
+ * Generate categorized hotel data based on destination and budget preference
+ */
+function generateCategorizedHotelData(destination: string, isBudget: boolean, isLuxury: boolean) {
+  const hotelsByDestination: { [key: string]: any } = {
+    'Tokyo': {
+      budget: [
+        { name: 'Capsule Hotel Shibuya', location: 'Shibuya', rating: 4.1, price: 45, amenities: ['WiFi', 'Shared Bath', 'Locker'], category: 'Budget' },
+        { name: 'Tokyo Central Youth Hostel', location: 'Shinjuku', rating: 4.0, price: 35, amenities: ['WiFi', 'Kitchen', 'Laundry'], category: 'Budget' },
+        { name: 'Business Hotel Tokyo', location: 'Ginza', rating: 4.2, price: 80, amenities: ['WiFi', 'Breakfast', 'AC'], category: 'Budget' },
+        { name: 'Budget Inn Harajuku', location: 'Harajuku', rating: 3.9, price: 55, amenities: ['WiFi', 'Vending Machine'], category: 'Budget' }
+      ],
+      luxury: [
+        { name: 'Park Hyatt Tokyo', location: 'Shinjuku', rating: 4.8, price: 850, amenities: ['Spa', 'Pool', 'Michelin Restaurant', 'Concierge'], category: 'Luxury' },
+        { name: 'The Ritz-Carlton Tokyo', location: 'Roppongi', rating: 4.9, price: 920, amenities: ['Spa', 'Pool', 'Club Lounge', 'Butler Service'], category: 'Luxury' },
+        { name: 'Aman Tokyo', location: 'Otemachi', rating: 4.9, price: 1200, amenities: ['Spa', 'Garden', 'Traditional Tea', 'Personal Butler'], category: 'Luxury' },
+        { name: 'Conrad Tokyo', location: 'Shiodome', rating: 4.7, price: 680, amenities: ['Spa', 'Restaurant', 'Bay View', 'Executive Lounge'], category: 'Luxury' }
+      ]
+    },
+    'Paris': {
+      budget: [
+        { name: 'Generator Paris', location: 'Montmartre', rating: 4.2, price: 65, amenities: ['WiFi', 'Bar', 'Kitchen', 'Laundry'], category: 'Budget' },
+        { name: 'Hotel des Jeunes', location: 'Marais', rating: 3.8, price: 45, amenities: ['WiFi', 'Shared Bath', 'Breakfast'], category: 'Budget' },
+        { name: 'Ibis Budget Paris', location: 'République', rating: 4.0, price: 75, amenities: ['WiFi', 'AC', 'Vending Machine'], category: 'Budget' },
+        { name: 'Hostel Blue Planet', location: 'Belleville', rating: 4.1, price: 35, amenities: ['WiFi', 'Kitchen', 'Common Room'], category: 'Budget' }
+      ],
+      luxury: [
+        { name: 'The Ritz Paris', location: 'Place Vendôme', rating: 4.9, price: 1500, amenities: ['Spa', 'Bar Hemingway', 'Shopping', 'Butler Service'], category: 'Luxury' },
+        { name: 'Four Seasons George V', location: 'Champs-Élysées', rating: 4.8, price: 1200, amenities: ['Spa', 'Michelin Restaurant', 'Concierge', 'Flower Arrangements'], category: 'Luxury' },
+        { name: 'Le Meurice', location: 'Tuileries', rating: 4.7, price: 950, amenities: ['Spa', 'Restaurant', 'Garden View', 'Art Collection'], category: 'Luxury' },
+        { name: 'Hotel Plaza Athénée', location: 'Avenue Montaigne', rating: 4.8, price: 1100, amenities: ['Spa', 'Eiffel View', 'Shopping', 'Dior Institute'], category: 'Luxury' }
+      ]
+    },
+    'London': {
+      budget: [
+        { name: 'YHA London Central', location: 'Covent Garden', rating: 4.0, price: 55, amenities: ['WiFi', 'Kitchen', 'Laundry', 'Common Room'], category: 'Budget' },
+        { name: 'Generator London', location: 'King\'s Cross', rating: 4.2, price: 65, amenities: ['WiFi', 'Bar', 'Café', 'Terrace'], category: 'Budget' },
+        { name: 'Premier Inn London', location: 'Southwark', rating: 4.1, price: 85, amenities: ['WiFi', 'Restaurant', 'AC'], category: 'Budget' },
+        { name: 'Travelodge Central', location: 'Camden', rating: 3.9, price: 45, amenities: ['WiFi', 'Café', 'Reception 24/7'], category: 'Budget' }
+      ],
+      luxury: [
+        { name: 'The Savoy', location: 'Covent Garden', rating: 4.8, price: 850, amenities: ['Spa', 'Thames View', 'American Bar', 'Butler Service'], category: 'Luxury' },
+        { name: 'Claridge\'s', location: 'Mayfair', rating: 4.9, price: 950, amenities: ['Spa', 'Afternoon Tea', 'Concierge', 'Art Deco Design'], category: 'Luxury' },
+        { name: 'The Langham', location: 'Regent Street', rating: 4.7, price: 680, amenities: ['Spa', 'Pool', 'Restaurant', 'Personal Shopping'], category: 'Luxury' },
+        { name: 'Shangri-La London', location: 'The Shard', rating: 4.8, price: 750, amenities: ['Spa', 'City View', 'Pool', 'Sky Lounge'], category: 'Luxury' }
+      ]
+    }
+  };
+
+  const defaultHotels = {
+    budget: [
+      { name: 'Budget Lodge', location: 'City Center', rating: 3.8, price: 60, amenities: ['WiFi', 'Breakfast', 'AC'], category: 'Budget' },
+      { name: 'Economy Inn', location: 'Downtown', rating: 4.0, price: 75, amenities: ['WiFi', 'Restaurant', 'Gym'], category: 'Budget' },
+      { name: 'Value Hotel', location: 'Suburb', rating: 3.9, price: 45, amenities: ['WiFi', 'Parking', 'Laundry'], category: 'Budget' },
+      { name: 'Hostel Plus', location: 'Tourist District', rating: 4.1, price: 35, amenities: ['WiFi', 'Kitchen', 'Common Room'], category: 'Budget' }
+    ],
+    luxury: [
+      { name: 'Grand Luxury Resort', location: 'Prime Location', rating: 4.8, price: 650, amenities: ['Spa', 'Pool', 'Fine Dining', 'Concierge'], category: 'Luxury' },
+      { name: 'Premium Palace Hotel', location: 'City Center', rating: 4.9, price: 800, amenities: ['Spa', 'Butler Service', 'Rooftop Bar', 'Shopping'], category: 'Luxury' },
+      { name: 'Elite Boutique Hotel', location: 'Historic District', rating: 4.7, price: 550, amenities: ['Spa', 'Restaurant', 'Art Gallery', 'Library'], category: 'Luxury' },
+      { name: 'Luxury Suites & Spa', location: 'Waterfront', rating: 4.8, price: 720, amenities: ['Spa', 'Ocean View', 'Private Beach', 'Helicopter Pad'], category: 'Luxury' }
+    ]
+  };
+
+  const hotels = hotelsByDestination[destination] || defaultHotels;
+
+  if (isBudget) return { budget: hotels.budget };
+  if (isLuxury) return { luxury: hotels.luxury };
+  return hotels; // Return both categories
+}
+
+/**
+ * Generate categorized experiences data based on destination and budget preference
+ */
+function generateCategorizedExperiencesData(destination: string, isBudget: boolean, isLuxury: boolean) {
+  const experiencesByDestination: { [key: string]: any } = {
+    'Tokyo': {
+      budget: [
+        { name: 'Senso-ji Temple Visit', description: 'Ancient Buddhist temple in Asakusa', type: 'Cultural', rating: 4.5, price: 0, category: 'Budget' },
+        { name: 'Shibuya Crossing Experience', description: 'World\'s busiest pedestrian crossing', type: 'Experience', rating: 4.4, price: 0, category: 'Budget' },
+        { name: 'Tsukiji Outer Market Tour', description: 'Street food and market exploration', type: 'Food & Dining', rating: 4.7, price: 15, category: 'Budget' },
+        { name: 'Harajuku Street Fashion', description: 'Explore youth culture and fashion', type: 'Cultural', rating: 4.3, price: 0, category: 'Budget' }
+      ],
+      luxury: [
+        { name: 'Private Tokyo Skytree Experience', description: 'VIP access with personal guide', type: 'Sightseeing', rating: 4.8, price: 150, category: 'Luxury' },
+        { name: 'Kaiseki Dinner at Kikunoi', description: 'Three-Michelin-starred traditional cuisine', type: 'Fine Dining', rating: 4.9, price: 300, category: 'Luxury' },
+        { name: 'Private Sumo Wrestling Experience', description: 'Meet sumo wrestlers and traditional ceremony', type: 'Cultural', rating: 4.7, price: 200, category: 'Luxury' },
+        { name: 'Helicopter City Tour', description: 'Aerial view of Tokyo landmarks', type: 'Adventure', rating: 4.8, price: 400, category: 'Luxury' }
+      ]
+    },
+    'Paris': {
+      budget: [
+        { name: 'Louvre Museum Visit', description: 'World\'s largest art museum', type: 'Cultural', rating: 4.8, price: 17, category: 'Budget' },
+        { name: 'Montmartre Walking Tour', description: 'Historic hilltop district exploration', type: 'Cultural', rating: 4.7, price: 0, category: 'Budget' },
+        { name: 'Seine River Walk', description: 'Stroll along the romantic Seine', type: 'Recreation', rating: 4.5, price: 0, category: 'Budget' },
+        { name: 'Local Market Visit', description: 'Experience authentic Parisian markets', type: 'Cultural', rating: 4.6, price: 5, category: 'Budget' }
+      ],
+      luxury: [
+        { name: 'Private Eiffel Tower Dinner', description: 'Exclusive dining experience at Jules Verne', type: 'Fine Dining', rating: 4.9, price: 250, category: 'Luxury' },
+        { name: 'Versailles Private Tour', description: 'VIP access with art historian guide', type: 'Historical', rating: 4.8, price: 180, category: 'Luxury' },
+        { name: 'Champagne Tasting in Reims', description: 'Private cellar tours and tastings', type: 'Wine & Spirits', rating: 4.9, price: 220, category: 'Luxury' },
+        { name: 'Fashion Week VIP Experience', description: 'Exclusive access to runway shows', type: 'Fashion', rating: 4.8, price: 500, category: 'Luxury' }
+      ]
+    },
+    'London': {
+      budget: [
+        { name: 'British Museum Tour', description: 'World-famous museum of art and artifacts', type: 'Cultural', rating: 4.7, price: 0, category: 'Budget' },
+        { name: 'Hyde Park Exploration', description: 'Largest central London park', type: 'Recreation', rating: 4.5, price: 0, category: 'Budget' },
+        { name: 'Thames Walk', description: 'Scenic riverside walk with city views', type: 'Recreation', rating: 4.4, price: 0, category: 'Budget' },
+        { name: 'Borough Market Food Tour', description: 'Historic food market experience', type: 'Food & Dining', rating: 4.6, price: 10, category: 'Budget' }
+      ],
+      luxury: [
+        { name: 'Private Tower of London Tour', description: 'VIP access to Crown Jewels with Yeoman guide', type: 'Historical', rating: 4.8, price: 120, category: 'Luxury' },
+        { name: 'Afternoon Tea at The Ritz', description: 'Traditional luxury afternoon tea experience', type: 'Fine Dining', rating: 4.9, price: 65, category: 'Luxury' },
+        { name: 'Private Thames Cruise', description: 'Luxury yacht charter with champagne', type: 'Experience', rating: 4.7, price: 200, category: 'Luxury' },
+        { name: 'West End VIP Theatre Experience', description: 'Premium seats with backstage access', type: 'Entertainment', rating: 4.8, price: 150, category: 'Luxury' }
+      ]
+    }
+  };
+
+  const defaultExperiences = {
+    budget: [
+      { name: 'Local Walking Tour', description: 'Explore the city on foot', type: 'Cultural', rating: 4.4, price: 12, category: 'Budget' },
+      { name: 'Public Museum Visit', description: 'City\'s main cultural museum', type: 'Cultural', rating: 4.2, price: 8, category: 'Budget' },
+      { name: 'City Park Exploration', description: 'Relax in the main city park', type: 'Recreation', rating: 4.5, price: 0, category: 'Budget' },
+      { name: 'Local Market Experience', description: 'Traditional market visit', type: 'Cultural', rating: 4.6, price: 5, category: 'Budget' }
+    ],
+    luxury: [
+      { name: 'Private City Tour', description: 'Personalized guided city experience', type: 'Sightseeing', rating: 4.8, price: 150, category: 'Luxury' },
+      { name: 'Fine Dining Experience', description: 'Michelin-starred restaurant dinner', type: 'Fine Dining', rating: 4.9, price: 200, category: 'Luxury' },
+      { name: 'VIP Cultural Experience', description: 'Exclusive access to cultural sites', type: 'Cultural', rating: 4.7, price: 120, category: 'Luxury' },
+      { name: 'Luxury Spa Treatment', description: 'Premium wellness and relaxation', type: 'Wellness', rating: 4.8, price: 180, category: 'Luxury' }
+    ]
+  };
+
+  const experiences = experiencesByDestination[destination] || defaultExperiences;
+
+  if (isBudget) return { budget: experiences.budget };
+  if (isLuxury) return { luxury: experiences.luxury };
+  return experiences; // Return both categories
+}
+
+/**
+ * Generate categorized restaurant data based on destination and budget preference
+ */
+function generateCategorizedRestaurantData(destination: string, isBudget: boolean, isLuxury: boolean) {
+  const restaurantsByDestination: { [key: string]: any } = {
+    'Tokyo': {
+      budget: [
+        { 
+          name: 'Ichiran Ramen', 
+          location: 'Shibuya', 
+          cuisine: 'Ramen',
+          rating: 4.3, 
+          price: '$',
+          description: 'Famous tonkotsu ramen chain',
+          image: 'https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: false,
+          category: 'Budget'
+        },
+        { 
+          name: 'Sushi Zanmai', 
+          location: 'Tsukiji', 
+          cuisine: 'Sushi',
+          rating: 4.2, 
+          price: '$$',
+          description: 'Fresh sushi at reasonable prices',
+          image: 'https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: false,
+          category: 'Budget'
+        }
+      ],
+      luxury: [
+        { 
+          name: 'Sukiyabashi Jiro', 
+          location: 'Ginza', 
+          cuisine: 'Sushi',
+          rating: 4.9, 
+          price: '$$$$',
+          description: 'World-renowned sushi master experience',
+          image: 'https://images.unsplash.com/photo-1579027989536-b7b1f875659b?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: true,
+          category: 'Luxury'
+        },
+        { 
+          name: 'Narisawa', 
+          location: 'Minato', 
+          cuisine: 'Modern Japanese',
+          rating: 4.8, 
+          price: '$$$$',
+          description: 'Two-Michelin-starred innovative cuisine',
+          image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: true,
+          category: 'Luxury'
+        }
+      ]
+    },
+    'Paris': {
+      budget: [
+        { 
+          name: 'L\'As du Fallafel', 
+          location: 'Marais', 
+          cuisine: 'Middle Eastern',
+          rating: 4.4, 
+          price: '$',
+          description: 'Famous falafel in Jewish quarter',
+          image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: false,
+          category: 'Budget'
+        },
+        { 
+          name: 'Breizh Café', 
+          location: 'Marais', 
+          cuisine: 'Crêperie',
+          rating: 4.3, 
+          price: '$$',
+          description: 'Modern take on traditional Breton crêpes',
+          image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: true,
+          category: 'Budget'
+        }
+      ],
+      luxury: [
+        { 
+          name: 'L\'Ambroisie', 
+          location: 'Place des Vosges', 
+          cuisine: 'French',
+          rating: 4.9, 
+          price: '$$$$',
+          description: 'Three-Michelin-starred haute cuisine',
+          image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: true,
+          category: 'Luxury'
+        },
+        { 
+          name: 'Guy Savoy', 
+          location: 'Pont Neuf', 
+          cuisine: 'French',
+          rating: 4.8, 
+          price: '$$$$',
+          description: 'Legendary chef\'s flagship restaurant',
+          image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: true,
+          category: 'Luxury'
+        }
+      ]
+    },
+    'London': {
+      budget: [
+        { 
+          name: 'Dishoom', 
+          location: 'Covent Garden', 
+          cuisine: 'Indian',
+          rating: 4.5, 
+          price: '$$',
+          description: 'Bombay-style café with excellent curry',
+          image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: true,
+          category: 'Budget'
+        },
+        { 
+          name: 'Borough Market', 
+          location: 'Southwark', 
+          cuisine: 'Market Food',
+          rating: 4.4, 
+          price: '$',
+          description: 'Historic food market with diverse options',
+          image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: false,
+          category: 'Budget'
+        }
+      ],
+      luxury: [
+        { 
+          name: 'Gordon Ramsay', 
+          location: 'Chelsea', 
+          cuisine: 'Modern European',
+          rating: 4.8, 
+          price: '$$$$',
+          description: 'Three-Michelin-starred flagship restaurant',
+          image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: true,
+          category: 'Luxury'
+        },
+        { 
+          name: 'Sketch', 
+          location: 'Mayfair', 
+          cuisine: 'Modern European',
+          rating: 4.7, 
+          price: '$$$$',
+          description: 'Artistic dining experience with unique decor',
+          image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop&crop=entropy&auto=format',
+          bookingAvailable: true,
+          category: 'Luxury'
+        }
+      ]
+    }
+  };
+
+  const defaultRestaurants = {
+    budget: [
+      { 
+        name: 'Local Eatery', 
+        location: 'Downtown', 
+        cuisine: 'Local',
+        rating: 4.2, 
+        price: '$$',
+        description: 'Authentic local cuisine at good prices',
+        image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop&crop=entropy&auto=format',
+        bookingAvailable: true,
+        category: 'Budget'
+      },
+      { 
+        name: 'Street Food Market', 
+        location: 'City Center', 
+        cuisine: 'Street Food',
+        rating: 4.3, 
+        price: '$',
+        description: 'Diverse street food options',
+        image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop&crop=entropy&auto=format',
+        bookingAvailable: false,
+        category: 'Budget'
+      }
+    ],
+    luxury: [
+      { 
+        name: 'Fine Dining Restaurant', 
+        location: 'Upscale District', 
+        cuisine: 'International',
+        rating: 4.8, 
+        price: '$$$$',
+        description: 'Exquisite fine dining experience',
+        image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop&crop=entropy&auto=format',
+        bookingAvailable: true,
+        category: 'Luxury'
+      },
+      { 
+        name: 'Chef\'s Table Experience', 
+        location: 'Premium Location', 
+        cuisine: 'Modern Fusion',
+        rating: 4.9, 
+        price: '$$$$',
+        description: 'Intimate chef\'s table with tasting menu',
+        image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop&crop=entropy&auto=format',
+        bookingAvailable: true,
+        category: 'Luxury'
+      }
+    ]
+  };
+
+  const restaurants = restaurantsByDestination[destination] || defaultRestaurants;
+
+  if (isBudget) return { budget: restaurants.budget };
+  if (isLuxury) return { luxury: restaurants.luxury };
+  return restaurants; // Return both categories
 }
 
 // Chat sessions API endpoints
