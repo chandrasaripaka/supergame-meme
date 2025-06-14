@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'wouter';
 import { Settings, Bookmark, Users, Shield, LayoutGrid, DollarSign, MessageCircle, Book } from 'lucide-react';
 import { UserProfile } from './UserProfile';
+import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
   return (
@@ -38,6 +39,7 @@ export function AppHeader() {
             <Book className="h-5 w-5" />
             <span className="hidden sm:inline-block ml-1">Scrapbook</span>
           </Link>
+          <ThemeToggle />
           <UserProfile />
         </div>
       </div>

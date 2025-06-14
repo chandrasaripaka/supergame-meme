@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/lib/auth";
+import { useTheme } from "@/lib/theme";
 import { motion } from "framer-motion";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -15,9 +16,9 @@ import { Loader2 } from "lucide-react";
 export default function PreferencesPage() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { theme, setTheme } = useTheme();
   
   // General preferences
-  const [darkMode, setDarkMode] = useState(false);
   const [receiveNotifications, setReceiveNotifications] = useState(true);
   const [saveSearchHistory, setSaveSearchHistory] = useState(true);
   
@@ -53,7 +54,6 @@ export default function PreferencesPage() {
       const prefs = preferencesData.preferences;
       
       // Set general preferences
-      if (prefs.darkMode !== undefined) setDarkMode(prefs.darkMode);
       if (prefs.receiveNotifications !== undefined) setReceiveNotifications(prefs.receiveNotifications);
       if (prefs.saveSearchHistory !== undefined) setSaveSearchHistory(prefs.saveSearchHistory);
       
@@ -193,13 +193,13 @@ export default function PreferencesPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-base">Dark Mode</Label>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Switch to a darker theme for comfortable viewing at night
                     </p>
                   </div>
                   <Switch
-                    checked={darkMode}
-                    onCheckedChange={setDarkMode}
+                    checked={theme === 'dark'}
+                    onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
                   />
                 </div>
                 
