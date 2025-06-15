@@ -290,8 +290,7 @@ export default function ScrapbookPage() {
       title: newScrapbookTitle,
       theme: newScrapbookTheme,
       backgroundColor: themeConfig.bg,
-      textColor: themeConfig.text,
-      userId: user?.id || 0
+      textColor: themeConfig.text
     });
   };
 
