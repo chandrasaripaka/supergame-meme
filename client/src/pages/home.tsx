@@ -29,7 +29,18 @@ export default function Home() {
   // Mutation for sending messages to the AI
   const { mutate, isPending } = useMutation({
     mutationFn: async (newMessage: string) => {
-      return await sendMessageToAI(messages, newMessage);
+      // Add user message first
+      const userMessage: Message = {
+        role: 'user',
+        content: newMessage
+      };
+      
+      // Update messages state with user message
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
+      
+      // Send to AI with updated message history
+      const updatedMessages = [...messages, userMessage];
+      return await sendMessageToAI(updatedMessages, newMessage);
     },
     onSuccess: (aiMessage) => {
       setMessages((prevMessages) => [...prevMessages, aiMessage]);
@@ -51,17 +62,17 @@ export default function Home() {
                           message.toLowerCase().includes('travel') ||
                           message.includes('[Context:');
     
-    // Add user message to the chat
-    const userMessage: Message = {
-      role: 'user',
-      content: message
-    };
-    
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
     setShowWelcome(false);
     
     // Show travel form for trip planning requests
     if (shouldShowForm && !showTravelForm) {
+      // Add user message to the chat
+      const userMessage: Message = {
+        role: 'user',
+        content: message
+      };
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
+      
       setShowTravelForm(true);
       
       // Add a system message suggesting the form
@@ -80,6 +91,7 @@ export default function Home() {
       const contextualMessage = travelContext 
         ? `${message}\n\nTravel Context: ${JSON.stringify(travelContext)}`
         : message;
+      
       mutate(contextualMessage);
     }
   };
