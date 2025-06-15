@@ -109,9 +109,22 @@ export default function ScrapbookPage() {
   const [newTag, setNewTag] = useState('');
 
   // Fetch scrapbooks from API
-  const { data: scrapbooks = [], isLoading: isLoadingScrapbooks } = useQuery<ScrapbookWithMemories[]>({
+  const { data: scrapbooks = [], isLoading: isLoadingScrapbooks, error: scrapbooksError } = useQuery<ScrapbookWithMemories[]>({
     queryKey: ['/api/scrapbooks'],
-    enabled: isAuthenticated
+    queryFn: async () => {
+      const response = await fetch('/api/scrapbooks', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          return [];
+        }
+        throw new Error('Failed to fetch scrapbooks');
+      }
+      return response.json();
+    },
+    enabled: isAuthenticated,
+    retry: false
   });
 
   // Create scrapbook mutation
