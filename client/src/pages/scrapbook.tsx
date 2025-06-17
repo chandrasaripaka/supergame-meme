@@ -290,7 +290,8 @@ export default function ScrapbookPage() {
       title: newScrapbookTitle,
       theme: newScrapbookTheme,
       backgroundColor: themeConfig.bg,
-      textColor: themeConfig.text
+      textColor: themeConfig.text,
+      userId: user?.id || 0
     });
   };
 
@@ -315,7 +316,8 @@ export default function ScrapbookPage() {
         tags: newMemory.tags || [],
         rating: newMemory.rating || 5,
         transportMode: newMemory.transportMode || 'plane',
-        isFavorite: newMemory.isFavorite || false
+        isFavorite: newMemory.isFavorite || false,
+        scrapbookId: selectedScrapbook.id
       }
     });
   };
@@ -361,13 +363,13 @@ export default function ScrapbookPage() {
     }
   };
 
-  const TransportIcon = ({ mode }: { mode: ScrapbookMemory['transportMode'] }) => {
-    const Icon = TRANSPORT_ICONS[mode];
+  const TransportIcon = ({ mode }: { mode: string }) => {
+    const Icon = TRANSPORT_ICONS[mode as keyof typeof TRANSPORT_ICONS] || TRANSPORT_ICONS.plane;
     return <Icon className="h-4 w-4" />;
   };
 
   if (selectedScrapbook) {
-    const theme = THEMES[selectedScrapbook.theme];
+    const theme = THEMES[selectedScrapbook.theme as keyof typeof THEMES] || THEMES.modern;
     
     return (
       <div className={`min-h-screen ${theme.bg}`}>
@@ -553,7 +555,7 @@ export default function ScrapbookPage() {
 
           {/* Memories Grid */}
           <AnimatePresence>
-            {selectedScrapbook.memories.length === 0 ? (
+            {(selectedScrapbook.memories || []).length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -815,7 +817,7 @@ export default function ScrapbookPage() {
                 <CardContent>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3" />
-                    Created {scrapbook.createdAt.toLocaleDateString()}
+                    Created {new Date(scrapbook.createdAt).toLocaleDateString()}
                   </div>
                   
                   {scrapbook.memories.length > 0 && (
