@@ -324,31 +324,11 @@ Please create a detailed itinerary with flight options, accommodations, activiti
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="border-b border-gray-200 px-4 py-3 flex items-center">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 text-primary mr-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-          />
-        </svg>
-        <h2 className="font-semibold text-gray-800">
-          Chat with TravelAI{" "}
-          <span className="text-xs text-gray-500">**</span>
-        </h2>
-      </div>
-
+    <div className="w-full max-w-4xl mx-auto">
+      {/* Chat Messages Container - OpenAI Style */}
       <div
         ref={chatContainerRef}
-        className="chat-container overflow-y-auto px-4 py-4 space-y-4"
+        className="min-h-[60vh] max-h-[70vh] overflow-y-auto px-4 py-6 space-y-6"
       >
         {/* Render chat messages */}
         {messages.map((message, index) => (
@@ -517,23 +497,27 @@ Please create a detailed itinerary with flight options, accommodations, activiti
           )}
       </div>
 
-      <div className="border-t border-gray-200 px-4 py-3">
-        <form onSubmit={handleSubmit} className="flex items-center">
-          <div className="relative flex-1">
+      {/* Input Area - OpenAI Style */}
+      <div className="mt-6 px-4">
+        <form onSubmit={handleSubmit} className="relative">
+          <div className="relative bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
             <Input
               type="text"
-              placeholder="Ask about your trip..."
+              placeholder="Message WanderNotes..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full pl-4 pr-10 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-4 pr-20 border-0 rounded-xl resize-none focus:ring-0 focus:outline-none text-base"
+              style={{ minHeight: '56px' }}
             />
+            
+            {/* Voice Input Button */}
             <button
               type="button"
               onClick={handleVoiceInput}
-              className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${
+              className={`absolute right-14 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-colors ${
                 isListening
-                  ? "text-primary animate-pulse"
-                  : "text-gray-400 hover:text-primary"
+                  ? "text-primary bg-primary/10"
+                  : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               }`}
               aria-label={isListening ? "Stop listening" : "Start voice input"}
               disabled={!speechRecognitionSupported}
@@ -553,56 +537,74 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                 />
               </svg>
               {isListening && (
-                <span className="absolute -top-2 -right-2 flex h-3 w-3">
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
                 </span>
               )}
             </button>
+
+            {/* Send Button */}
+            <button
+              type="submit"
+              className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-colors ${
+                inputValue.trim() && !isLoading
+                  ? "bg-primary text-white hover:bg-primary/90"
+                  : "bg-gray-100 text-gray-400"
+              }`}
+              disabled={!inputValue.trim() || isLoading}
+            >
+              {isLoading ? (
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                  />
+                </svg>
+              )}
+            </button>
           </div>
-          <Button
-            type="button"
-            onClick={handlePlanTripClick}
-            className="bg-green-600 hover:bg-green-700 text-white ml-2 px-4 py-3 rounded-md transition flex items-center"
-            disabled={showInlineTravelForm}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"
-              />
-            </svg>
-            <span className="hidden sm:inline">Plan Trip</span>
-          </Button>
-          <Button
-            type="submit"
-            className="bg-primary hover:bg-blue-700 text-white ml-2 px-5 py-3 rounded-md transition flex items-center"
-            disabled={isLoading}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
-            </svg>
-            <span className="hidden sm:inline">Send</span>
-          </Button>
+
+          {/* Plan Trip Button - Below Input */}
+          {showInlineTravelForm && (
+            <div className="mt-3 text-center">
+              <Button
+                type="button"
+                onClick={handlePlanTripClick}
+                variant="outline"
+                className="text-sm px-4 py-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"
+                  />
+                </svg>
+                Plan a Trip
+              </Button>
+            </div>
+          )}
         </form>
       </div>
     </div>

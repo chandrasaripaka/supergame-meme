@@ -299,13 +299,9 @@ Let me create a personalized itinerary for you!`;
   };
   
   return (
-    <div className="min-h-screen hero-gradient travel-bg-pattern">
-      <div className="relative z-10">
-        <WelcomeCard 
-          onSuggestionClick={handleSuggestionClick}
-          visible={showWelcome}
-        />
-        
+    <div className="min-h-screen bg-background">
+      {/* Main Chat Interface - Top Priority */}
+      <div className="w-full">
         <ChatInterface
           messages={messages}
           onSendMessage={handleSendMessage}
@@ -315,8 +311,16 @@ Let me create a personalized itinerary for you!`;
           isLoading={isPending}
           showFormByDefault={!currentSessionId}
         />
-        
+      </div>
 
+      {/* Secondary Content Below Chat */}
+      <div className="relative z-10">
+        {showWelcome && (
+          <WelcomeCard 
+            onSuggestionClick={handleSuggestionClick}
+            visible={showWelcome}
+          />
+        )}
         
         {travelContext && travelContext.budget && (
           <div className="max-w-4xl mx-auto px-4 mb-8">

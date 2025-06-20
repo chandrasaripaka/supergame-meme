@@ -31,7 +31,7 @@ function Router() {
     <div className="min-h-screen flex flex-col">
       {!isLoginPage && <AppHeader />}
       
-      <main className={`flex-1 w-full mx-auto ${!isLoginPage ? 'max-w-7xl px-4 sm:px-6 lg:px-8 py-8' : ''}`}>
+      <main className={`flex-1 w-full ${!isLoginPage ? 'pt-0' : ''}`}>
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/login" component={LoginPage} />
