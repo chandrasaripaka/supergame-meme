@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 
 interface TravelFormData {
+  from: string;
   destination: string;
   startDate: Date | undefined;
   endDate: Date | undefined;
@@ -25,6 +26,7 @@ interface TravelFormProps {
 
 export function TravelQuickForm({ onSubmit, onSkip, initialData }: TravelFormProps) {
   const [formData, setFormData] = useState<TravelFormData>({
+    from: initialData?.from || '',
     destination: initialData?.destination || '',
     startDate: initialData?.startDate,
     endDate: initialData?.endDate,
@@ -47,7 +49,7 @@ export function TravelQuickForm({ onSubmit, onSkip, initialData }: TravelFormPro
     onSubmit(formData);
   };
 
-  const isFormComplete = formData.destination && formData.budget && formData.travelers;
+  const isFormComplete = formData.from && formData.destination && formData.budget && formData.travelers;
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 my-4">
@@ -57,6 +59,20 @@ export function TravelQuickForm({ onSubmit, onSkip, initialData }: TravelFormPro
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* From Location */}
+        <div className="space-y-2">
+          <Label htmlFor="from" className="text-sm font-medium text-gray-700">
+            Where are you traveling from?
+          </Label>
+          <Input
+            id="from"
+            placeholder="e.g., New York, London, Singapore"
+            value={formData.from}
+            onChange={(e) => setFormData({ ...formData, from: e.target.value })}
+            className="w-full"
+          />
+        </div>
+
         {/* Destination */}
         <div className="space-y-2">
           <Label htmlFor="destination" className="text-sm font-medium text-gray-700">
@@ -278,6 +294,7 @@ export function DestinationSuggestions({ onSelect }: { onSelect: (destination: s
 // Full travel form for modal
 export function TravelForm({ onSubmit, onClose }: { onSubmit: (data: TravelFormData) => void; onClose: () => void }) {
   const [formData, setFormData] = useState<TravelFormData>({
+    from: '',
     destination: '',
     startDate: undefined,
     endDate: undefined,
@@ -287,13 +304,13 @@ export function TravelForm({ onSubmit, onClose }: { onSubmit: (data: TravelFormD
   });
 
   const handleSubmit = () => {
-    if (formData.destination && formData.budget && formData.travelers) {
+    if (formData.from && formData.destination && formData.budget && formData.travelers) {
       onSubmit(formData);
       onClose();
     }
   };
 
-  const isFormComplete = formData.destination && formData.budget && formData.travelers;
+  const isFormComplete = formData.from && formData.destination && formData.budget && formData.travelers;
 
   return (
     <div className="space-y-6">
