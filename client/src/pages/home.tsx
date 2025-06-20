@@ -679,9 +679,10 @@ Let me create a personalized itinerary for you!`;
                       setTravelContext(null);
                       setSavedTravelDetails(null);
                       localStorage.removeItem('savedTravelDetails');
+                      // Keep chat history intact - only reset travel context
                       toast({
-                        title: "Context cleared",
-                        description: "Travel context has been reset. You can now enter new travel details.",
+                        title: "Travel context cleared",
+                        description: "Travel context has been reset. Chat history is preserved. You can now enter new travel details.",
                       });
                     }}
                     className="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
