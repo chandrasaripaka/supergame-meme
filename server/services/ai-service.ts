@@ -241,11 +241,15 @@ export async function continueTravelConversation(
 Use this EXACT structure for all detailed travel responses. CRITICAL: You MUST include ALL sections:
 1. Complete itinerary header with dates, destination, purpose, budget, travelers
 2. ALL daily breakdowns (do not stop at Day 8 - complete the full itinerary)
-3. Tips and recommendations section
-4. REQUIRED budget breakdown table with specific costs
-5. REQUIRED summary paragraph
+3. Flight options section with multiple choices for outbound and return flights
+4. Interactive day-wise activities with multiple options for morning, afternoon, and evening
+5. Tips and recommendations section
+6. REQUIRED budget breakdown table with specific costs
+7. REQUIRED summary paragraph
 
-Never truncate your response. Always complete the full itinerary structure including the budget table and summary at the end.`;
+IMPORTANT: Include realistic flight options and multiple activity choices for each time slot of each day. Users should be able to select from different airlines, times, and activity types.
+
+Never truncate your response. Always complete the full itinerary structure including flights, activities, budget table and summary at the end.`;
     
     // Build the full prompt with message history
     let fullPrompt = systemContent + "\\n\\n";

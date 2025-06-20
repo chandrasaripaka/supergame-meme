@@ -3,10 +3,175 @@ import { Message } from "@/types";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
+import { InteractiveItinerary } from "./InteractiveItinerary";
 
 interface ChatMessageProps {
   message: Message;
 }
+
+// Helper functions for generating sample data
+const extractDestination = (content: string): string => {
+  const match = content.match(/\*\*Destination:\*\*\s*([^\n]+)/);
+  return match ? match[1].trim() : 'Travel Destination';
+};
+
+const generateSampleFlights = (direction: 'outbound' | 'return') => {
+  const baseFlights = [
+    {
+      id: `${direction}-1`,
+      airline: 'Emirates',
+      flightNumber: 'EK 203',
+      departure: {
+        airport: direction === 'outbound' ? 'JFK' : 'DXB',
+        time: direction === 'outbound' ? '10:30 AM' : '2:15 PM',
+        date: direction === 'outbound' ? 'June 17' : 'June 21'
+      },
+      arrival: {
+        airport: direction === 'outbound' ? 'DXB' : 'JFK',
+        time: direction === 'outbound' ? '11:45 PM' : '8:30 PM',
+        date: direction === 'outbound' ? 'June 18' : 'June 21'
+      },
+      duration: '14h 15m',
+      price: 850,
+      class: 'Economy' as const,
+      stops: 0,
+      amenities: ['WiFi', 'Meals', 'Entertainment'],
+      baggage: '23kg included'
+    },
+    {
+      id: `${direction}-2`,
+      airline: 'Singapore Airlines',
+      flightNumber: 'SQ 25',
+      departure: {
+        airport: direction === 'outbound' ? 'JFK' : 'SIN',
+        time: direction === 'outbound' ? '1:20 PM' : '11:50 AM',
+        date: direction === 'outbound' ? 'June 17' : 'June 21'
+      },
+      arrival: {
+        airport: direction === 'outbound' ? 'SIN' : 'JFK',
+        time: direction === 'outbound' ? '7:30 PM+1' : '6:45 PM',
+        date: direction === 'outbound' ? 'June 18' : 'June 21'
+      },
+      duration: '18h 10m',
+      price: 1200,
+      class: 'Premium Economy' as const,
+      stops: 1,
+      amenities: ['WiFi', 'Meals', 'Extra Legroom'],
+      baggage: '30kg included'
+    },
+    {
+      id: `${direction}-3`,
+      airline: 'Qatar Airways',
+      flightNumber: 'QR 702',
+      departure: {
+        airport: direction === 'outbound' ? 'JFK' : 'DOH',
+        time: direction === 'outbound' ? '8:15 PM' : '1:35 AM',
+        date: direction === 'outbound' ? 'June 17' : 'June 21'
+      },
+      arrival: {
+        airport: direction === 'outbound' ? 'DOH' : 'JFK',
+        time: direction === 'outbound' ? '6:40 PM+1' : '8:55 AM',
+        date: direction === 'outbound' ? 'June 18' : 'June 21'
+      },
+      duration: '12h 25m',
+      price: 950,
+      class: 'Business' as const,
+      stops: 0,
+      amenities: ['WiFi', 'Gourmet Meals', 'Flat Bed'],
+      baggage: '40kg included'
+    }
+  ];
+  
+  return baseFlights;
+};
+
+const generateSampleDayPlans = () => {
+  return [
+    {
+      day: 1,
+      date: 'June 18, 2025',
+      location: 'Singapore',
+      morning: [
+        {
+          id: 'morning-1-1',
+          name: 'Gardens by the Bay Tour',
+          description: 'Explore the iconic Supertree Grove and Cloud Forest',
+          duration: '3 hours',
+          cost: 35,
+          category: 'sightseeing',
+          location: 'Gardens by the Bay',
+          timeSlot: 'morning' as const,
+          groupSize: 'Up to 15 people',
+          highlights: ['Supertree Grove', 'Cloud Forest', 'Flower Dome']
+        },
+        {
+          id: 'morning-1-2',
+          name: 'Singapore Botanic Gardens Walk',
+          description: 'UNESCO World Heritage site with orchid garden',
+          duration: '2.5 hours',
+          cost: 15,
+          category: 'culture',
+          location: 'Botanic Gardens',
+          timeSlot: 'morning' as const,
+          groupSize: 'Flexible',
+          highlights: ['Orchid Garden', 'Heritage Trees', 'Swan Lake']
+        }
+      ],
+      afternoon: [
+        {
+          id: 'afternoon-1-1',
+          name: 'Marina Bay Sands SkyPark',
+          description: 'Rooftop infinity pool and observation deck',
+          duration: '2 hours',
+          cost: 65,
+          category: 'sightseeing',
+          location: 'Marina Bay Sands',
+          timeSlot: 'afternoon' as const,
+          groupSize: 'Up to 20 people',
+          highlights: ['Infinity Pool', 'City Views', 'Photo Opportunities']
+        },
+        {
+          id: 'afternoon-1-2',
+          name: 'Chinatown Heritage Center',
+          description: 'Cultural immersion in historic Chinatown',
+          duration: '2.5 hours',
+          cost: 25,
+          category: 'culture',
+          location: 'Chinatown',
+          timeSlot: 'afternoon' as const,
+          groupSize: 'Small groups',
+          highlights: ['Heritage Center', 'Traditional Shops', 'Street Food']
+        }
+      ],
+      evening: [
+        {
+          id: 'evening-1-1',
+          name: 'Singapore River Cruise',
+          description: 'Evening cruise with city skyline views',
+          duration: '1.5 hours',
+          cost: 45,
+          category: 'relaxation',
+          location: 'Singapore River',
+          timeSlot: 'evening' as const,
+          groupSize: 'Up to 40 people',
+          highlights: ['City Lights', 'Historical Commentary', 'Refreshments']
+        },
+        {
+          id: 'evening-1-2',
+          name: 'Clarke Quay Dining',
+          description: 'Riverside dining and nightlife experience',
+          duration: '3 hours',
+          cost: 80,
+          category: 'food',
+          location: 'Clarke Quay',
+          timeSlot: 'evening' as const,
+          groupSize: 'Flexible',
+          highlights: ['Riverside Views', 'International Cuisine', 'Live Music']
+        }
+      ]
+    }
+  ];
+};
 
 export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user";
@@ -55,7 +220,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
             ) : message.modelInfo.note ? (
               <span>{message.modelInfo.note}</span>
             ) : (
-              <span>AI</span>
+              <span>AI Assistant</span>
             )}
           </div>
         )}
@@ -63,374 +228,127 @@ export function ChatMessage({ message }: ChatMessageProps) {
         {isUser ? (
           <p>{message.content}</p>
         ) : (
-          <div className="prose max-w-none dark:prose-invert prose-sm">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                h1: ({ node, ...props }: any) => (
-                  <h1
-                    className="text-2xl font-bold mb-6 text-gray-900 border-b-2 border-gray-200 pb-3"
-                    {...props}
-                  />
-                ),
-                h2: ({ node, ...props }: any) => {
-                  const children = props.children;
-                  const content = Array.isArray(children) ? children[0] : children;
-                  const isDayHeading = typeof content === 'string' && 
-                    (content.includes('Day ') || content.includes('June ') || content.includes('Morning') || content.includes('Afternoon') || content.includes('Evening'));
-                  
-                  return (
+          <div className="space-y-6">
+            {/* Check if message contains flight and activity data */}
+            {message.content.includes('Flight Options') && message.content.includes('Day') && (
+              <div className="mb-6">
+                <InteractiveItinerary
+                  destination={extractDestination(message.content)}
+                  outboundFlights={generateSampleFlights('outbound')}
+                  returnFlights={generateSampleFlights('return')}
+                  dayPlans={generateSampleDayPlans()}
+                  onComplete={(selections) => {
+                    console.log('User selections:', selections);
+                    // Handle user selections here
+                  }}
+                />
+              </div>
+            )}
+            
+            <div className="prose max-w-none dark:prose-invert prose-sm">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h1: ({ node, ...props }: any) => (
+                    <h1
+                      className="text-2xl font-bold mb-6 text-gray-900 border-b-2 border-gray-200 pb-3"
+                      {...props}
+                    />
+                  ),
+                  h2: ({ node, ...props }: any) => (
                     <h2
-                      className={`text-xl font-bold mt-8 mb-4 ${
-                        isDayHeading 
-                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-lg shadow-sm' 
-                          : 'text-gray-800 border-b border-gray-300 pb-2'
-                      }`}
+                      className="text-xl font-bold mb-4 text-gray-800 mt-8"
                       {...props}
                     />
-                  );
-                },
-                h3: ({ node, ...props }) => (
-                  <h3
-                    className="text-lg font-semibold mt-6 mb-3 text-blue-700 flex items-center"
-                    {...props}
-                  />
-                ),
-                ul: ({ node, ...props }) => (
-                  <ul className="space-y-2 mb-4" {...props} />
-                ),
-                li: ({ node, ...props }: any) => {
-                  const children = props.children;
-                  const content = Array.isArray(children) ? children[0] : children;
-                  const isTimeSlot = typeof content === 'string' && 
-                    (content.includes('Morning:') || content.includes('Afternoon:') || content.includes('Evening:') || content.includes('Overnight:'));
-                  
-                  return (
-                    <li className={`flex items-start ${
-                      isTimeSlot 
-                        ? 'bg-blue-50 border-l-4 border-blue-400 pl-4 py-2 my-3 rounded-r-md' 
-                        : 'mb-2 pl-2'
-                    }`} {...props} />
-                  );
-                },
-                p: ({ node, ...props }) => {
-                  const content = Array.isArray(props.children) ? props.children[0] : props.children;
-                  const isBoldLine = typeof content === 'string' && 
-                    (content.startsWith('**Dates:**') || content.startsWith('**Destination:**') || 
-                     content.startsWith('**Purpose:**') || content.startsWith('**Budget:**') || 
-                     content.startsWith('**Travelers:**'));
-                  
-                  return (
-                    <p className={`mb-3 ${
-                      isBoldLine ? 'bg-gray-50 px-3 py-2 border-l-3 border-blue-400 font-medium text-gray-700' : ''
-                    }`} {...props} />
-                  );
-                },
-                code: ({ node, className, ...props }: any) => {
-                  const match = /language-(\w+)/.exec(className || "");
-                  const isInline =
-                    !match &&
-                    typeof props.children === "string" &&
-                    !props.children.includes("\n");
-
-                  // Check if this is a budget breakdown code block
-                  if (typeof props.children === "string") {
-                    const content = props.children;
-
-                    // Check for budget breakdown
-                    const isBudgetBreakdown =
-                      content.includes("Estimated Breakdown") ||
-                      content.includes("Accommodation:") ||
-                      content.includes("Transportation:") ||
-                      content.includes("Total:");
-
-                    if (isBudgetBreakdown) {
-                      // Special styling for budget breakdown
-                      return (
-                        <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4 shadow-sm">
-                          <h4 className="text-blue-800 font-semibold mb-2 flex items-center">
-                            <span className="mr-2">💰</span>
-                            Budget Breakdown
-                          </h4>
-                          <pre className="whitespace-pre-wrap text-sm font-mono text-white-700 pl-2 border-l-2 border-blue-200">
-                            {content}
-                          </pre>
-                        </div>
-                      );
-                    }
-
-                    // Check for weather information
-                    const isWeatherInfo =
-                      content.includes("Weather Forecast") ||
-                      (content.includes("Temperature") &&
-                        (content.includes("Conditions") ||
-                          content.includes("Humidity")));
-
-                    if (isWeatherInfo) {
-                      // Special styling for weather information
-                      const tempMatch =
-                        content.match(/Temperature:\s*([\d.-]+)°C/i) ||
-                        content.match(/(\d+)°C/);
-                      const conditionMatch =
-                        content.match(/Conditions?:\s*([A-Za-z\s]+)/i) ||
-                        content.match(
-                          /conditions?(?:\s*is|\s*are)?:\s*([A-Za-z\s]+)/i,
-                        );
-
-                      // Determine weather icon
-                      let weatherIcon = (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-8 w-8 text-blue-500"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
-                          />
-                        </svg>
-                      );
-
-                      if (conditionMatch) {
-                        const condition = conditionMatch[1]
-                          .toLowerCase()
-                          .trim();
-                        if (
-                          condition.includes("sunny") ||
-                          condition.includes("clear")
-                        ) {
-                          weatherIcon = (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-8 w-8 text-yellow-500"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                              />
-                            </svg>
-                          );
-                        } else if (
-                          condition.includes("rain") ||
-                          condition.includes("shower")
-                        ) {
-                          weatherIcon = (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-8 w-8 text-blue-500"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                              />
-                            </svg>
-                          );
-                        } else if (condition.includes("cloud")) {
-                          weatherIcon = (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-8 w-8 text-gray-500"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
-                              />
-                            </svg>
-                          );
-                        }
-                      }
-
-                      return (
-                        <div className="bg-gradient-to-br from-blue-100/90 to-sky-100/90 border border-blue-200 rounded-lg p-5 mb-4 shadow-md">
-                          <h4 className="text-blue-800 font-semibold mb-4 flex items-center bg-gradient-to-r from-blue-600 to-sky-600 bg-clip-text text-transparent">
-                            <span className="mr-2 text-xl">🌤️</span>
-                            Weather Information
-                          </h4>
-                          <div className="flex items-center mb-3 bg-white/70 backdrop-blur-sm p-3 rounded-md border border-blue-200/50">
-                            <div className="mr-4 p-2 bg-gradient-to-br from-blue-500/10 to-sky-500/10 rounded-full">
-                              {weatherIcon}
-                            </div>
-                            <div>
-                              {tempMatch && (
-                                <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-sky-600 bg-clip-text text-transparent">
-                                  {tempMatch[1]}°C
-                                </div>
-                              )}
-                              {conditionMatch && (
-                                <div className="text-blue-700 font-medium">
-                                  {conditionMatch[1]}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="mt-3 bg-white/80 backdrop-blur-sm rounded-md p-3">
-                            <h5 className="font-semibold text-blue-800 mb-2 flex items-center">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 mr-1"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                />
-                              </svg>
-                              Forecast Details:
-                            </h5>
-                            <div className="space-y-3">
-                              {content
-                                .split("\n\n")
-                                .map((section: string, index: number) => {
-                                  if (
-                                    section.includes("Day 1:") ||
-                                    section.includes("Day 2:") ||
-                                    section.includes("Day 3:")
-                                  ) {
-                                    const dayMatch =
-                                      section.match(/Day (\d+):/);
-                                    const dayNum = dayMatch
-                                      ? parseInt(dayMatch[1])
-                                      : 1;
-
-                                    let bgColor =
-                                      "from-blue-500/5 to-blue-400/5";
-                                    let borderColor = "border-blue-300";
-
-                                    if (dayNum === 2) {
-                                      bgColor =
-                                        "from-green-500/5 to-green-400/5";
-                                      borderColor = "border-green-300";
-                                    } else if (dayNum === 3) {
-                                      bgColor =
-                                        "from-purple-500/5 to-purple-400/5";
-                                      borderColor = "border-purple-300";
-                                    }
-
-                                    return (
-                                      <div
-                                        key={index}
-                                        className={`bg-gradient-to-r ${bgColor} p-2 rounded-md border ${borderColor}`}
-                                      >
-                                        <pre className="whitespace-pre-wrap text-sm font-medium text-white-800">
-                                          {section}
-                                        </pre>
-                                      </div>
-                                    );
-                                  }
-
-                                  return (
-                                    <pre
-                                      key={index}
-                                      className="whitespace-pre-wrap text-sm font-medium text-gray-800 pl-2 border-l-3 border-blue-400 pt-2 pb-1"
-                                    >
-                                      {section}
-                                    </pre>
-                                  );
-                                })}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                  }
-
-                  return isInline ? (
-                    <code
-                      className="bg-gray-100 rounded p-1 text-sm text-gray-800"
+                  ),
+                  h3: ({ node, ...props }: any) => (
+                    <h3
+                      className="text-lg font-semibold mb-3 text-gray-700 mt-6"
                       {...props}
                     />
-                  ) : (
-                    <div className="bg-white border border-gray-200 rounded-md p-4 text-sm font-mono text-gray-800 overflow-x-auto my-3">
-                      <code {...props} />
+                  ),
+                  p: ({ node, ...props }: any) => (
+                    <p className="mb-4 leading-relaxed" {...props} />
+                  ),
+                  ul: ({ node, ...props }: any) => (
+                    <ul className="mb-4 space-y-2" {...props} />
+                  ),
+                  ol: ({ node, ...props }: any) => (
+                    <ol className="mb-4 space-y-2" {...props} />
+                  ),
+                  li: ({ node, ...props }: any) => (
+                    <li className="flex items-start" {...props} />
+                  ),
+                  strong: ({ node, ...props }: any) => (
+                    <strong className="font-semibold text-gray-900" {...props} />
+                  ),
+                  em: ({ node, ...props }: any) => (
+                    <em className="italic text-gray-700" {...props} />
+                  ),
+                  blockquote: ({ node, ...props }: any) => (
+                    <blockquote
+                      className="border-l-4 border-blue-500 pl-4 italic text-gray-600 bg-blue-50 p-4 rounded-r-lg my-4"
+                      {...props}
+                    />
+                  ),
+                  code: ({ node, inline, ...props }: any) =>
+                    inline ? (
+                      <code
+                        className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-mono"
+                        {...props}
+                      />
+                    ) : (
+                      <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-4">
+                        <code className="font-mono text-sm" {...props} />
+                      </div>
+                    ),
+                  pre: ({ node, ...props }: any) => (
+                    <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-4">
+                      <pre className="font-mono text-sm" {...props} />
                     </div>
-                  );
-                },
-                em: ({ node, ...props }) => (
-                  <em
-                    className="text-primary dark:text-primary-dark"
-                    {...props}
-                  />
-                ),
-                strong: ({ node, ...props }) => (
-                  <strong className="font-bold text-primary-dark" {...props} />
-                ),
-                table: ({ node, ...props }) => (
-                  <div className="overflow-x-auto my-6 rounded-lg border border-gray-300 shadow-sm bg-white">
-                    <table
-                      className="min-w-full divide-y divide-gray-300"
+                  ),
+                  table: ({ node, ...props }: any) => (
+                    <div className="overflow-x-auto my-6">
+                      <table
+                        className="min-w-full border-collapse border border-gray-300 bg-white rounded-lg shadow-sm"
+                        {...props}
+                      />
+                    </div>
+                  ),
+                  thead: ({ node, ...props }: any) => (
+                    <thead className="bg-gray-50" {...props} />
+                  ),
+                  tbody: ({ node, ...props }: any) => (
+                    <tbody className="divide-y divide-gray-200" {...props} />
+                  ),
+                  tr: ({ node, ...props }: any) => (
+                    <tr className="hover:bg-gray-50" {...props} />
+                  ),
+                  th: ({ node, ...props }: any) => (
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-300"
                       {...props}
                     />
-                  </div>
-                ),
-                thead: ({ node, ...props }) => (
-                  <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white" {...props} />
-                ),
-                tbody: ({ node, ...props }) => (
-                  <tbody
-                    className="bg-white divide-y divide-gray-200"
-                    {...props}
-                  />
-                ),
-                tr: ({ node, ...props }) => (
-                  <tr className="hover:bg-blue-50 transition-colors" {...props} />
-                ),
-                th: ({ node, ...props }) => (
-                  <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider"
-                    {...props}
-                  />
-                ),
-                td: ({ node, ...props }: any) => {
-                  const content = props.children?.[0];
-                  const isTotal = typeof content === 'string' && content.includes('Total');
-                  
-                  return (
+                  ),
+                  td: ({ node, ...props }: any) => (
                     <td
-                      className={`px-6 py-4 text-sm ${
-                        isTotal 
-                          ? 'font-bold text-blue-700 bg-blue-50' 
-                          : 'text-gray-700'
-                      }`}
+                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border border-gray-300"
                       {...props}
                     />
-                  );
-                },
-                hr: ({ node, ...props }) => (
-                  <hr className="my-8 border-t-2 border-gray-200" {...props} />
-                ),
-                blockquote: ({ node, ...props }) => (
-                  <blockquote
-                    className="border-l-4 border-blue-400 pl-4 py-2 my-4 bg-blue-50 text-blue-800 italic"
-                    {...props}
-                  />
-                ),
-              }}
-            >
-              {message.content}
-            </ReactMarkdown>
+                  ),
+                  a: ({ node, ...props }: any) => (
+                    <a
+                      className="text-blue-600 hover:text-blue-800 underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      {...props}
+                    />
+                  ),
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
+            </div>
           </div>
         )}
       </div>
@@ -455,38 +373,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-export function TypingIndicator() {
-  return (
-    <div className="flex items-start">
-      <div className="flex-shrink-0 mr-3">
-        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-            />
-          </svg>
-        </div>
-      </div>
-      <div className="chat-message bg-light rounded-lg p-3 shadow-sm">
-        <div className="typing-indicator flex space-x-1">
-          <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
-          <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
-          <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
-        </div>
-      </div>
     </div>
   );
 }
