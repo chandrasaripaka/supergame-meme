@@ -81,7 +81,7 @@ const getAirportCode = (location: string): string => {
     'São Paulo': 'GRU',
     'Buenos Aires': 'EZE',
     'Mexico City': 'MEX',
-    'Your Location': 'JFK'
+    'Your Location': 'SIN'
   };
   
   // Try exact match first
@@ -131,14 +131,14 @@ const generateSampleFlights = (direction: 'outbound' | 'return', travelDetails?:
       airline: 'Singapore Airlines',
       flightNumber: 'SQ 25',
       departure: {
-        airport: direction === 'outbound' ? 'JFK' : 'SIN',
+        airport: direction === 'outbound' ? sourceAirport : destAirport,
         time: direction === 'outbound' ? '1:20 PM' : '11:50 AM',
-        date: direction === 'outbound' ? 'June 17' : 'June 21'
+        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 17') : (travelDetails?.returnDate || 'June 21')
       },
       arrival: {
-        airport: direction === 'outbound' ? 'SIN' : 'JFK',
+        airport: direction === 'outbound' ? destAirport : sourceAirport,
         time: direction === 'outbound' ? '7:30 PM+1' : '6:45 PM',
-        date: direction === 'outbound' ? 'June 18' : 'June 21'
+        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 18') : (travelDetails?.returnDate || 'June 21')
       },
       duration: '18h 10m',
       price: 1200,
@@ -152,14 +152,14 @@ const generateSampleFlights = (direction: 'outbound' | 'return', travelDetails?:
       airline: 'Qatar Airways',
       flightNumber: 'QR 702',
       departure: {
-        airport: direction === 'outbound' ? 'JFK' : 'DOH',
+        airport: direction === 'outbound' ? sourceAirport : 'DOH',
         time: direction === 'outbound' ? '8:15 PM' : '1:35 AM',
-        date: direction === 'outbound' ? 'June 17' : 'June 21'
+        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 17') : (travelDetails?.returnDate || 'June 21')
       },
       arrival: {
-        airport: direction === 'outbound' ? 'DOH' : 'JFK',
+        airport: direction === 'outbound' ? 'DOH' : sourceAirport,
         time: direction === 'outbound' ? '6:40 PM+1' : '8:55 AM',
-        date: direction === 'outbound' ? 'June 18' : 'June 21'
+        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 18') : (travelDetails?.returnDate || 'June 21')
       },
       duration: '12h 25m',
       price: 950,
