@@ -431,11 +431,13 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                 />
 
                 {/* Enhanced Itinerary Table with Charts */}
-                {(travelPlan as any)?.days && Array.isArray((travelPlan as any).days) && (travelPlan as any).days.length > 0 && (
-                  <ItineraryTable
-                    days={(travelPlan as any).days}
-                  />
-                )}
+                <div>
+                  {(travelPlan as any)?.days && Array.isArray((travelPlan as any).days) && (travelPlan as any).days.length > 0 && (
+                    <ItineraryTable
+                      days={(travelPlan as any).days}
+                    />
+                  )}
+                </div>
 
                 {/* Enhanced Budget Dashboard with Charts */}
                 <BudgetDashboard
