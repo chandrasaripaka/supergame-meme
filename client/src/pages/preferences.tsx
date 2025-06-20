@@ -160,15 +160,21 @@ export default function PreferencesPage() {
       setPreferredActivities([...preferredActivities, activity]);
     }
   };
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   return (
-    <div className="container mx-auto py-8 bg-background dark:bg-background">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-transparent bg-clip-text">
+    <div className="min-h-screen w-full bg-background dark:bg-background">
+      <div className="container mx-auto py-8 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-transparent bg-clip-text">
           Travel Preferences
         </h1>
         
@@ -457,7 +463,8 @@ export default function PreferencesPage() {
             )}
           </Button>
         </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
