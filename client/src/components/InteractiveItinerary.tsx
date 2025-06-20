@@ -48,6 +48,10 @@ interface InteractiveItineraryProps {
   outboundFlights: Flight[];
   returnFlights: Flight[];
   dayPlans: DayPlan[];
+  travelDetails?: {
+    source: string;
+    destination: string;
+  };
   onComplete: (selections: {
     outboundFlight: Flight | null;
     returnFlight: Flight | null;
@@ -60,6 +64,7 @@ export function InteractiveItinerary({
   outboundFlights, 
   returnFlights, 
   dayPlans, 
+  travelDetails,
   onComplete 
 }: InteractiveItineraryProps) {
   const [selectedOutboundFlight, setSelectedOutboundFlight] = useState<Flight | null>(null);
@@ -206,12 +211,14 @@ export function InteractiveItinerary({
             flights={outboundFlights}
             onSelectFlight={setSelectedOutboundFlight}
             direction="outbound"
+            travelDetails={travelDetails}
           />
           
           <FlightSelector
             flights={returnFlights}
             onSelectFlight={setSelectedReturnFlight}
             direction="return"
+            travelDetails={travelDetails}
           />
         </TabsContent>
 

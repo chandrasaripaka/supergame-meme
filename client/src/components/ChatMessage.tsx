@@ -350,6 +350,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   outboundFlights={generateSampleFlights('outbound', extractTravelDetails(message.content))}
                   returnFlights={generateSampleFlights('return', extractTravelDetails(message.content))}
                   dayPlans={generateSampleDayPlans()}
+                  travelDetails={extractTravelDetails(message.content)}
                   onComplete={(selections) => {
                     console.log('User selections:', selections);
                     // Handle user selections here

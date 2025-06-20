@@ -63,6 +63,24 @@ export function FlightSelector({ flights, onSelectFlight, direction, travelDetai
     }
   };
 
+  const getRouteDisplay = () => {
+    if (!travelDetails) return null;
+    
+    const { source, destination } = travelDetails;
+    const fromLocation = direction === 'outbound' ? source : destination;
+    const toLocation = direction === 'outbound' ? destination : source;
+    
+    return (
+      <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 mb-4">
+        <div className="flex items-center justify-center text-sm text-blue-700">
+          <span className="font-medium">{fromLocation}</span>
+          <Plane className="h-4 w-4 mx-3 text-blue-600" />
+          <span className="font-medium">{toLocation}</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -74,6 +92,8 @@ export function FlightSelector({ flights, onSelectFlight, direction, travelDetai
           {flights.length} options available
         </Badge>
       </div>
+      
+      {getRouteDisplay()}
 
       <div className="grid gap-4">
         {flights.map((flight) => (
