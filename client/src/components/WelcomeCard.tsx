@@ -87,11 +87,6 @@ export function WelcomeCard({ onSuggestionClick, visible }: WelcomeCardProps) {
   
   return (
     <div className="mb-8 space-y-6">
-      <div className="card-glass rounded-xl shadow-2xl p-6 mx-4 pulse-glow text-center">
-        <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Your AI Travel Concierge</h2>
-        <p className="text-xl text-gray-700 max-w-3xl mx-auto">Tell me where you want to go, your budget, interests, and travel dates. I'll help you create the perfect trip tailored just for you!</p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mx-4">
         {suggestions.map((suggestion, index) => (
           <div

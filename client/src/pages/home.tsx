@@ -300,7 +300,19 @@ Let me create a personalized itinerary for you!`;
   
   return (
     <div className="min-h-screen bg-background">
-      {/* Main Chat Interface - Top Priority */}
+      {/* AI Travel Concierge Banner - Top of Page */}
+      <div className="w-full bg-white border-b border-gray-200 py-6">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Your AI Travel Concierge
+          </h1>
+          <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+            Tell me where you want to go, your budget, interests, and travel dates. I'll help you create the perfect trip tailored just for you!
+          </p>
+        </div>
+      </div>
+
+      {/* Main Chat Interface */}
       <div className="w-full">
         <ChatInterface
           messages={messages}
