@@ -672,7 +672,24 @@ Let me create a personalized itinerary for you!`;
             {/* Travel Context Display */}
             {travelContext && (
               <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="font-semibold text-blue-900 mb-2">Current Travel Context</h3>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-blue-900">Current Travel Context</h3>
+                  <button
+                    onClick={() => {
+                      setTravelContext(null);
+                      setSavedTravelDetails(null);
+                      localStorage.removeItem('savedTravelDetails');
+                      toast({
+                        title: "Context cleared",
+                        description: "Travel context has been reset. You can now enter new travel details.",
+                      });
+                    }}
+                    className="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                    title="Clear travel context"
+                  >
+                    Reset Context
+                  </button>
+                </div>
                 <div className="text-sm text-blue-800">
                   <p><strong>From:</strong> {travelContext.from}</p>
                   <p><strong>To:</strong> {travelContext.destination}</p>
