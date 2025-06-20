@@ -142,12 +142,58 @@ export async function continueTravelConversation(
       eventRecommendations = getEventRecommendations(destination);
     }
     
-    // Extract travel style preferences
+    // Extract travel style preferences and apply defaults
     let travelStyleContext = '';
-    if (userPreferences && userPreferences.travelStyle) {
-      travelStyleContext = `\n\nUser's preferred travel style: ${userPreferences.travelStyle}. Tailor recommendations to match this travel style preference.`;
+    let appliedTravelStyle = null;
+    
+    // Check if user has explicitly mentioned a travel style in the message
+    const travelStyleMentions = ['budget', 'luxury', 'adventure', 'cultural', 'family', 'business', 'romantic', 'backpacker', 'eco-friendly'];
+    const mentionedStyle = travelStyleMentions.find(style => 
+      newMessage.toLowerCase().includes(style.toLowerCase())
+    );
+    
+    if (mentionedStyle) {
+      appliedTravelStyle = mentionedStyle;
+      travelStyleContext = `\n\nUser has specified travel style: ${mentionedStyle}. Tailor all recommendations to match this travel style preference.`;
+    } else if (userPreferences && userPreferences.travelStyle) {
+      appliedTravelStyle = userPreferences.travelStyle;
+      travelStyleContext = `\n\nUser's preferred travel style: ${userPreferences.travelStyle}. Since no specific style was mentioned, use this default preference to tailor recommendations.`;
     } else if (userPreferences && userPreferences.defaultTravelStyle) {
-      travelStyleContext = `\n\nUser's default travel style: ${userPreferences.defaultTravelStyle}. Use this as the travel style preference when none is specified.`;
+      appliedTravelStyle = userPreferences.defaultTravelStyle;
+      travelStyleContext = `\n\nUser's default travel style: ${userPreferences.defaultTravelStyle}. Apply this travel style to all recommendations since no specific preference was mentioned.`;
+    }
+    
+    // Add specific guidance based on travel style
+    if (appliedTravelStyle) {
+      switch (appliedTravelStyle.toLowerCase()) {
+        case 'budget':
+          travelStyleContext += `\n\nBudget Travel Focus: Prioritize cost-effective options, hostels, public transportation, free activities, and local street food.`;
+          break;
+        case 'luxury':
+          travelStyleContext += `\n\nLuxury Travel Focus: Recommend premium hotels, fine dining, private tours, first-class transportation, and exclusive experiences.`;
+          break;
+        case 'adventure':
+          travelStyleContext += `\n\nAdventure Travel Focus: Emphasize outdoor activities, hiking, extreme sports, unique experiences, and active exploration.`;
+          break;
+        case 'cultural':
+          travelStyleContext += `\n\nCultural Travel Focus: Highlight museums, historical sites, local traditions, cultural events, and authentic local experiences.`;
+          break;
+        case 'family':
+          travelStyleContext += `\n\nFamily Travel Focus: Suggest family-friendly accommodations, kid-appropriate activities, safe transportation, and entertainment for all ages.`;
+          break;
+        case 'business':
+          travelStyleContext += `\n\nBusiness Travel Focus: Prioritize efficient transportation, business hotels, reliable WiFi, and minimal travel time between locations.`;
+          break;
+        case 'romantic':
+          travelStyleContext += `\n\nRomantic Travel Focus: Recommend intimate restaurants, couple activities, scenic locations, and romantic accommodations.`;
+          break;
+        case 'backpacker':
+          travelStyleContext += `\n\nBackpacker Travel Focus: Suggest hostels, budget transportation, local experiences, and flexible itineraries.`;
+          break;
+        case 'eco-friendly':
+          travelStyleContext += `\n\nEco-Friendly Travel Focus: Prioritize sustainable accommodations, eco-tours, public transport, and environmentally conscious activities.`;
+          break;
+      }
     }
     
     // Prepare system message content
