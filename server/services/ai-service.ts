@@ -238,7 +238,14 @@ export async function continueTravelConversation(
 ## **Summary**
 [Brief summary paragraph that ties together the experience and value proposition]
 
-Use this EXACT structure for all detailed travel responses. Include tables for budget breakdowns, use --- for section separators, and maintain professional formatting throughout.`;
+Use this EXACT structure for all detailed travel responses. CRITICAL: You MUST include ALL sections:
+1. Complete itinerary header with dates, destination, purpose, budget, travelers
+2. ALL daily breakdowns (do not stop at Day 8 - complete the full itinerary)
+3. Tips and recommendations section
+4. REQUIRED budget breakdown table with specific costs
+5. REQUIRED summary paragraph
+
+Never truncate your response. Always complete the full itinerary structure including the budget table and summary at the end.`;
     
     // Build the full prompt with message history
     let fullPrompt = systemContent + "\\n\\n";
@@ -259,7 +266,7 @@ Use this EXACT structure for all detailed travel responses. Include tables for b
     const options: RequestOptions = {
       minCapability: { creativity: 7 },
       temperature: 0.7, // Higher temperature for creative conversation
-      maxTokens: 1024
+      maxTokens: 4096 // Increased token limit for complete responses including all sections
     };
     
     // Route the prompt to the best available model

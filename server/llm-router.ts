@@ -132,7 +132,7 @@ class LLMRouter {
       model: 'gpt-4o', // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
       messages,
       temperature: options.temperature || 0.7,
-      max_tokens: options.maxTokens || 2048,
+      max_tokens: options.maxTokens || 4096,
     };
 
     if (options.responseFormat === 'json') {
@@ -161,9 +161,9 @@ class LLMRouter {
 
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
-    const generationConfig = {
+    const generationConfig: any = {
       temperature: options.temperature || 0.7,
-      maxOutputTokens: options.maxTokens || 2048,
+      maxOutputTokens: options.maxTokens || 4096,
     };
 
     if (options.responseFormat === 'json') {
