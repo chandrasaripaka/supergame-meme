@@ -9,27 +9,108 @@ interface ChatMessageProps {
   message: Message;
 }
 
-// Helper functions for generating sample data
+// Helper functions for extracting travel data
 const extractDestination = (content: string): string => {
   const match = content.match(/\*\*Destination:\*\*\s*([^\n]+)/);
   return match ? match[1].trim() : 'Travel Destination';
 };
 
-const generateSampleFlights = (direction: 'outbound' | 'return') => {
+const extractTravelDetails = (content: string): { source: string; destination: string; departureDate?: string; returnDate?: string } => {
+  // Extract source and destination from travel details
+  const fromMatch = content.match(/📍\s*From:\s*([^→\n]+)→\s*To:\s*([^\n]+)/);
+  const destinationMatch = content.match(/\*\*Destination:\*\*\s*([^\n]+)/);
+  const departureDateMatch = content.match(/📅\s*Departure:\s*([^\n]+)/);
+  const returnDateMatch = content.match(/📅\s*Return:\s*([^\n]+)/);
+  
+  let source = 'Your Location';
+  let destination = 'Travel Destination';
+  
+  if (fromMatch) {
+    source = fromMatch[1].trim();
+    destination = fromMatch[2].trim();
+  } else if (destinationMatch) {
+    destination = destinationMatch[1].trim();
+  }
+  
+  return {
+    source,
+    destination,
+    departureDate: departureDateMatch ? departureDateMatch[1].trim() : undefined,
+    returnDate: returnDateMatch ? returnDateMatch[1].trim() : undefined
+  };
+};
+
+const getAirportCode = (location: string): string => {
+  const airportCodes: { [key: string]: string } = {
+    'New York': 'JFK',
+    'NYC': 'JFK',
+    'New York City': 'JFK',
+    'Los Angeles': 'LAX',
+    'LA': 'LAX',
+    'Chicago': 'ORD',
+    'London': 'LHR',
+    'Paris': 'CDG',
+    'Tokyo': 'NRT',
+    'Dubai': 'DXB',
+    'Singapore': 'SIN',
+    'Bangkok': 'BKK',
+    'Seoul': 'ICN',
+    'Hong Kong': 'HKG',
+    'Sydney': 'SYD',
+    'Melbourne': 'MEL',
+    'Toronto': 'YYZ',
+    'Vancouver': 'YVR',
+    'Mumbai': 'BOM',
+    'Delhi': 'DEL',
+    'Barcelona': 'BCN',
+    'Madrid': 'MAD',
+    'Rome': 'FCO',
+    'Amsterdam': 'AMS',
+    'Frankfurt': 'FRA',
+    'Zurich': 'ZUR',
+    'Istanbul': 'IST',
+    'Cairo': 'CAI',
+    'Johannesburg': 'JNB',
+    'São Paulo': 'GRU',
+    'Buenos Aires': 'EZE',
+    'Mexico City': 'MEX',
+    'Your Location': 'JFK'
+  };
+  
+  // Try exact match first
+  if (airportCodes[location]) {
+    return airportCodes[location];
+  }
+  
+  // Try partial matches
+  for (const [city, code] of Object.entries(airportCodes)) {
+    if (location.toLowerCase().includes(city.toLowerCase()) || city.toLowerCase().includes(location.toLowerCase())) {
+      return code;
+    }
+  }
+  
+  // Default fallback
+  return 'XXX';
+};
+
+const generateSampleFlights = (direction: 'outbound' | 'return', travelDetails?: { source: string; destination: string; departureDate?: string; returnDate?: string }) => {
+  const sourceAirport = getAirportCode(travelDetails?.source || 'Your Location');
+  const destAirport = getAirportCode(travelDetails?.destination || 'Travel Destination');
+  
   const baseFlights = [
     {
       id: `${direction}-1`,
       airline: 'Emirates',
       flightNumber: 'EK 203',
       departure: {
-        airport: direction === 'outbound' ? 'JFK' : 'DXB',
+        airport: direction === 'outbound' ? sourceAirport : destAirport,
         time: direction === 'outbound' ? '10:30 AM' : '2:15 PM',
-        date: direction === 'outbound' ? 'June 17' : 'June 21'
+        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 17') : (travelDetails?.returnDate || 'June 21')
       },
       arrival: {
-        airport: direction === 'outbound' ? 'DXB' : 'JFK',
+        airport: direction === 'outbound' ? destAirport : sourceAirport,
         time: direction === 'outbound' ? '11:45 PM' : '8:30 PM',
-        date: direction === 'outbound' ? 'June 18' : 'June 21'
+        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 18') : (travelDetails?.returnDate || 'June 21')
       },
       duration: '14h 15m',
       price: 850,
@@ -266,8 +347,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
               <div className="mb-6">
                 <InteractiveItinerary
                   destination={extractDestination(message.content)}
-                  outboundFlights={generateSampleFlights('outbound')}
-                  returnFlights={generateSampleFlights('return')}
+                  outboundFlights={generateSampleFlights('outbound', extractTravelDetails(message.content))}
+                  returnFlights={generateSampleFlights('return', extractTravelDetails(message.content))}
                   dayPlans={generateSampleDayPlans()}
                   onComplete={(selections) => {
                     console.log('User selections:', selections);

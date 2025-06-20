@@ -30,9 +30,13 @@ interface FlightSelectorProps {
   flights: Flight[];
   onSelectFlight: (flight: Flight) => void;
   direction: 'outbound' | 'return';
+  travelDetails?: {
+    source: string;
+    destination: string;
+  };
 }
 
-export function FlightSelector({ flights, onSelectFlight, direction }: FlightSelectorProps) {
+export function FlightSelector({ flights, onSelectFlight, direction, travelDetails }: FlightSelectorProps) {
   const [selectedFlight, setSelectedFlight] = useState<string | null>(null);
 
   const handleFlightSelect = (flight: Flight) => {
