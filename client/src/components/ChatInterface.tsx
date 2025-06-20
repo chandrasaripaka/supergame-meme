@@ -84,11 +84,12 @@ export function ChatInterface({
   onExportPDF,
   onModifyPlan,
   isLoading,
+  showFormByDefault = true,
 }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
-  const [showInlineTravelForm, setShowInlineTravelForm] = useState(true);
+  const [showInlineTravelForm, setShowInlineTravelForm] = useState(showFormByDefault);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { isMobile } = useMobile();
@@ -430,11 +431,11 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                 />
 
                 {/* Enhanced Itinerary Table with Charts */}
-                <div>
-                  {travelPlan && 'days' in travelPlan && Array.isArray(travelPlan.days) && travelPlan.days.length > 0 && (
-                    <ItineraryTable days={travelPlan.days as ItineraryDay[]} />
-                  )}
-                </div>
+                {(travelPlan as any)?.days && Array.isArray((travelPlan as any).days) && (travelPlan as any).days.length > 0 && (
+                  <ItineraryTable
+                    days={(travelPlan as any).days}
+                  />
+                )}
 
                 {/* Enhanced Budget Dashboard with Charts */}
                 <BudgetDashboard

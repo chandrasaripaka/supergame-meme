@@ -66,6 +66,7 @@ export default function Home() {
           setMessages(restoredMessages);
           setCurrentSessionId(sessionId);
           setShowWelcome(false);
+          setShowTravelForm(false); // Hide travel form when restoring conversation
           
           toast({
             title: "Chat Restored",
@@ -312,6 +313,7 @@ Let me create a personalized itinerary for you!`;
           onExportPDF={handleExportPDF}
           onModifyPlan={handleModifyPlan}
           isLoading={isPending}
+          showFormByDefault={!currentSessionId}
         />
         
 
