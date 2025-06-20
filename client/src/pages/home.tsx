@@ -218,21 +218,7 @@ Let me create a personalized itinerary for you!`;
           isLoading={isPending}
         />
         
-        {showTravelForm && (
-          <div className="max-w-4xl mx-auto px-4 mb-8">
-            <TravelQuickForm 
-              onSubmit={handleTravelFormSubmit}
-              onSkip={() => setShowTravelForm(false)}
-            />
-            <DestinationSuggestions 
-              onSelect={(destination) => {
-                // Auto-fill destination in form if visible
-                const event = new CustomEvent('autoFillDestination', { detail: destination });
-                window.dispatchEvent(event);
-              }}
-            />
-          </div>
-        )}
+
         
         {travelContext && travelContext.budget && (
           <div className="max-w-4xl mx-auto px-4 mb-8">

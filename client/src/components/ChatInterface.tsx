@@ -134,6 +134,18 @@ Please create a detailed itinerary with flight options, accommodations, activiti
     onSendMessage(travelMessage);
   };
 
+  const handlePlanTripClick = () => {
+    // Show the form immediately in chat
+    setShowInlineTravelForm(true);
+    
+    // Auto-scroll to the form after a brief delay
+    setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    }, 100);
+  };
+
   const calculateTripDuration = (departure: string, returnDate: string): number => {
     const start = new Date(departure);
     const end = new Date(returnDate);
@@ -344,16 +356,34 @@ Please create a detailed itinerary with flight options, accommodations, activiti
         {/* Show typing indicator when loading */}
         {isLoading && <TypingIndicator />}
 
-        {/* Inline Travel Form */}
+        {/* Inline Travel Form as Chat Message */}
         {showInlineTravelForm && (
-          <div className="my-6">
-            <InlineTravelForm
-              onSubmit={handleTravelFormSubmit}
-              onCancel={() => setShowInlineTravelForm(false)}
-              initialData={{
-                preferences: userPreferences?.travelPreferences || []
-              }}
-            />
+          <div className="flex items-start space-x-3 mb-4">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white flex-shrink-0">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"
+                />
+              </svg>
+            </div>
+            <div className="flex-1 max-w-none">
+              <InlineTravelForm
+                onSubmit={handleTravelFormSubmit}
+                onCancel={() => setShowInlineTravelForm(false)}
+                initialData={{
+                  preferences: userPreferences?.travelPreferences || []
+                }}
+              />
+            </div>
           </div>
         )}
 
@@ -526,7 +556,7 @@ Please create a detailed itinerary with flight options, accommodations, activiti
           </div>
           <Button
             type="button"
-            onClick={() => setShowInlineTravelForm(true)}
+            onClick={handlePlanTripClick}
             className="bg-green-600 hover:bg-green-700 text-white ml-2 px-4 py-3 rounded-md transition flex items-center"
             disabled={showInlineTravelForm}
           >
