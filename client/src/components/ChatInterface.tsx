@@ -430,9 +430,11 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                 />
 
                 {/* Enhanced Itinerary Table with Charts */}
-                <ItineraryTable
-                  days={((travelPlan as TravelPlan).days || []) as ItineraryDay[]}
-                />
+                <div>
+                  {travelPlan && 'days' in travelPlan && Array.isArray(travelPlan.days) && travelPlan.days.length > 0 && (
+                    <ItineraryTable days={travelPlan.days as ItineraryDay[]} />
+                  )}
+                </div>
 
                 {/* Enhanced Budget Dashboard with Charts */}
                 <BudgetDashboard
