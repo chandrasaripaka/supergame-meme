@@ -235,21 +235,27 @@ export async function continueTravelConversation(
 
 ---
 
+## **Flight Options**
+Present multiple flight choices for outbound and return journeys with different airlines, times, and price points.
+
+## **Interactive Daily Activities**
+For each day, provide multiple options for morning, afternoon, and evening activities that users can choose from based on their preferences.
+
 ## **Summary**
 [Brief summary paragraph that ties together the experience and value proposition]
 
 Use this EXACT structure for all detailed travel responses. CRITICAL: You MUST include ALL sections:
 1. Complete itinerary header with dates, destination, purpose, budget, travelers
 2. ALL daily breakdowns (do not stop at Day 8 - complete the full itinerary)
-3. Flight options section with multiple choices for outbound and return flights
-4. Interactive day-wise activities with multiple options for morning, afternoon, and evening
+3. Flight Options section with multiple airline choices
+4. Interactive Daily Activities section with selectable options for each time slot
 5. Tips and recommendations section
 6. REQUIRED budget breakdown table with specific costs
 7. REQUIRED summary paragraph
 
-IMPORTANT: Include realistic flight options and multiple activity choices for each time slot of each day. Users should be able to select from different airlines, times, and activity types.
+IMPORTANT: When including "Flight Options" and "Interactive Daily Activities" sections, the system will automatically display interactive selectors allowing users to customize their travel experience within the chat interface.
 
-Never truncate your response. Always complete the full itinerary structure including flights, activities, budget table and summary at the end.`;
+Never truncate your response. Always complete the full itinerary structure including all sections and the summary at the end.`;
     
     // Build the full prompt with message history
     let fullPrompt = systemContent + "\\n\\n";
