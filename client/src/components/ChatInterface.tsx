@@ -15,6 +15,7 @@ import { AttractionCards } from "./AttractionCards";
 import { FlightComparison } from "./FlightComparison";
 import { SaveTripButton } from "./SaveTripButton";
 import { TravelSafetyAlert } from "./TravelSafetyAlert";
+import { InlineTravelForm, TravelFormData } from "./InlineTravelForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
