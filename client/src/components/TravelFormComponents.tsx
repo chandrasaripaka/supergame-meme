@@ -274,3 +274,152 @@ export function DestinationSuggestions({ onSelect }: { onSelect: (destination: s
     </div>
   );
 }
+
+// Full travel form for modal
+export function TravelForm({ onSubmit, onClose }: { onSubmit: (data: TravelFormData) => void; onClose: () => void }) {
+  const [formData, setFormData] = useState<TravelFormData>({
+    destination: '',
+    startDate: undefined,
+    endDate: undefined,
+    budget: '',
+    travelers: '1',
+    duration: '',
+  });
+
+  const handleSubmit = () => {
+    if (formData.destination && formData.budget && formData.travelers) {
+      onSubmit(formData);
+      onClose();
+    }
+  };
+
+  const isFormComplete = formData.destination && formData.budget && formData.travelers;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="destination">Destination</Label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              id="destination"
+              type="text"
+              placeholder="Where would you like to go?"
+              value={formData.destination}
+              onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="travelers">Number of Travelers</Label>
+          <Select value={formData.travelers} onValueChange={(value) => setFormData({ ...formData, travelers: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select travelers" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">Solo Traveler</SelectItem>
+              <SelectItem value="2">2 People</SelectItem>
+              <SelectItem value="3">3 People</SelectItem>
+              <SelectItem value="4">4 People</SelectItem>
+              <SelectItem value="5">5 People</SelectItem>
+              <SelectItem value="6_plus">6+ People</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Start Date</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-start text-left font-normal">
+                <Calendar className="mr-2 h-4 w-4" />
+                {formData.startDate ? format(formData.startDate, "PPP") : "Pick a date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={formData.startDate}
+                onSelect={(date) => setFormData({ ...formData, startDate: date })}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        <div className="space-y-2">
+          <Label>End Date</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-start text-left font-normal">
+                <Calendar className="mr-2 h-4 w-4" />
+                {formData.endDate ? format(formData.endDate, "PPP") : "Pick a date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={formData.endDate}
+                onSelect={(date) => setFormData({ ...formData, endDate: date })}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="budget">Budget Range</Label>
+          <Select value={formData.budget} onValueChange={(value) => setFormData({ ...formData, budget: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select budget range" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="under_500">Under $500</SelectItem>
+              <SelectItem value="500_1000">$500 - $1,000</SelectItem>
+              <SelectItem value="1000_2500">$1,000 - $2,500</SelectItem>
+              <SelectItem value="2500_5000">$2,500 - $5,000</SelectItem>
+              <SelectItem value="5000_10000">$5,000 - $10,000</SelectItem>
+              <SelectItem value="over_10000">Over $10,000</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="duration">Trip Duration</Label>
+          <Select value={formData.duration} onValueChange={(value) => setFormData({ ...formData, duration: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select duration" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="weekend">Weekend (2-3 days)</SelectItem>
+              <SelectItem value="short">Short Trip (4-7 days)</SelectItem>
+              <SelectItem value="medium">1-2 Weeks</SelectItem>
+              <SelectItem value="long">2-4 Weeks</SelectItem>
+              <SelectItem value="extended">Over a Month</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex justify-end space-x-3 pt-4">
+        <Button variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleSubmit}
+          disabled={!isFormComplete}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          Create Itinerary
+        </Button>
+      </div>
+    </div>
+  );
+}

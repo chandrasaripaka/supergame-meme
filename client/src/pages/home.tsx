@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { WelcomeCard } from '@/components/WelcomeCard';
 import { ChatInterface } from '@/components/ChatInterface';
-import { TravelQuickForm, BudgetBreakdown, DestinationSuggestions } from '@/components/TravelFormComponents';
+import { TravelQuickForm, BudgetBreakdown, DestinationSuggestions, TravelForm } from '@/components/TravelFormComponents';
 import { Message } from '@/types';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { sendMessageToAI } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 import { PopularDestinations } from '@/components/PopularDestinations';
+import { User } from '@shared/schema';
 
 export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -26,6 +27,23 @@ export default function Home() {
   ]);
   
   const { toast } = useToast();
+  
+  // Get user data
+  const { data: user } = useQuery<User>({
+    queryKey: ['/api/user'],
+    retry: false
+  });
+  
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/logout', { method: 'POST' });
+      if (response.ok) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   // Check for chat session restoration on component mount
   useEffect(() => {
@@ -299,50 +317,195 @@ Let me create a personalized itinerary for you!`;
   };
   
   return (
-    <div className="min-h-screen bg-white">
-      {/* Perplexity-style centered layout */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header with clean, minimal banner */}
-        <div className="pt-12 pb-8 text-center border-b border-gray-100">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Your AI Travel Concierge
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Ask anything about travel planning
-          </p>
-        </div>
-        
-        {/* Main feed-style content area */}
-        <div className="py-8 pb-20">
-          {/* Welcome accordion */}
-          {showWelcome && (
-            <div className="mb-8">
-              <div className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-                <details className="group" open>
-                  <summary className="px-6 py-5 cursor-pointer hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between list-none">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 text-lg">Welcome to WanderNotes</h3>
-                      <p className="text-gray-600 mt-1">Get started with personalized travel planning</p>
-                    </div>
-                    <svg className="w-5 h-5 text-gray-400 transition-transform duration-300 group-open:rotate-180 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </summary>
-                  <div className="px-6 pb-5 border-t border-gray-200 bg-white">
-                    <div className="pt-4">
-                      <WelcomeCard 
-                        onSuggestionClick={handleSuggestionClick}
-                        visible={showWelcome}
-                      />
-                    </div>
-                  </div>
-                </details>
-              </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
             </div>
-          )}
+            <h1 className="text-xl font-semibold text-gray-900">WanderNotes</h1>
+          </div>
           
-          {/* Chat Interface - Clean minimal design */}
-          <div className="space-y-6">
+          <div className="flex items-center space-x-4">
+            {user && (
+              <>
+                <span className="text-sm text-gray-600">Welcome, {user.username}</span>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Main Layout with Sidebar */}
+      <div className="flex min-h-[calc(100vh-73px)]">
+        {/* Left Sidebar - Vertical Accordion Menu */}
+        <aside className="w-80 bg-white border-r border-gray-200 flex-shrink-0">
+          <div className="p-4 space-y-2">
+            {/* Travel Topics Accordion */}
+            <details className="group">
+              <summary className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors list-none">
+                <div className="flex items-center space-x-3">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="font-medium text-gray-900">Travel Topics</span>
+                </div>
+                <svg className="w-4 h-4 text-gray-500 group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </summary>
+              <div className="mt-2 ml-8 space-y-2">
+                <button 
+                  onClick={() => handleSendMessage("Tell me about destination research and how to choose the best places to visit")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Destination Research
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("Help me plan my travel budget and find ways to save money")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Budget Planning
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("What should I know about travel safety and health precautions?")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Safety & Health
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("Tell me about local culture and customs I should be aware of")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Local Culture
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("What are the best transportation options for my trip?")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Transportation
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("Help me find the best accommodation options")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Accommodation
+                </button>
+              </div>
+            </details>
+
+            {/* Travel Planning Accordion */}
+            <details className="group">
+              <summary className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors list-none">
+                <div className="flex items-center space-x-3">
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  <span className="font-medium text-gray-900">Personalized Planning</span>
+                </div>
+                <svg className="w-4 h-4 text-gray-500 group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </summary>
+              <div className="mt-2 ml-8 space-y-2">
+                <button 
+                  onClick={() => setShowTravelForm(true)}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Create New Trip
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("Show me my saved itineraries and past trips")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Saved Itineraries
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("Help me set up my travel preferences and interests")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Travel Preferences
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("Review my past trips and travel history")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Past Trips
+                </button>
+              </div>
+            </details>
+
+            {/* Travel Resources Accordion */}
+            <details className="group">
+              <summary className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors list-none">
+                <div className="flex items-center space-x-3">
+                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  <span className="font-medium text-gray-900">Travel Resources</span>
+                </div>
+                <svg className="w-4 h-4 text-gray-500 group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </summary>
+              <div className="mt-2 ml-8 space-y-2">
+                <button 
+                  onClick={() => handleSendMessage("Give me comprehensive travel guides for popular destinations")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Travel Guides
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("Create a customized packing list for my trip")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Packing Lists
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("Share useful travel tips and insider advice")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Travel Tips
+                </button>
+                <button 
+                  onClick={() => handleSendMessage("Help me understand currency exchange and money matters")}
+                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                >
+                  Currency Exchange
+                </button>
+              </div>
+            </details>
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="flex-1 flex flex-col">
+          {/* Chat Interface - At the top after header */}
+          <div className="flex-1 p-6">
+            {/* Travel Context Display */}
+            {travelContext && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="font-semibold text-blue-900 mb-2">Current Travel Context</h3>
+                <div className="text-sm text-blue-800">
+                  <p><strong>Destination:</strong> {travelContext.destination}</p>
+                  <p><strong>Duration:</strong> {travelContext.duration} days</p>
+                  <p><strong>Budget:</strong> ${travelContext.budget}</p>
+                  <p><strong>Travel Style:</strong> {travelContext.travelStyle}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Chat Interface */}
             <ChatInterface
               messages={messages}
               onSendMessage={handleSendMessage}
@@ -353,67 +516,36 @@ Let me create a personalized itinerary for you!`;
               showFormByDefault={!currentSessionId}
             />
           </div>
-          
-          {/* Budget Breakdown - Accordion style */}
-          {travelContext && travelContext.budget && (
-            <div className="mt-8">
-              <div className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-                <details className="group">
-                  <summary className="px-6 py-5 cursor-pointer hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between list-none">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 text-lg">Budget Breakdown</h3>
-                      <p className="text-gray-600 mt-1">View your travel budget allocation</p>
-                    </div>
-                    <svg className="w-5 h-5 text-gray-400 transition-transform duration-300 group-open:rotate-180 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </summary>
-                  <div className="px-6 pb-5 border-t border-gray-200 bg-white">
-                    <div className="pt-4">
-                      <BudgetBreakdown budget={travelContext.budget} />
-                    </div>
-                  </div>
-                </details>
+        </main>
+      </div>
+
+      {/* Travel Form Modal */}
+      {showTravelForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-gray-900">Plan Your Perfect Trip</h2>
+                <button
+                  onClick={() => setShowTravelForm(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
             </div>
-          )}
-          
-          {/* Popular Destinations - Accordion style */}
-          <div className="mt-8">
-            <div className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-              <details className="group">
-                <summary className="px-6 py-5 cursor-pointer hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between list-none">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 text-lg">Popular Destinations</h3>
-                    <p className="text-gray-600 mt-1">Explore trending travel spots and get inspired</p>
-                  </div>
-                  <svg className="w-5 h-5 text-gray-400 transition-transform duration-300 group-open:rotate-180 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </summary>
-                <div className="px-6 pb-5 border-t border-gray-200 bg-white">
-                  <div className="pt-4">
-                    <PopularDestinations />
-                  </div>
-                </div>
-              </details>
+            
+            <div className="p-6">
+              <TravelForm 
+                onSubmit={handleTravelFormSubmit}
+                onClose={() => setShowTravelForm(false)}
+              />
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Floating "Ask a question" button - Perplexity style */}
-      <div className="fixed bottom-8 right-8 z-50">
-        <button 
-          onClick={() => setShowTravelForm(!showTravelForm)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          <span className="font-medium">Ask a question</span>
-        </button>
-      </div>
+      )}
     </div>
   );
 }
