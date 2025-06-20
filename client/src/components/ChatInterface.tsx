@@ -74,6 +74,7 @@ interface ChatInterfaceProps {
   onExportPDF?: () => void;
   onModifyPlan?: () => void;
   isLoading: boolean;
+  showFormByDefault?: boolean;
 }
 
 export function ChatInterface({

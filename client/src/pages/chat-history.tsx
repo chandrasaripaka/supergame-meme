@@ -85,6 +85,24 @@ export default function ChatHistoryPage() {
     retry: false, // Don't retry on authentication errors
   });
 
+  // Helper function to open a chat session
+  const handleOpenChat = async (sessionId: number) => {
+    try {
+      // Store the session ID in localStorage to restore the conversation
+      localStorage.setItem('restoreChatSession', sessionId.toString());
+      
+      // Navigate to home page where the chat will be restored
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error opening chat:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open chat session",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Helper function to delete a chat session
   const deleteSession = async (sessionId: number) => {
     try {

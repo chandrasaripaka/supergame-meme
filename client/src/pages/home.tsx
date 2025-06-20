@@ -12,6 +12,7 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showTravelForm, setShowTravelForm] = useState(false);
   const [travelContext, setTravelContext] = useState<any>(null);
+  const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -25,6 +26,62 @@ export default function Home() {
   ]);
   
   const { toast } = useToast();
+
+  // Check for chat session restoration on component mount
+  useEffect(() => {
+    const restoreSessionId = localStorage.getItem('restoreChatSession');
+    if (restoreSessionId) {
+      localStorage.removeItem('restoreChatSession');
+      restoreChatSession(parseInt(restoreSessionId));
+    }
+  }, []);
+
+  // Function to restore a chat session
+  const restoreChatSession = async (sessionId: number) => {
+    try {
+      // Fetch the chat session and its messages
+      const sessionResponse = await fetch(`/api/chat-sessions/${sessionId}`, {
+        credentials: 'include'
+      });
+      
+      if (sessionResponse.ok) {
+        const session = await sessionResponse.json();
+        
+        // Fetch messages for this session
+        const messagesResponse = await fetch(`/api/chat-messages?sessionId=${sessionId}`, {
+          credentials: 'include'
+        });
+        
+        if (messagesResponse.ok) {
+          const sessionMessages = await messagesResponse.json();
+          
+          // Convert database messages to our Message format
+          const restoredMessages: Message[] = sessionMessages.map((msg: any) => ({
+            role: msg.role,
+            content: msg.content,
+            modelInfo: msg.modelInfo || { provider: 'restored', model: 'chat-history' }
+          }));
+          
+          // Update state
+          setMessages(restoredMessages);
+          setCurrentSessionId(sessionId);
+          setShowWelcome(false);
+          
+          toast({
+            title: "Chat Restored",
+            description: `Restored conversation: ${session.title}`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring chat session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to restore chat session",
+        variant: "destructive",
+      });
+    }
+  };
   
   // Mutation for sending messages to the AI
   const { mutate, isPending } = useMutation({
@@ -42,8 +99,12 @@ export default function Home() {
       const updatedMessages = [...messages, userMessage];
       return await sendMessageToAI(updatedMessages, newMessage);
     },
-    onSuccess: (aiMessage) => {
+    onSuccess: async (aiMessage) => {
       setMessages((prevMessages) => [...prevMessages, aiMessage]);
+      // Save AI response to database
+      if (aiMessage.content) {
+        await saveAIResponse(aiMessage.content);
+      }
     },
     onError: (error) => {
       toast({
@@ -75,25 +136,33 @@ export default function Home() {
 
   const saveChatMessage = async (message: string) => {
     try {
-      // Create or get current chat session
-      const sessionResponse = await fetch('/api/chat-sessions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: message.substring(0, 50) + '...',
-          summary: 'Travel planning conversation'
-        })
-      });
+      let sessionId = currentSessionId;
       
-      if (sessionResponse.ok) {
-        const session = await sessionResponse.json();
+      // Create new session if none exists
+      if (!sessionId) {
+        const sessionResponse = await fetch('/api/chat-sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: message.substring(0, 50) + '...',
+            summary: 'Travel planning conversation'
+          })
+        });
         
-        // Save the message
+        if (sessionResponse.ok) {
+          const session = await sessionResponse.json();
+          sessionId = session.id;
+          setCurrentSessionId(sessionId);
+        }
+      }
+      
+      // Save the message to the session
+      if (sessionId) {
         await fetch('/api/chat-messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            sessionId: session.id,
+            sessionId: sessionId,
             role: 'user',
             content: message
           })
@@ -101,6 +170,25 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error saving chat:', error);
+    }
+  };
+
+  // Save AI responses as well
+  const saveAIResponse = async (response: string) => {
+    try {
+      if (currentSessionId) {
+        await fetch('/api/chat-messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: currentSessionId,
+            role: 'assistant',
+            content: response
+          })
+        });
+      }
+    } catch (error) {
+      console.error('Error saving AI response:', error);
     }
   };
 
