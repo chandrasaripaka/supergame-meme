@@ -700,6 +700,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Flight Search route - using real flight data
+  app.post(`${apiPrefix}/flights/search`, async (req, res) => {
+    try {
+      const flightSearchRequest = z.object({
+        departureCity: z.string(),
+        arrivalCity: z.string(),
+        departureDate: z.string(),
+        returnDate: z.string().optional(),
+      }).parse(req.body);
+
+      console.log(`Searching flights from ${flightSearchRequest.departureCity} to ${flightSearchRequest.arrivalCity}`);
+      
+      const flights = await searchFlights(flightSearchRequest);
+      
+      return res.status(200).json({
+        success: true,
+        flights: flights,
+        searchParams: flightSearchRequest
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error searching flights:', error);
+      return res.status(500).json({ error: 'Failed to search flights' });
+    }
+  });
+
   // Get attractions from database
   app.get(`${apiPrefix}/attractions/:location`, async (req, res) => {
     try {

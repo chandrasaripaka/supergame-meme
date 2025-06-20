@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FlightSelector } from './FlightSelector';
 import { DayActivitySelector } from './DayActivitySelector';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plane, Calendar, DollarSign, CheckCircle } from 'lucide-react';
+import { Plane, Calendar, DollarSign, CheckCircle, Loader2 } from 'lucide-react';
 
 interface Flight {
   id: string;

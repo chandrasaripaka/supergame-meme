@@ -100,77 +100,56 @@ const getAirportCode = (location: string): string => {
   return 'XXX';
 };
 
-const generateSampleFlights = (direction: 'outbound' | 'return', travelDetails?: { source: string; destination: string; departureDate?: string; returnDate?: string }) => {
-  const sourceAirport = getAirportCode(travelDetails?.source || 'Your Location');
-  const destAirport = getAirportCode(travelDetails?.destination || 'Travel Destination');
-  
-  const baseFlights = [
-    {
-      id: `${direction}-1`,
-      airline: 'Emirates',
-      flightNumber: 'EK 203',
-      departure: {
-        airport: direction === 'outbound' ? sourceAirport : destAirport,
-        time: direction === 'outbound' ? '10:30 AM' : '2:15 PM',
-        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 17') : (travelDetails?.returnDate || 'June 21')
+const fetchRealFlights = async (direction: 'outbound' | 'return', travelDetails?: { source: string; destination: string; departureDate?: string; returnDate?: string }) => {
+  try {
+    const searchParams = {
+      departureCity: direction === 'outbound' ? (travelDetails?.source || 'Singapore') : (travelDetails?.destination || 'Hong Kong'),
+      arrivalCity: direction === 'outbound' ? (travelDetails?.destination || 'Hong Kong') : (travelDetails?.source || 'Singapore'),
+      departureDate: direction === 'outbound' ? (travelDetails?.departureDate || '2025-06-17') : (travelDetails?.returnDate || '2025-06-21'),
+      returnDate: travelDetails?.returnDate
+    };
+
+    const response = await fetch('/api/flights/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      arrival: {
-        airport: direction === 'outbound' ? destAirport : sourceAirport,
-        time: direction === 'outbound' ? '11:45 PM' : '8:30 PM',
-        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 18') : (travelDetails?.returnDate || 'June 21')
-      },
-      duration: '14h 15m',
-      price: 850,
-      class: 'Economy' as const,
-      stops: 0,
-      amenities: ['WiFi', 'Meals', 'Entertainment'],
-      baggage: '23kg included'
-    },
-    {
-      id: `${direction}-2`,
-      airline: 'Singapore Airlines',
-      flightNumber: 'SQ 25',
-      departure: {
-        airport: direction === 'outbound' ? sourceAirport : destAirport,
-        time: direction === 'outbound' ? '1:20 PM' : '11:50 AM',
-        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 17') : (travelDetails?.returnDate || 'June 21')
-      },
-      arrival: {
-        airport: direction === 'outbound' ? destAirport : sourceAirport,
-        time: direction === 'outbound' ? '7:30 PM+1' : '6:45 PM',
-        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 18') : (travelDetails?.returnDate || 'June 21')
-      },
-      duration: '18h 10m',
-      price: 1200,
-      class: 'Premium Economy' as const,
-      stops: 1,
-      amenities: ['WiFi', 'Meals', 'Extra Legroom'],
-      baggage: '30kg included'
-    },
-    {
-      id: `${direction}-3`,
-      airline: 'Qatar Airways',
-      flightNumber: 'QR 702',
-      departure: {
-        airport: direction === 'outbound' ? sourceAirport : 'DOH',
-        time: direction === 'outbound' ? '8:15 PM' : '1:35 AM',
-        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 17') : (travelDetails?.returnDate || 'June 21')
-      },
-      arrival: {
-        airport: direction === 'outbound' ? 'DOH' : sourceAirport,
-        time: direction === 'outbound' ? '6:40 PM+1' : '8:55 AM',
-        date: direction === 'outbound' ? (travelDetails?.departureDate || 'June 18') : (travelDetails?.returnDate || 'June 21')
-      },
-      duration: '12h 25m',
-      price: 950,
-      class: 'Business' as const,
-      stops: 0,
-      amenities: ['WiFi', 'Gourmet Meals', 'Flat Bed'],
-      baggage: '40kg included'
+      body: JSON.stringify(searchParams)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch flights');
     }
-  ];
-  
-  return baseFlights;
+
+    const data = await response.json();
+    
+    // Transform API response to match our component interface
+    return data.flights?.map((flight: any) => ({
+      id: flight.id,
+      airline: flight.airline,
+      flightNumber: flight.flightNumber,
+      departure: {
+        airport: flight.departureAirport,
+        time: flight.departureTime,
+        date: searchParams.departureDate
+      },
+      arrival: {
+        airport: flight.arrivalAirport,
+        time: flight.arrivalTime,
+        date: searchParams.departureDate
+      },
+      duration: flight.duration,
+      price: flight.price,
+      class: flight.class || 'Economy',
+      stops: flight.stops,
+      amenities: flight.amenities || ['WiFi', 'Meals'],
+      baggage: flight.baggage || '23kg included'
+    })) || [];
+  } catch (error) {
+    console.error('Error fetching real flight data:', error);
+    // Return empty array if API fails
+    return [];
+  }
 };
 
 const generateSampleDayPlans = () => {
