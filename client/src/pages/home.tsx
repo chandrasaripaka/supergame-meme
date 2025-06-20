@@ -19,11 +19,11 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello! I'm your AI Travel Concierge powered by advanced AI models. I can help you plan your perfect trip. Just tell me where you'd like to go, your budget, and what you enjoy doing when you travel.",
+      content: "Welcome to WanderNotes! I'm your AI Travel Concierge. To provide you with the most personalized travel recommendations, I'll need to collect your travel details first. Please fill out the travel form above to get started with your planning.",
       modelInfo: {
         provider: "system",
         model: "dynamic-llm-router",
-        note: "Dynamic LLM Router"
+        note: "Travel Details Required"
       }
     }
   ]);
@@ -164,6 +164,17 @@ export default function Home() {
   });
   
   const handleSendMessage = async (message: string) => {
+    // Check if travel details are required first
+    if (requireTravelDetails && !savedTravelDetails) {
+      toast({
+        title: "Travel details required",
+        description: "Please enter your travel details first before starting the conversation.",
+        variant: "destructive",
+      });
+      setShowTravelForm(true);
+      return;
+    }
+    
     setShowWelcome(false);
     
     // Save chat session and message
@@ -244,8 +255,20 @@ export default function Home() {
   };
 
   const handleTravelFormSubmit = (formData: any) => {
+    // Automatically save travel details to state and localStorage
+    setSavedTravelDetails(formData);
     setTravelContext(formData);
+    setRequireTravelDetails(false);
     setShowTravelForm(false);
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('savedTravelDetails', JSON.stringify(formData));
+    
+    // Show confirmation toast
+    toast({
+      title: "Travel details saved",
+      description: "Your travel information has been automatically saved and can be used for future planning.",
+    });
     
     // Create a summary message with travel details
     const travelSummary = `Perfect! Here are your travel details:
@@ -596,6 +619,16 @@ Let me create a personalized itinerary for you!`;
               </div>
             )}
 
+            {/* Show travel form if details are required */}
+            {(showTravelForm || (requireTravelDetails && !savedTravelDetails)) && (
+              <div className="mb-6">
+                <TravelForm 
+                  onSubmit={handleTravelFormSubmit} 
+                  onClose={() => setShowTravelForm(false)}
+                />
+              </div>
+            )}
+
             {/* Chat Interface */}
             <ChatInterface
               messages={messages}
@@ -604,7 +637,7 @@ Let me create a personalized itinerary for you!`;
               onExportPDF={handleExportPDF}
               onModifyPlan={handleModifyPlan}
               isLoading={isPending}
-              showFormByDefault={!currentSessionId}
+              showFormByDefault={false}
             />
           </div>
         </main>
