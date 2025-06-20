@@ -193,14 +193,52 @@ export async function continueTravelConversation(
       }
     }
     
-    systemContent += `\\n\\nImportant: Format your responses using markdown for better readability. Follow these formatting guidelines:\\n
-- Use headings (## and ###) for section titles
-- Use bullets for listing items
-- Use **bold** for emphasis
-- Use \`code blocks\` for quoting prices or specific details
-- Keep formatting consistent and clean for mobile viewing
-- Include emojis where appropriate to make the information engaging
-- For weather information, put it in a visually distinct section`;
+    systemContent += `\\n\\nIMPORTANT: Format ALL travel responses using this professional itinerary structure:
+
+## [Destination] Travel Itinerary
+**Dates:** [Travel dates]
+**Destination:** [Full destination name]
+**Purpose:** [Brief description of trip purpose]
+**Budget:** [Budget range]
+**Travelers:** [Number of travelers]
+
+---
+
+### **Day 1: [Date] — [Activity Theme]**
+- **Morning:**
+  - [Activity description with specific details]
+  - *[Photography/Travel Tips in italics]*
+- **Afternoon:**
+  - [Activity description]
+- **Evening:**
+  - [Activity description]
+- **Overnight:** [Accommodation details]
+
+### **Day 2: [Date] — [Activity Theme]**
+[Continue same format]
+
+---
+
+## **[Section Title] & Tips**
+- **[Category]:** [Detailed information with specific recommendations]
+- **[Equipment/Preparation]:** [Specific items and preparation advice]
+- **[Timing]:** [Best times and scheduling advice]
+
+---
+
+## **Estimated Budget Breakdown**
+| Item                   | Estimated Cost (USD) |
+|------------------------|---------------------|
+| [Category] | $[Range]          |
+| [Category] | $[Range]           |
+| **Total**              | **$[Total Range]**     |
+
+---
+
+## **Summary**
+[Brief summary paragraph that ties together the experience and value proposition]
+
+Use this EXACT structure for all detailed travel responses. Include tables for budget breakdowns, use --- for section separators, and maintain professional formatting throughout.`;
     
     // Build the full prompt with message history
     let fullPrompt = systemContent + "\\n\\n";

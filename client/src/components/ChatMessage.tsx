@@ -67,25 +67,65 @@ export function ChatMessage({ message }: ChatMessageProps) {
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
+                h1: ({ node, ...props }: any) => (
+                  <h1
+                    className="text-2xl font-bold mb-6 text-gray-900 border-b-2 border-gray-200 pb-3"
+                    {...props}
+                  />
+                ),
                 h2: ({ node, ...props }: any) => {
-                  // Apply gradient styling to all day headings with better indentation
+                  const children = props.children;
+                  const content = Array.isArray(children) ? children[0] : children;
+                  const isDayHeading = typeof content === 'string' && 
+                    (content.includes('Day ') || content.includes('June ') || content.includes('Morning') || content.includes('Afternoon') || content.includes('Evening'));
+                  
                   return (
                     <h2
-                      className="text-xl font-bold mt-8 mb-4 pl-2 flex items-center bg-gradient-to-r from-primary to-purple-600 text-transparent bg-clip-text border-l-4 border-primary py-1"
+                      className={`text-xl font-bold mt-8 mb-4 ${
+                        isDayHeading 
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-lg shadow-sm' 
+                          : 'text-gray-800 border-b border-gray-300 pb-2'
+                      }`}
                       {...props}
                     />
                   );
                 },
                 h3: ({ node, ...props }) => (
                   <h3
-                    className="text-lg font-semibold mt-6 mb-3 pl-2 text-primary-dark border-l-2 border-primary-light py-1"
+                    className="text-lg font-semibold mt-6 mb-3 text-blue-700 flex items-center"
                     {...props}
                   />
                 ),
-                li: ({ node, ...props }: any) => (
-                  <li className="mb-3 flex items-start pl-2" {...props} />
+                ul: ({ node, ...props }) => (
+                  <ul className="space-y-2 mb-4" {...props} />
                 ),
-                p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                li: ({ node, ...props }: any) => {
+                  const children = props.children;
+                  const content = Array.isArray(children) ? children[0] : children;
+                  const isTimeSlot = typeof content === 'string' && 
+                    (content.includes('Morning:') || content.includes('Afternoon:') || content.includes('Evening:') || content.includes('Overnight:'));
+                  
+                  return (
+                    <li className={`flex items-start ${
+                      isTimeSlot 
+                        ? 'bg-blue-50 border-l-4 border-blue-400 pl-4 py-2 my-3 rounded-r-md' 
+                        : 'mb-2 pl-2'
+                    }`} {...props} />
+                  );
+                },
+                p: ({ node, ...props }) => {
+                  const content = Array.isArray(props.children) ? props.children[0] : props.children;
+                  const isBoldLine = typeof content === 'string' && 
+                    (content.startsWith('**Dates:**') || content.startsWith('**Destination:**') || 
+                     content.startsWith('**Purpose:**') || content.startsWith('**Budget:**') || 
+                     content.startsWith('**Travelers:**'));
+                  
+                  return (
+                    <p className={`mb-3 ${
+                      isBoldLine ? 'bg-gray-50 px-3 py-2 border-l-3 border-blue-400 font-medium text-gray-700' : ''
+                    }`} {...props} />
+                  );
+                },
                 code: ({ node, className, ...props }: any) => {
                   const match = /language-(\w+)/.exec(className || "");
                   const isInline =
@@ -338,15 +378,15 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   <strong className="font-bold text-primary-dark" {...props} />
                 ),
                 table: ({ node, ...props }) => (
-                  <div className="overflow-x-auto my-4 rounded-md border border-gray-200">
+                  <div className="overflow-x-auto my-6 rounded-lg border border-gray-300 shadow-sm bg-white">
                     <table
-                      className="min-w-full divide-y divide-gray-200"
+                      className="min-w-full divide-y divide-gray-300"
                       {...props}
                     />
                   </div>
                 ),
                 thead: ({ node, ...props }) => (
-                  <thead className="bg-gray-50" {...props} />
+                  <thead className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white" {...props} />
                 ),
                 tbody: ({ node, ...props }) => (
                   <tbody
@@ -355,17 +395,35 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   />
                 ),
                 tr: ({ node, ...props }) => (
-                  <tr className="hover:bg-gray-50" {...props} />
+                  <tr className="hover:bg-blue-50 transition-colors" {...props} />
                 ),
                 th: ({ node, ...props }) => (
                   <th
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider"
                     {...props}
                   />
                 ),
-                td: ({ node, ...props }) => (
-                  <td
-                    className="px-4 py-2 whitespace-nowrap text-sm"
+                td: ({ node, ...props }: any) => {
+                  const content = props.children?.[0];
+                  const isTotal = typeof content === 'string' && content.includes('Total');
+                  
+                  return (
+                    <td
+                      className={`px-6 py-4 text-sm ${
+                        isTotal 
+                          ? 'font-bold text-blue-700 bg-blue-50' 
+                          : 'text-gray-700'
+                      }`}
+                      {...props}
+                    />
+                  );
+                },
+                hr: ({ node, ...props }) => (
+                  <hr className="my-8 border-t-2 border-gray-200" {...props} />
+                ),
+                blockquote: ({ node, ...props }) => (
+                  <blockquote
+                    className="border-l-4 border-blue-400 pl-4 py-2 my-4 bg-blue-50 text-blue-800 italic"
                     {...props}
                   />
                 ),
