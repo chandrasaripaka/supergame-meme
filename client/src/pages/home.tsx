@@ -299,69 +299,120 @@ Let me create a personalized itinerary for you!`;
   };
   
   return (
-    <div className="min-h-screen bg-background">
-      {/* AI Travel Concierge Banner - Top of Page */}
-      <div className="w-full bg-white border-b border-gray-200 py-6">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+    <div className="min-h-screen bg-white">
+      {/* Perplexity-style centered layout */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header with clean, minimal banner */}
+        <div className="pt-12 pb-8 text-center border-b border-gray-100">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Your AI Travel Concierge
           </h1>
-          <p className="text-lg text-gray-700 max-w-2xl mx-auto">
-            Tell me where you want to go, your budget, interests, and travel dates. I'll help you create the perfect trip tailored just for you!
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Ask anything about travel planning
           </p>
         </div>
-      </div>
-
-      {/* Main Chat Interface */}
-      <div className="w-full">
-        <ChatInterface
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          onSavePlan={handleSavePlan}
-          onExportPDF={handleExportPDF}
-          onModifyPlan={handleModifyPlan}
-          isLoading={isPending}
-          showFormByDefault={!currentSessionId}
-        />
-      </div>
-
-      {/* Secondary Content Below Chat */}
-      <div className="relative z-10">
-        {showWelcome && (
-          <WelcomeCard 
-            onSuggestionClick={handleSuggestionClick}
-            visible={showWelcome}
-          />
-        )}
         
-        {travelContext && travelContext.budget && (
-          <div className="max-w-4xl mx-auto px-4 mb-8">
-            <BudgetBreakdown budget={travelContext.budget} />
+        {/* Main feed-style content area */}
+        <div className="py-8 pb-20">
+          {/* Welcome accordion */}
+          {showWelcome && (
+            <div className="mb-8">
+              <div className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+                <details className="group" open>
+                  <summary className="px-6 py-5 cursor-pointer hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between list-none">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900 text-lg">Welcome to WanderNotes</h3>
+                      <p className="text-gray-600 mt-1">Get started with personalized travel planning</p>
+                    </div>
+                    <svg className="w-5 h-5 text-gray-400 transition-transform duration-300 group-open:rotate-180 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="px-6 pb-5 border-t border-gray-200 bg-white">
+                    <div className="pt-4">
+                      <WelcomeCard 
+                        onSuggestionClick={handleSuggestionClick}
+                        visible={showWelcome}
+                      />
+                    </div>
+                  </div>
+                </details>
+              </div>
+            </div>
+          )}
+          
+          {/* Chat Interface - Clean minimal design */}
+          <div className="space-y-6">
+            <ChatInterface
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              onSavePlan={handleSavePlan}
+              onExportPDF={handleExportPDF}
+              onModifyPlan={handleModifyPlan}
+              isLoading={isPending}
+              showFormByDefault={!currentSessionId}
+            />
           </div>
-        )}
-        
-        <PopularDestinations />
+          
+          {/* Budget Breakdown - Accordion style */}
+          {travelContext && travelContext.budget && (
+            <div className="mt-8">
+              <div className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+                <details className="group">
+                  <summary className="px-6 py-5 cursor-pointer hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between list-none">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900 text-lg">Budget Breakdown</h3>
+                      <p className="text-gray-600 mt-1">View your travel budget allocation</p>
+                    </div>
+                    <svg className="w-5 h-5 text-gray-400 transition-transform duration-300 group-open:rotate-180 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="px-6 pb-5 border-t border-gray-200 bg-white">
+                    <div className="pt-4">
+                      <BudgetBreakdown budget={travelContext.budget} />
+                    </div>
+                  </div>
+                </details>
+              </div>
+            </div>
+          )}
+          
+          {/* Popular Destinations - Accordion style */}
+          <div className="mt-8">
+            <div className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+              <details className="group">
+                <summary className="px-6 py-5 cursor-pointer hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between list-none">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 text-lg">Popular Destinations</h3>
+                    <p className="text-gray-600 mt-1">Explore trending travel spots and get inspired</p>
+                  </div>
+                  <svg className="w-5 h-5 text-gray-400 transition-transform duration-300 group-open:rotate-180 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </summary>
+                <div className="px-6 pb-5 border-t border-gray-200 bg-white">
+                  <div className="pt-4">
+                    <PopularDestinations />
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
       </div>
       
-      {/* Floating travel elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="floating-animation absolute top-20 left-10 opacity-20">
-          <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-            <path d="M30 5L40 20H35V35H25V20H20L30 5Z" fill="white"/>
-            <circle cx="30" cy="45" r="8" fill="white"/>
+      {/* Floating "Ask a question" button - Perplexity style */}
+      <div className="fixed bottom-8 right-8 z-50">
+        <button 
+          onClick={() => setShowTravelForm(!showTravelForm)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-2"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-        </div>
-        <div className="floating-animation absolute top-40 right-20 opacity-20" style={{animationDelay: '2s'}}>
-          <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
-            <path d="M25 10L35 25L25 40L15 25L25 10Z" fill="white"/>
-          </svg>
-        </div>
-        <div className="floating-animation absolute bottom-20 left-20 opacity-20" style={{animationDelay: '4s'}}>
-          <svg width="70" height="70" viewBox="0 0 70 70" fill="none">
-            <circle cx="35" cy="35" r="30" stroke="white" strokeWidth="2" fill="none"/>
-            <path d="M20 35L35 20L50 35L35 50L20 35Z" fill="white"/>
-          </svg>
-        </div>
+          <span className="font-medium">Ask a question</span>
+        </button>
       </div>
     </div>
   );

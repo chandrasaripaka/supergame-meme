@@ -1,0 +1,48 @@
+Here’s a **well-structured prompt** you can use with a developer, designer, or AI design assistant (like Replit AI or Locofy) to convert the [**Wander Notes**](https://wander-notes.com/) website layout into one that resembles **Perplexity.ai**, while retaining your existing fonts and adding **subtle accordion-style UI** elements:
+
+---
+
+### 🧠 Design Transformation Prompt:
+
+> **Goal:** Redesign the website [https://wander-notes.com](https://wander-notes.com) to follow a clean, modern layout inspired by [Perplexity.ai](https://www.perplexity.ai) while preserving brand identity and fonts.
+>
+> **Requirements:**
+>
+> 1. **Layout & Structure:**
+>
+>    * Convert the current card/list layout to a centered **feed-style Q\&A layout** similar to Perplexity.
+>    * Include **search bar at top center** with subtle shadow and soft rounded edges.
+>    * Implement a **responsive grid** that transitions smoothly on desktop, tablet, and mobile.
+> 2. **Typography & Fonts:**
+>
+>    * Retain current site fonts and font hierarchy — **do not alter typeface**.
+>    * Ensure text remains legible, clean, and minimalist across devices.
+> 3. **Accordion UI Enhancements:**
+>
+>    * Add **accordion-style collapsible sections** for:
+>
+>      * Notes summary
+>      * Tags / metadata
+>      * Additional links or related content
+>    * Accordion should appear subtle with a smooth animation (ease-in-out) and minimalistic caret toggle.
+>    * Use hover effects and transitions that blend with the existing theme.
+> 4. **Visual Feel & Design Tokens:**
+>
+>    * Match Perplexity’s **white/neutral background, minimalist UI, and soft border radius.**
+>    * Keep existing color palette and brand aesthetics intact — no drastic shifts.
+>    * Include subtle UI microinteractions (on hover, click).
+> 5. **Accessibility & UX:**
+>
+>    * Ensure good contrast for readability.
+>    * Smooth scroll behavior for internal sections.
+>
+> **Bonus Suggestions:**
+>
+> * Consider floating “Ask a question” button (Perplexity-style).
+> * Add keyboard navigation and accessibility enhancements for accordion controls.
+>
+> Please implement this as a **React component layout**, or in HTML/CSS with a modular structure if using static site tools.
+
+---
+
+Let me know if you want a **visual mockup** or a **ready-to-use HTML/CSS or React layout** as a starting point.
