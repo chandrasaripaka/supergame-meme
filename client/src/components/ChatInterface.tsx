@@ -87,9 +87,20 @@ export function ChatInterface({
   const [inputValue, setInputValue] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
+  const [showInlineTravelForm, setShowInlineTravelForm] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { isMobile } = useMobile();
+
+  // Fetch user preferences for context
+  const { data: userPreferences } = useQuery({
+    queryKey: ['/api/user/preferences'],
+    queryFn: async () => {
+      const response = await fetch('/api/user/preferences');
+      if (!response.ok) return null;
+      return response.json();
+    },
+  });
 
   // Check if speech recognition is available
   const speechRecognitionSupported =
@@ -97,6 +108,48 @@ export function ChatInterface({
 
   // Extract travel intent from messages
   const travelIntent = extractTravelIntent(messages);
+
+  // Handle travel form submission
+  const handleTravelFormSubmit = (formData: TravelFormData) => {
+    setShowInlineTravelForm(false);
+    
+    // Create detailed travel context with user preferences
+    const travelContext = {
+      ...formData,
+      userPreferences: userPreferences || {},
+      tripDuration: calculateTripDuration(formData.departureDate, formData.returnDate)
+    };
+
+    // Create formatted message with travel details
+    const travelMessage = `Plan my trip:
+📍 From: ${formData.source} → To: ${formData.destination}
+📅 Departure: ${new Date(formData.departureDate).toLocaleDateString()}
+📅 Return: ${new Date(formData.returnDate).toLocaleDateString()}
+👥 Travelers: ${formData.travelers}
+💰 Budget: ${getBudgetLabel(formData.budget)}
+🎯 Preferences: ${formData.preferences.join(', ')}
+
+Please create a detailed itinerary with flight options, accommodations, activities, and daily plans.`;
+
+    onSendMessage(travelMessage);
+  };
+
+  const calculateTripDuration = (departure: string, returnDate: string): number => {
+    const start = new Date(departure);
+    const end = new Date(returnDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const getBudgetLabel = (budget: string): string => {
+    const labels: { [key: string]: string } = {
+      'budget': 'Budget ($500-1,500)',
+      'mid-range': 'Mid-range ($1,500-3,000)',
+      'luxury': 'Luxury ($3,000+)'
+    };
+    return labels[budget] || budget;
+  };
 
   // Fetch weather data if we have a destination
   const { data: weatherData, isLoading: isWeatherLoading } = useQuery({
@@ -290,6 +343,19 @@ export function ChatInterface({
 
         {/* Show typing indicator when loading */}
         {isLoading && <TypingIndicator />}
+
+        {/* Inline Travel Form */}
+        {showInlineTravelForm && (
+          <div className="my-6">
+            <InlineTravelForm
+              onSubmit={handleTravelFormSubmit}
+              onCancel={() => setShowInlineTravelForm(false)}
+              initialData={{
+                preferences: userPreferences?.travelPreferences || []
+              }}
+            />
+          </div>
+        )}
 
         {/* Show travel plan if available */}
         {travelPlan &&
