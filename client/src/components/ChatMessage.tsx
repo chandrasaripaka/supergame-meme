@@ -333,8 +333,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
               <div className="mb-6">
                 <InteractiveItinerary
                   destination={extractDestination(message.content)}
-                  outboundFlights={generateSampleFlights('outbound', extractTravelDetails(message.content))}
-                  returnFlights={generateSampleFlights('return', extractTravelDetails(message.content))}
+                  outboundFlights={[]} // Will be loaded by the component
+                  returnFlights={[]} // Will be loaded by the component
                   dayPlans={generateSampleDayPlans()}
                   travelDetails={extractTravelDetails(message.content)}
                   onComplete={(selections) => {

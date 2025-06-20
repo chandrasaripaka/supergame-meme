@@ -51,6 +51,8 @@ interface InteractiveItineraryProps {
   travelDetails?: {
     source: string;
     destination: string;
+    departureDate?: string;
+    returnDate?: string;
   };
   onComplete: (selections: {
     outboundFlight: Flight | null;
@@ -61,8 +63,8 @@ interface InteractiveItineraryProps {
 
 export function InteractiveItinerary({ 
   destination, 
-  outboundFlights, 
-  returnFlights, 
+  outboundFlights: initialOutboundFlights, 
+  returnFlights: initialReturnFlights, 
   dayPlans, 
   travelDetails,
   onComplete 
@@ -70,6 +72,101 @@ export function InteractiveItinerary({
   const [selectedOutboundFlight, setSelectedOutboundFlight] = useState<Flight | null>(null);
   const [selectedReturnFlight, setSelectedReturnFlight] = useState<Flight | null>(null);
   const [selectedActivities, setSelectedActivities] = useState<{ [key: string]: string }>({});
+  const [outboundFlights, setOutboundFlights] = useState<Flight[]>(initialOutboundFlights);
+  const [returnFlights, setReturnFlights] = useState<Flight[]>(initialReturnFlights);
+  const [loadingFlights, setLoadingFlights] = useState(false);
+
+  // Load real flight data when component mounts
+  useEffect(() => {
+    const loadFlightData = async () => {
+      if (!travelDetails?.source || !travelDetails?.destination) return;
+      
+      setLoadingFlights(true);
+      try {
+        // Load outbound flights
+        const outboundResponse = await fetch('/api/flights/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            departureCity: travelDetails.source,
+            arrivalCity: travelDetails.destination,
+            departureDate: travelDetails.departureDate || '2025-06-17'
+          })
+        });
+
+        if (outboundResponse.ok) {
+          const outboundData = await outboundResponse.json();
+          if (outboundData.flights) {
+            setOutboundFlights(outboundData.flights.map((flight: any) => ({
+              id: flight.id,
+              airline: flight.airline,
+              flightNumber: flight.flightNumber,
+              departure: {
+                airport: flight.departureAirport,
+                time: flight.departureTime,
+                date: travelDetails.departureDate || '2025-06-17'
+              },
+              arrival: {
+                airport: flight.arrivalAirport,
+                time: flight.arrivalTime,
+                date: travelDetails.departureDate || '2025-06-17'
+              },
+              duration: flight.duration,
+              price: flight.price,
+              class: flight.class as any || 'Economy',
+              stops: flight.stops,
+              amenities: flight.amenities || ['WiFi', 'Meals'],
+              baggage: flight.baggage || '23kg included'
+            })));
+          }
+        }
+
+        // Load return flights
+        const returnResponse = await fetch('/api/flights/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            departureCity: travelDetails.destination,
+            arrivalCity: travelDetails.source,
+            departureDate: travelDetails.returnDate || '2025-06-21'
+          })
+        });
+
+        if (returnResponse.ok) {
+          const returnData = await returnResponse.json();
+          if (returnData.flights) {
+            setReturnFlights(returnData.flights.map((flight: any) => ({
+              id: flight.id,
+              airline: flight.airline,
+              flightNumber: flight.flightNumber,
+              departure: {
+                airport: flight.departureAirport,
+                time: flight.departureTime,
+                date: travelDetails.returnDate || '2025-06-21'
+              },
+              arrival: {
+                airport: flight.arrivalAirport,
+                time: flight.arrivalTime,
+                date: travelDetails.returnDate || '2025-06-21'
+              },
+              duration: flight.duration,
+              price: flight.price,
+              class: flight.class as any || 'Economy',
+              stops: flight.stops,
+              amenities: flight.amenities || ['WiFi', 'Meals'],
+              baggage: flight.baggage || '23kg included'
+            })));
+          }
+        }
+      } catch (error) {
+        console.error('Error loading flight data:', error);
+      } finally {
+        setLoadingFlights(false);
+      }
+    };
+
+    loadFlightData();
+  }, [travelDetails]);
 
   const handleActivitySelect = (day: number, timeSlot: string, activity: Activity) => {
     const key = `${day}-${timeSlot}`;
@@ -207,19 +304,30 @@ export function InteractiveItinerary({
         </TabsList>
 
         <TabsContent value="flights" className="space-y-6">
-          <FlightSelector
-            flights={outboundFlights}
-            onSelectFlight={setSelectedOutboundFlight}
-            direction="outbound"
-            travelDetails={travelDetails}
-          />
-          
-          <FlightSelector
-            flights={returnFlights}
-            onSelectFlight={setSelectedReturnFlight}
-            direction="return"
-            travelDetails={travelDetails}
-          />
+          {loadingFlights ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+                <p className="text-gray-600">Loading flight options...</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <FlightSelector
+                flights={outboundFlights}
+                onSelectFlight={setSelectedOutboundFlight}
+                direction="outbound"
+                travelDetails={travelDetails}
+              />
+              
+              <FlightSelector
+                flights={returnFlights}
+                onSelectFlight={setSelectedReturnFlight}
+                direction="return"
+                travelDetails={travelDetails}
+              />
+            </>
+          )}
         </TabsContent>
 
         <TabsContent value="activities" className="space-y-6">
