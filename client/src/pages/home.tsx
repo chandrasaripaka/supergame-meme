@@ -13,6 +13,8 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showTravelForm, setShowTravelForm] = useState(false);
   const [travelContext, setTravelContext] = useState<any>(null);
+  const [savedTravelDetails, setSavedTravelDetails] = useState<any>(null);
+  const [requireTravelDetails, setRequireTravelDetails] = useState(true);
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -45,12 +47,38 @@ export default function Home() {
     }
   };
 
-  // Check for chat session restoration on component mount
+  // Check for chat session restoration and load saved travel details on component mount
   useEffect(() => {
     const restoreSessionId = localStorage.getItem('restoreChatSession');
     if (restoreSessionId) {
       localStorage.removeItem('restoreChatSession');
       restoreChatSession(parseInt(restoreSessionId));
+    }
+    
+    // Load saved travel details
+    const saved = localStorage.getItem('savedTravelDetails');
+    if (saved) {
+      try {
+        const parsedDetails = JSON.parse(saved);
+        setSavedTravelDetails(parsedDetails);
+        setTravelContext(parsedDetails);
+        setRequireTravelDetails(false);
+        
+        // Update welcome message to reflect saved details
+        setMessages(prev => [
+          {
+            role: 'assistant',
+            content: `Welcome back! I have your saved travel details for ${parsedDetails.destination}. How can I help you plan your trip today?`,
+            modelInfo: {
+              provider: "system",
+              model: "dynamic-llm-router",
+              note: "Travel details loaded"
+            }
+          }
+        ]);
+      } catch (error) {
+        console.error('Error loading saved travel details:', error);
+      }
     }
   }, []);
 

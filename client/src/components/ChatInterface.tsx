@@ -90,6 +90,8 @@ export function ChatInterface({
   const [isListening, setIsListening] = useState(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [showInlineTravelForm, setShowInlineTravelForm] = useState(showFormByDefault);
+  const [savedTravelDetails, setSavedTravelDetails] = useState<TravelFormData | null>(null);
+  const [showTravelDetailsPrompt, setShowTravelDetailsPrompt] = useState(!showFormByDefault);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { isMobile } = useMobile();
@@ -104,6 +106,20 @@ export function ChatInterface({
     },
   });
 
+  // Load saved travel details from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('savedTravelDetails');
+    if (saved) {
+      try {
+        const parsedDetails = JSON.parse(saved);
+        setSavedTravelDetails(parsedDetails);
+        setShowTravelDetailsPrompt(false);
+      } catch (error) {
+        console.error('Error loading saved travel details:', error);
+      }
+    }
+  }, []);
+
   // Check if speech recognition is available
   const speechRecognitionSupported =
     "SpeechRecognition" in window || "webkitSpeechRecognition" in window;
@@ -111,9 +127,21 @@ export function ChatInterface({
   // Extract travel intent from messages
   const travelIntent = extractTravelIntent(messages);
 
-  // Handle travel form submission
+  // Handle travel form submission with auto-save
   const handleTravelFormSubmit = (formData: TravelFormData) => {
+    // Automatically save travel details to state
+    setSavedTravelDetails(formData);
     setShowInlineTravelForm(false);
+    setShowTravelDetailsPrompt(false);
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('savedTravelDetails', JSON.stringify(formData));
+    
+    // Show confirmation toast
+    toast({
+      title: "Travel details saved",
+      description: "Your travel information has been automatically saved and can be used for future planning.",
+    });
     
     // Create detailed travel context with user preferences
     const travelContext = {
