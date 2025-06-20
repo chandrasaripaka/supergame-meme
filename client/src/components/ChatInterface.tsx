@@ -525,6 +525,28 @@ Please create a detailed itinerary with flight options, accommodations, activiti
             </button>
           </div>
           <Button
+            type="button"
+            onClick={() => setShowInlineTravelForm(true)}
+            className="bg-green-600 hover:bg-green-700 text-white ml-2 px-4 py-3 rounded-md transition flex items-center"
+            disabled={showInlineTravelForm}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"
+              />
+            </svg>
+            <span className="hidden sm:inline">Plan Trip</span>
+          </Button>
+          <Button
             type="submit"
             className="bg-primary hover:bg-blue-700 text-white ml-2 px-5 py-3 rounded-md transition flex items-center"
             disabled={isLoading}
