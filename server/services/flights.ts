@@ -77,28 +77,126 @@ function getAirportCode(cityName: string): string {
 }
 
 /**
- * Search for real flights using Google Travel Partner API
+ * Convert airline code to airline name
  */
-async function searchGoogleFlights(search: FlightSearch): Promise<Flight[]> {
+function getAirlineName(code: string): string {
+  const airlineNames: { [key: string]: string } = {
+    'AA': 'American Airlines',
+    'UA': 'United Airlines',
+    'DL': 'Delta Air Lines',
+    'B6': 'JetBlue Airways',
+    'WN': 'Southwest Airlines',
+    'AF': 'Air France',
+    'BA': 'British Airways',
+    'EK': 'Emirates',
+    'LH': 'Lufthansa',
+    'SQ': 'Singapore Airlines',
+    'QR': 'Qatar Airways',
+    'EY': 'Etihad Airways',
+    'TK': 'Turkish Airlines',
+    'CX': 'Cathay Pacific',
+    'JL': 'Japan Airlines',
+    'NH': 'ANA',
+    'KE': 'Korean Air',
+    'OZ': 'Asiana Airlines'
+  };
+  
+  return airlineNames[code] || code;
+}
+
+/**
+ * Search for real flights using Amadeus API
+ */
+async function searchAmadeusFlights(search: FlightSearch): Promise<Flight[]> {
   try {
+    // First, get access token
+    const tokenResponse = await fetch('https://api.amadeus.com/v1/security/oauth2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: process.env.AMADEUS_API_KEY!,
+        client_secret: process.env.AMADEUS_API_SECRET!
+      })
+    });
+
+    if (!tokenResponse.ok) {
+      throw new Error('Failed to get Amadeus access token');
+    }
+
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
+
+    // Search for flights
     const originCode = getAirportCode(search.departureCity);
     const destinationCode = getAirportCode(search.arrivalCity);
     
-    // Using Google Custom Search API as a proxy for flight data
-    // In production, you would use Google Travel Partner API or Google Flights API
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-    
-    if (!apiKey) {
-      console.log('Google API key not available, using realistic mock data');
-      return generateRealisticFlightData(search);
+    const searchParams = new URLSearchParams({
+      originLocationCode: originCode,
+      destinationLocationCode: destinationCode,
+      departureDate: search.departureDate,
+      adults: '1',
+      currencyCode: 'USD',
+      max: '15'
+    });
+
+    if (search.returnDate) {
+      searchParams.append('returnDate', search.returnDate);
     }
 
-    // For now, generate realistic data based on actual route analysis
-    return generateRealisticFlightData(search);
+    const flightResponse = await fetch(`https://api.amadeus.com/v2/shopping/flight-offers?${searchParams}`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!flightResponse.ok) {
+      throw new Error('Failed to search flights from Amadeus');
+    }
+
+    const flightData = await flightResponse.json();
     
+    // Transform Amadeus response to our Flight interface
+    const flights: Flight[] = flightData.data?.map((offer: any, index: number) => {
+      const segment = offer.itineraries[0].segments[0];
+      const price = parseFloat(offer.price.total);
+      
+      return {
+        id: `amadeus-${offer.id}`,
+        airline: getAirlineName(segment.carrierCode),
+        logo: `https://www.gstatic.com/flights/airline_logos/70px/${segment.carrierCode}.png`,
+        flightNumber: `${segment.carrierCode}${segment.number}`,
+        departureAirport: segment.departure.iataCode,
+        departureCity: search.departureCity,
+        departureTime: new Date(segment.departure.at).toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          hour12: false 
+        }),
+        arrivalAirport: segment.arrival.iataCode,
+        arrivalCity: search.arrivalCity,
+        arrivalTime: new Date(segment.arrival.at).toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          hour12: false 
+        }),
+        duration: segment.duration.replace('PT', '').toLowerCase(),
+        stops: offer.itineraries[0].segments.length - 1,
+        price: Math.round(price),
+        currency: offer.price.currency,
+        class: offer.travelerPricings[0].fareDetailsBySegment[0].cabin || 'ECONOMY',
+        amenities: ['WiFi', 'Meals', 'Entertainment'],
+        baggage: '23kg included'
+      };
+    }) || [];
+
+    return flights;
   } catch (error) {
-    console.error('Error searching Google flights:', error);
-    return generateRealisticFlightData(search);
+    console.error('Amadeus API error:', error);
+    return [];
   }
 }
 
@@ -215,11 +313,11 @@ function getFlightDuration(origin: string, destination: string): number {
  */
 export async function searchFlights(search: FlightSearch): Promise<Flight[]> {
   try {
-    // Try Google Flights API first
-    const googleFlights = await searchGoogleFlights(search);
+    // Try Amadeus API first
+    const amadeusFlights = await searchAmadeusFlights(search);
     
-    if (googleFlights && googleFlights.length > 0) {
-      return googleFlights;
+    if (amadeusFlights && amadeusFlights.length > 0) {
+      return amadeusFlights;
     }
     
     // Fallback to realistic data generation
