@@ -127,7 +127,8 @@ export async function generateTravelPlan(
 export async function continueTravelConversation(
   messages: Array<{ role: string; content: string }>,
   newMessage: string,
-  weatherData: any = null
+  weatherData: any = null,
+  userPreferences: any = null
 ): Promise<{ text: string, modelInfo: { provider: string, model: string } }> {
   try {
     // Extract destination from the conversation
@@ -141,10 +142,18 @@ export async function continueTravelConversation(
       eventRecommendations = getEventRecommendations(destination);
     }
     
+    // Extract travel style preferences
+    let travelStyleContext = '';
+    if (userPreferences && userPreferences.travelStyle) {
+      travelStyleContext = `\n\nUser's preferred travel style: ${userPreferences.travelStyle}. Tailor recommendations to match this travel style preference.`;
+    } else if (userPreferences && userPreferences.defaultTravelStyle) {
+      travelStyleContext = `\n\nUser's default travel style: ${userPreferences.defaultTravelStyle}. Use this as the travel style preference when none is specified.`;
+    }
+    
     // Prepare system message content
     let systemContent = `You are an AI travel concierge that helps plan personalized travel experiences. You provide helpful, friendly advice about destinations, activities, accommodations, and local customs. Always be conversational but focused on travel planning.
     
-    When recommending hotels and activities, use ONLY the specific authentic recommendations provided in the context below. Do not invent or suggest any hotels, restaurants, or activities not listed here.`;
+    When recommending hotels and activities, use ONLY the specific authentic recommendations provided in the context below. Do not invent or suggest any hotels, restaurants, or activities not listed here.${travelStyleContext}`;
 
     // Add specific hotel recommendations if available
     if (hotelRecommendations.length > 0) {

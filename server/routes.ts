@@ -384,6 +384,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user preferences
+  app.get(`${apiPrefix}/user/preferences`, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+      
+      const userId = req.user!.id;
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, userId)
+      });
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      return res.status(200).json({ preferences: user.preferences || {} });
+    } catch (error) {
+      console.error('Error fetching user preferences:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Update user preferences
+  app.patch(`${apiPrefix}/user/preferences`, async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+      
+      const userId = req.user!.id;
+      const { preferences } = req.body;
+      
+      if (!preferences || typeof preferences !== 'object') {
+        return res.status(400).json({ error: 'Valid preferences object required' });
+      }
+      
+      // Update user preferences
+      const [updatedUser] = await db.update(users)
+        .set({ preferences: preferences })
+        .where(eq(users.id, userId))
+        .returning();
+      
+      return res.status(200).json({ preferences: updatedUser.preferences });
+    } catch (error) {
+      console.error('Error updating user preferences:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   // Trip routes
   app.post(`${apiPrefix}/trips`, async (req, res) => {
     try {
@@ -468,13 +518,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
+        // Get user preferences for travel style defaults
+        let userPreferences = null;
+        if (req.isAuthenticated() && req.user) {
+          const user = await db.query.users.findFirst({
+            where: eq(users.id, req.user.id)
+          });
+          userPreferences = user?.preferences || {};
+        }
+
         // Use the dynamic LLM Router for AI responses
         try {
           // Call our new AI service with LLM Router
           const aiResult = await continueTravelConversation(
             messageHistory.slice(0, -1), // Previous messages
             lastMessage.content, // New message content
-            weatherData
+            weatherData,
+            userPreferences
           );
           
           // Return both the response and model info
