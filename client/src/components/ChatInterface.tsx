@@ -324,19 +324,25 @@ Please create a detailed itinerary with flight options, accommodations, activiti
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      {/* Chat Messages Container - OpenAI Style */}
+    <div className="w-full">
+      {/* Chat Messages Container - Perplexity Style */}
       <div
         ref={chatContainerRef}
-        className="min-h-[60vh] max-h-[70vh] overflow-y-auto px-4 py-6 space-y-6"
+        className="space-y-8 pb-8"
       >
-        {/* Render chat messages */}
+        {/* Render chat messages with cleaner spacing */}
         {messages.map((message, index) => (
-          <ChatMessage key={index} message={message} />
+          <div key={index} className="border-b border-gray-100 pb-6 last:border-b-0">
+            <ChatMessage message={message} />
+          </div>
         ))}
 
         {/* Show typing indicator when loading */}
-        {isLoading && <TypingIndicator />}
+        {isLoading && (
+          <div className="border-b border-gray-100 pb-6">
+            <TypingIndicator />
+          </div>
+        )}
 
         {/* Inline Travel Form as Chat Message */}
         {showInlineTravelForm && (

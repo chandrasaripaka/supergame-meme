@@ -2,6 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Perplexity-style global styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Accordion animations */
+@layer components {
+  details summary {
+    list-style: none;
+  }
+  
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  details[open] summary ~ * {
+    animation: accordion-down 0.3s ease-out;
+  }
+  
+  details:not([open]) summary ~ * {
+    animation: accordion-up 0.3s ease-out;
+  }
+}
+
+/* Keyframes for accordion animations */
+@keyframes accordion-down {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+/* Smooth transitions for interactive elements */
+@layer utilities {
+  .transition-all-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Focus styles for accessibility */
+  .focus-ring:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: rgb(59 130 246);
+    ring-offset: 2px;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
