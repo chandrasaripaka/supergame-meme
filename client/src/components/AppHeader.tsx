@@ -9,13 +9,13 @@ export function AppHeader() {
     <header className="bg-white dark:bg-gray-900 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Link href="/" className="flex items-center space-x-2 text-gray-800 dark:text-gray-200 hover:text-sky-600 dark:hover:text-sky-400 transition">
+          <Link href="/" className="flex items-center space-x-2 text-gray-800 dark:text-gray-200 hover:text-sky-600 dark:hover:text-sky-400 transition cursor-pointer">
             <img 
               src="/favicon.svg" 
               alt="Logo" 
-              className="h-8 w-auto"
+              className="h-8 w-auto cursor-pointer"
             />
-            <h1 className="text-xl font-semibold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent">WanderNotes</h1>
+            <h1 className="text-xl font-semibold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent cursor-pointer">WanderNotes</h1>
           </Link>
         </div>
         <div className="flex items-center space-x-4">

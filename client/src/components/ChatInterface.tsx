@@ -87,7 +87,7 @@ export function ChatInterface({
   const [inputValue, setInputValue] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
-  const [showInlineTravelForm, setShowInlineTravelForm] = useState(false);
+  const [showInlineTravelForm, setShowInlineTravelForm] = useState(true);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { isMobile } = useMobile();

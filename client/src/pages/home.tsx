@@ -55,44 +55,52 @@ export default function Home() {
     }
   });
   
-  const handleSendMessage = (message: string) => {
-    // Check if user wants to fill out travel details
-    const shouldShowForm = message.toLowerCase().includes('plan') || 
-                          message.toLowerCase().includes('trip') || 
-                          message.toLowerCase().includes('travel') ||
-                          message.includes('[Context:');
-    
+  const handleSendMessage = async (message: string) => {
     setShowWelcome(false);
     
-    // Show travel form for trip planning requests
-    if (shouldShowForm && !showTravelForm) {
-      // Add user message to the chat
-      const userMessage: Message = {
-        role: 'user',
-        content: message
-      };
-      setMessages((prevMessages) => [...prevMessages, userMessage]);
+    // Save chat session and message
+    try {
+      await saveChatMessage(message);
+    } catch (error) {
+      console.error('Failed to save chat message:', error);
+    }
+    
+    // Send to AI with travel context if available
+    const contextualMessage = travelContext 
+      ? `${message}\n\nTravel Context: ${JSON.stringify(travelContext)}`
+      : message;
+    
+    mutate(contextualMessage);
+  };
+
+  const saveChatMessage = async (message: string) => {
+    try {
+      // Create or get current chat session
+      const sessionResponse = await fetch('/api/chat-sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: message.substring(0, 50) + '...',
+          summary: 'Travel planning conversation'
+        })
+      });
       
-      setShowTravelForm(true);
-      
-      // Add a system message suggesting the form
-      const formMessage: Message = {
-        role: 'assistant',
-        content: "I'd be happy to help you plan your trip! Let me gather some details to create the perfect itinerary for you.",
-        modelInfo: {
-          provider: "system",
-          model: "travel-form",
-          note: "Travel Planning Form"
-        }
-      };
-      setMessages((prevMessages) => [...prevMessages, formMessage]);
-    } else {
-      // Send to AI with travel context if available
-      const contextualMessage = travelContext 
-        ? `${message}\n\nTravel Context: ${JSON.stringify(travelContext)}`
-        : message;
-      
-      mutate(contextualMessage);
+      if (sessionResponse.ok) {
+        const session = await sessionResponse.json();
+        
+        // Save the message
+        await fetch('/api/chat-messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: session.id,
+            role: 'user',
+            content: message
+          })
+        });
+      }
+    } catch (error) {
+      console.error('Error saving chat:', error);
     }
   };
 

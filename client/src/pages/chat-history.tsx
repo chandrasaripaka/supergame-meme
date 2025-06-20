@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Loader2, MessageCircle, Trash2, Search, Filter, Calendar, ArrowUpDown, Grid, List, Clock, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -422,12 +422,14 @@ export default function ChatHistoryPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Link href={`/chat/${session.id}`}>
-                        <Button variant="outline" size="sm">
-                          <MessageCircle className="h-4 w-4 mr-1" />
-                          Open
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleOpenChat(session.id)}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-1" />
+                        Open
+                      </Button>
                       <Button 
                         variant="destructive" 
                         size="sm"
@@ -483,12 +485,15 @@ export default function ChatHistoryPage() {
                 </p>
               </CardContent>
               <CardFooter className="flex justify-between pt-0">
-                <Link href={`/chat/${session.id}`}>
-                  <Button variant="default" size="sm" className="w-full mr-2">
-                    <MessageCircle className="h-4 w-4 mr-1" />
-                    Open Chat
-                  </Button>
-                </Link>
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="w-full mr-2"
+                  onClick={() => handleOpenChat(session.id)}
+                >
+                  <MessageCircle className="h-4 w-4 mr-1" />
+                  Open Chat
+                </Button>
                 <Button 
                   variant="destructive" 
                   size="sm"
