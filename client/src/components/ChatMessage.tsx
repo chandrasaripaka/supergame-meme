@@ -17,7 +17,9 @@ const extractDestination = (content: string): string => {
 
 const extractTravelDetails = (content: string): { source: string; destination: string; departureDate?: string; returnDate?: string } => {
   // Extract source and destination from travel details
-  const fromMatch = content.match(/📍\s*From:\s*([^→\n]+)→\s*To:\s*([^\n]+)/);
+  const fromMatch = content.match(/✈️\s*From:\s*([^\n]+)/);
+  const toMatch = content.match(/🌍\s*To:\s*([^\n]+)/);
+  const oldFromMatch = content.match(/📍\s*From:\s*([^→\n]+)→\s*To:\s*([^\n]+)/);
   const destinationMatch = content.match(/\*\*Destination:\*\*\s*([^\n]+)/);
   const departureDateMatch = content.match(/📅\s*Departure:\s*([^\n]+)/);
   const returnDateMatch = content.match(/📅\s*Return:\s*([^\n]+)/);
@@ -25,9 +27,14 @@ const extractTravelDetails = (content: string): { source: string; destination: s
   let source = 'Your Location';
   let destination = 'Travel Destination';
   
-  if (fromMatch) {
+  // Check for new format first
+  if (fromMatch && toMatch) {
     source = fromMatch[1].trim();
-    destination = fromMatch[2].trim();
+    destination = toMatch[1].trim();
+  } else if (oldFromMatch) {
+    // Fallback to old format
+    source = oldFromMatch[1].trim();
+    destination = oldFromMatch[2].trim();
   } else if (destinationMatch) {
     destination = destinationMatch[1].trim();
   }

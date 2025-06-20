@@ -316,6 +316,21 @@ export function TravelForm({ onSubmit, onClose }: { onSubmit: (data: TravelFormD
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
+          <Label htmlFor="from">From</Label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              id="from"
+              type="text"
+              placeholder="Where are you traveling from?"
+              value={formData.from}
+              onChange={(e) => setFormData({ ...formData, from: e.target.value })}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="destination">Destination</Label>
           <div className="relative">
             <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />

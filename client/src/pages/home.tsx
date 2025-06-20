@@ -273,7 +273,8 @@ export default function Home() {
     // Create a summary message with travel details
     const travelSummary = `Perfect! Here are your travel details:
     
-🌍 Destination: ${formData.destination}
+✈️ From: ${formData.from}
+🌍 To: ${formData.destination}
 📅 Dates: ${formData.startDate ? new Date(formData.startDate).toLocaleDateString() : 'Flexible'} - ${formData.endDate ? new Date(formData.endDate).toLocaleDateString() : 'Flexible'}
 💰 Budget: ${getBudgetLabel(formData.budget)}
 👥 Travelers: ${getTravelersLabel(formData.travelers)}
@@ -611,10 +612,11 @@ Let me create a personalized itinerary for you!`;
               <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <h3 className="font-semibold text-blue-900 mb-2">Current Travel Context</h3>
                 <div className="text-sm text-blue-800">
-                  <p><strong>Destination:</strong> {travelContext.destination}</p>
+                  <p><strong>From:</strong> {travelContext.from}</p>
+                  <p><strong>To:</strong> {travelContext.destination}</p>
                   <p><strong>Duration:</strong> {travelContext.duration} days</p>
                   <p><strong>Budget:</strong> ${travelContext.budget}</p>
-                  <p><strong>Travel Style:</strong> {travelContext.travelStyle}</p>
+                  <p><strong>Travelers:</strong> {travelContext.travelers}</p>
                 </div>
               </div>
             )}
