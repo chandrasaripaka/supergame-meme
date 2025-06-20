@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plane, Clock, DollarSign, Wifi, Utensils, Luggage } from 'lucide-react';
+import { Plane, Clock, DollarSign, Wifi, Utensils, Luggage, MapPin } from 'lucide-react';
 
 interface Flight {
   id: string;
@@ -38,6 +38,37 @@ interface FlightSelectorProps {
 
 export function FlightSelector({ flights, onSelectFlight, direction, travelDetails }: FlightSelectorProps) {
   const [selectedFlight, setSelectedFlight] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<string>('Your Location');
+
+  useEffect(() => {
+    // Get user's location using browser geolocation API
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            // Use reverse geocoding to get location name
+            const response = await fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+            );
+            const data = await response.json();
+            const locationName = data.city && data.countryName 
+              ? `${data.city}, ${data.countryName}`
+              : data.locality || data.countryName || 'Your Location';
+            setUserLocation(locationName);
+          } catch (error) {
+            console.log('Failed to get location name, using default');
+            setUserLocation('Your Location');
+          }
+        },
+        (error) => {
+          console.log('Geolocation denied or failed, using default location');
+          setUserLocation('Your Location');
+        },
+        { timeout: 10000, enableHighAccuracy: false }
+      );
+    }
+  }, []);
 
   const handleFlightSelect = (flight: Flight) => {
     setSelectedFlight(flight.id);
@@ -66,16 +97,24 @@ export function FlightSelector({ flights, onSelectFlight, direction, travelDetai
   const getRouteDisplay = () => {
     if (!travelDetails) return null;
     
-    const { source, destination } = travelDetails;
-    const fromLocation = direction === 'outbound' ? source : destination;
-    const toLocation = direction === 'outbound' ? destination : source;
+    const { destination } = travelDetails;
+    // For outbound flights: User Location -> Destination
+    // For return flights: Destination -> User Location
+    const fromLocation = direction === 'outbound' ? userLocation : destination;
+    const toLocation = direction === 'outbound' ? destination : userLocation;
     
     return (
       <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 mb-4">
         <div className="flex items-center justify-center text-sm text-blue-700">
-          <span className="font-medium">{fromLocation}</span>
+          <div className="flex items-center">
+            <MapPin className="h-4 w-4 mr-1 text-blue-600" />
+            <span className="font-medium">{fromLocation}</span>
+          </div>
           <Plane className="h-4 w-4 mx-3 text-blue-600" />
-          <span className="font-medium">{toLocation}</span>
+          <div className="flex items-center">
+            <MapPin className="h-4 w-4 mr-1 text-blue-600" />
+            <span className="font-medium">{toLocation}</span>
+          </div>
         </div>
       </div>
     );
