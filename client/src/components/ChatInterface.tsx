@@ -351,17 +351,26 @@ Please create a detailed itinerary with flight options, accommodations, activiti
       }
       
       // Weather Information (if available)
-      if (weatherData) {
-        reportSections.push("## Weather Forecast");
-        reportSections.push(`**Current:** ${weatherData.current?.condition || 'N/A'}`);
-        reportSections.push(`**Temperature:** ${weatherData.current?.temperature || 'N/A'}`);
-        if (weatherData.forecast && Array.isArray(weatherData.forecast)) {
-          reportSections.push("### 5-Day Forecast:");
-          weatherData.forecast.slice(0, 5).forEach((day: any) => {
-            reportSections.push(`- ${day.date}: ${day.condition}, High: ${day.high}°, Low: ${day.low}°`);
-          });
+      if (weatherData && typeof weatherData === 'object') {
+        try {
+          const weather = weatherData as any;
+          if (weather.current || weather.forecast) {
+            reportSections.push("## Weather Forecast");
+            if (weather.current) {
+              reportSections.push(`**Current:** ${weather.current.condition || 'N/A'}`);
+              reportSections.push(`**Temperature:** ${weather.current.temperature || 'N/A'}`);
+            }
+            if (weather.forecast && Array.isArray(weather.forecast)) {
+              reportSections.push("### 5-Day Forecast:");
+              weather.forecast.slice(0, 5).forEach((day: any) => {
+                reportSections.push(`- ${day.date}: ${day.condition}, High: ${day.high}°, Low: ${day.low}°`);
+              });
+            }
+            reportSections.push("");
+          }
+        } catch (error) {
+          // Skip weather section if there's an error
         }
-        reportSections.push("");
       }
       
       // Attractions (if available)
