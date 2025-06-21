@@ -31,8 +31,15 @@ export interface FlightSearch {
  * Get airport IATA code from city name
  */
 function getAirportCode(cityName: string): string {
+  // Handle empty or invalid input
+  if (!cityName || cityName === 'Your Location' || cityName === 'Unknown') {
+    return 'JFK'; // Default to JFK for user location
+  }
+
   const airportCodes: { [key: string]: string } = {
     'New York': 'JFK',
+    'New York City': 'JFK',
+    'NYC': 'JFK',
     'Los Angeles': 'LAX',
     'Chicago': 'ORD',
     'Miami': 'MIA',
@@ -45,6 +52,7 @@ function getAirportCode(cityName: string): string {
     'London': 'LHR',
     'Paris': 'CDG',
     'Tokyo': 'NRT',
+    'Tokyo, Japan': 'NRT',
     'Dubai': 'DXB',
     'Singapore': 'SIN',
     'Bangkok': 'BKK',
@@ -57,23 +65,32 @@ function getAirportCode(cityName: string): string {
     'Frankfurt': 'FRA',
     'Amsterdam': 'AMS',
     'Zurich': 'ZUR',
-    'Istanbul': 'IST'
+    'Istanbul': 'IST',
+    'Berlin': 'BER',
+    'Rome': 'FCO',
+    'Madrid': 'MAD',
+    'Barcelona': 'BCN',
+    'Vienna': 'VIE',
+    'Brussels': 'BRU'
   };
 
+  // Clean city name
+  const cleanCityName = cityName.trim();
+
   // Try exact match first
-  if (airportCodes[cityName]) {
-    return airportCodes[cityName];
+  if (airportCodes[cleanCityName]) {
+    return airportCodes[cleanCityName];
   }
 
   // Try partial matches
   for (const [city, code] of Object.entries(airportCodes)) {
-    if (cityName.toLowerCase().includes(city.toLowerCase()) || city.toLowerCase().includes(cityName.toLowerCase())) {
+    if (cleanCityName.toLowerCase().includes(city.toLowerCase()) || city.toLowerCase().includes(cleanCityName.toLowerCase())) {
       return code;
     }
   }
 
-  // Default fallback
-  return 'XXX';
+  // Default fallback to JFK for unknown cities
+  return 'JFK';
 }
 
 /**

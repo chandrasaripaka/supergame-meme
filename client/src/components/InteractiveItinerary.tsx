@@ -97,27 +97,48 @@ export function InteractiveItinerary({
         if (outboundResponse.ok) {
           const outboundData = await outboundResponse.json();
           if (outboundData.flights) {
-            setOutboundFlights(outboundData.flights.map((flight: any) => ({
-              id: flight.id,
-              airline: flight.airline,
-              flightNumber: flight.flightNumber,
-              departure: {
-                airport: flight.departureAirport,
-                time: flight.departureTime,
-                date: travelDetails.departureDate || '2025-06-17'
-              },
-              arrival: {
-                airport: flight.arrivalAirport,
-                time: flight.arrivalTime,
-                date: travelDetails.departureDate || '2025-06-17'
-              },
-              duration: flight.duration,
-              price: flight.price,
-              class: flight.class as any || 'Economy',
-              stops: flight.stops,
-              amenities: flight.amenities || ['WiFi', 'Meals'],
-              baggage: flight.baggage || '23kg included'
-            })));
+            setOutboundFlights(outboundData.flights.map((flight: any) => {
+              // Calculate arrival date based on flight duration and departure date
+              const departureDate = new Date(travelDetails.departureDate || '2025-06-17');
+              const arrivalDate = new Date(departureDate);
+              
+              // Parse duration to determine if arrival is next day
+              const durationMatch = flight.duration?.match(/(\d+)h\s*(\d+)?m?/);
+              if (durationMatch) {
+                const hours = parseInt(durationMatch[1]);
+                const minutes = parseInt(durationMatch[2] || '0');
+                
+                // Add flight duration to departure time to get arrival date
+                const [depHour, depMinute] = flight.departureTime.split(':').map(Number);
+                const totalMinutes = depHour * 60 + depMinute + hours * 60 + minutes;
+                
+                if (totalMinutes >= 24 * 60) {
+                  arrivalDate.setDate(arrivalDate.getDate() + 1);
+                }
+              }
+              
+              return {
+                id: flight.id,
+                airline: flight.airline,
+                flightNumber: flight.flightNumber,
+                departure: {
+                  airport: flight.departureAirport,
+                  time: flight.departureTime,
+                  date: departureDate.toISOString().split('T')[0]
+                },
+                arrival: {
+                  airport: flight.arrivalAirport,
+                  time: flight.arrivalTime,
+                  date: arrivalDate.toISOString().split('T')[0]
+                },
+                duration: flight.duration,
+                price: flight.price,
+                class: flight.class as any || 'Economy',
+                stops: flight.stops,
+                amenities: flight.amenities || ['WiFi', 'Meals'],
+                baggage: flight.baggage || '23kg included'
+              };
+            }));
           }
         }
 
@@ -135,27 +156,48 @@ export function InteractiveItinerary({
         if (returnResponse.ok) {
           const returnData = await returnResponse.json();
           if (returnData.flights) {
-            setReturnFlights(returnData.flights.map((flight: any) => ({
-              id: flight.id,
-              airline: flight.airline,
-              flightNumber: flight.flightNumber,
-              departure: {
-                airport: flight.departureAirport,
-                time: flight.departureTime,
-                date: travelDetails.returnDate || '2025-06-21'
-              },
-              arrival: {
-                airport: flight.arrivalAirport,
-                time: flight.arrivalTime,
-                date: travelDetails.returnDate || '2025-06-21'
-              },
-              duration: flight.duration,
-              price: flight.price,
-              class: flight.class as any || 'Economy',
-              stops: flight.stops,
-              amenities: flight.amenities || ['WiFi', 'Meals'],
-              baggage: flight.baggage || '23kg included'
-            })));
+            setReturnFlights(returnData.flights.map((flight: any) => {
+              // Calculate arrival date based on flight duration and return date
+              const departureDate = new Date(travelDetails.returnDate || '2025-06-21');
+              const arrivalDate = new Date(departureDate);
+              
+              // Parse duration to determine if arrival is next day
+              const durationMatch = flight.duration?.match(/(\d+)h\s*(\d+)?m?/);
+              if (durationMatch) {
+                const hours = parseInt(durationMatch[1]);
+                const minutes = parseInt(durationMatch[2] || '0');
+                
+                // Add flight duration to departure time to get arrival date
+                const [depHour, depMinute] = flight.departureTime.split(':').map(Number);
+                const totalMinutes = depHour * 60 + depMinute + hours * 60 + minutes;
+                
+                if (totalMinutes >= 24 * 60) {
+                  arrivalDate.setDate(arrivalDate.getDate() + 1);
+                }
+              }
+              
+              return {
+                id: flight.id,
+                airline: flight.airline,
+                flightNumber: flight.flightNumber,
+                departure: {
+                  airport: flight.departureAirport,
+                  time: flight.departureTime,
+                  date: departureDate.toISOString().split('T')[0]
+                },
+                arrival: {
+                  airport: flight.arrivalAirport,
+                  time: flight.arrivalTime,
+                  date: arrivalDate.toISOString().split('T')[0]
+                },
+                duration: flight.duration,
+                price: flight.price,
+                class: flight.class as any || 'Economy',
+                stops: flight.stops,
+                amenities: flight.amenities || ['WiFi', 'Meals'],
+                baggage: flight.baggage || '23kg included'
+              };
+            }));
           }
         }
       } catch (error) {
