@@ -268,6 +268,157 @@ Please create a detailed itinerary with flight options, accommodations, activiti
     }
   };
 
+  const handleCreateReport = () => {
+    // Generate comprehensive travel report from conversation history
+    const generateTravelReport = () => {
+      const reportSections = [];
+      
+      // Header
+      reportSections.push("# Travel Planning Report");
+      reportSections.push(`*Generated on ${new Date().toLocaleDateString()}*\n`);
+      
+      // Travel Details Summary
+      if (savedTravelDetails) {
+        reportSections.push("## Travel Details");
+        reportSections.push(`**Destination:** ${savedTravelDetails.destination}`);
+        reportSections.push(`**Departure from:** ${savedTravelDetails.source}`);
+        const duration = savedTravelDetails.returnDate && savedTravelDetails.departureDate 
+          ? Math.ceil((new Date(savedTravelDetails.returnDate).getTime() - new Date(savedTravelDetails.departureDate).getTime()) / (1000 * 60 * 60 * 24))
+          : 'N/A';
+        reportSections.push(`**Duration:** ${duration} days`);
+        reportSections.push(`**Budget:** $${savedTravelDetails.budget}`);
+        reportSections.push(`**Travelers:** ${savedTravelDetails.travelers}`);
+        if (savedTravelDetails.departureDate) {
+          reportSections.push(`**Departure Date:** ${savedTravelDetails.departureDate}`);
+        }
+        if (savedTravelDetails.returnDate) {
+          reportSections.push(`**Return Date:** ${savedTravelDetails.returnDate}`);
+        }
+        reportSections.push("");
+      }
+      
+      // Conversation Summary
+      reportSections.push("## Conversation Summary");
+      messages.forEach((message, index) => {
+        if (message.role === 'user') {
+          reportSections.push(`**You:** ${message.content}`);
+        } else {
+          // Clean AI response and extract key information
+          const cleanContent = message.content
+            .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold formatting
+            .replace(/\*(.*?)\*/g, '$1') // Remove italic formatting
+            .replace(/#{1,6}\s/g, '') // Remove markdown headers
+            .split('\n')
+            .filter(line => line.trim() && !line.includes('Flight Options') && !line.includes('Interactive Daily Activities'))
+            .join('\n');
+          
+          if (cleanContent.trim()) {
+            reportSections.push(`**WanderNotes:** ${cleanContent}`);
+          }
+        }
+        reportSections.push("");
+      });
+      
+      // Travel Plan Summary (if available)
+      if (travelPlan && typeof travelPlan === 'object') {
+        const plan = travelPlan as TravelPlan;
+        reportSections.push("## Travel Plan Overview");
+        reportSections.push(`**Destination:** ${plan.destination}`);
+        reportSections.push(`**Duration:** ${plan.duration} days`);
+        reportSections.push(`**Budget:** $${plan.budget}`);
+        reportSections.push("");
+        
+        if (plan.days && Array.isArray(plan.days)) {
+          reportSections.push("### Daily Itinerary");
+          plan.days.forEach((day: any, index: number) => {
+            reportSections.push(`**Day ${index + 1}:**`);
+            if (day.activities && Array.isArray(day.activities)) {
+              day.activities.forEach((activity: string) => {
+                reportSections.push(`- ${activity}`);
+              });
+            }
+            reportSections.push("");
+          });
+        }
+        
+        if (plan.budgetBreakdown) {
+          reportSections.push("### Budget Breakdown");
+          Object.entries(plan.budgetBreakdown).forEach(([category, amount]) => {
+            reportSections.push(`- ${category}: $${amount}`);
+          });
+          reportSections.push("");
+        }
+      }
+      
+      // Weather Information (if available)
+      if (weatherData) {
+        reportSections.push("## Weather Forecast");
+        reportSections.push(`**Current:** ${weatherData.current?.condition || 'N/A'}`);
+        reportSections.push(`**Temperature:** ${weatherData.current?.temperature || 'N/A'}`);
+        if (weatherData.forecast && Array.isArray(weatherData.forecast)) {
+          reportSections.push("### 5-Day Forecast:");
+          weatherData.forecast.slice(0, 5).forEach((day: any) => {
+            reportSections.push(`- ${day.date}: ${day.condition}, High: ${day.high}°, Low: ${day.low}°`);
+          });
+        }
+        reportSections.push("");
+      }
+      
+      // Attractions (if available)
+      if (attractionsData && Array.isArray(attractionsData)) {
+        reportSections.push("## Recommended Attractions");
+        attractionsData.slice(0, 10).forEach((attraction: any) => {
+          reportSections.push(`### ${attraction.name}`);
+          if (attraction.description) {
+            reportSections.push(attraction.description);
+          }
+          if (attraction.rating) {
+            reportSections.push(`**Rating:** ${attraction.rating}/5`);
+          }
+          reportSections.push("");
+        });
+      }
+      
+      // Flight Information (if available)
+      if (flightRecommendations && Array.isArray(flightRecommendations)) {
+        reportSections.push("## Flight Recommendations");
+        flightRecommendations.slice(0, 5).forEach((flight: any) => {
+          reportSections.push(`### ${flight.airline} ${flight.flightNumber}`);
+          reportSections.push(`**Route:** ${flight.departureCity} (${flight.departureAirport}) → ${flight.arrivalCity} (${flight.arrivalAirport})`);
+          reportSections.push(`**Departure:** ${flight.departureTime}`);
+          reportSections.push(`**Arrival:** ${flight.arrivalTime}`);
+          reportSections.push(`**Duration:** ${flight.duration}`);
+          reportSections.push(`**Price:** $${flight.price} ${flight.currency}`);
+          reportSections.push(`**Stops:** ${flight.stops === 0 ? 'Direct' : flight.stops + ' stop(s)'}`);
+          reportSections.push("");
+        });
+      }
+      
+      // Footer
+      reportSections.push("---");
+      reportSections.push("*Report generated by WanderNotes Travel Concierge*");
+      
+      return reportSections.join('\n');
+    };
+    
+    // Generate and download the report
+    const reportContent = generateTravelReport();
+    const blob = new Blob([reportContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `travel-report-${savedTravelDetails?.destination?.replace(/\s+/g, '-').toLowerCase() || 'plan'}-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Report Generated",
+      description: "Your comprehensive travel report has been downloaded as a Markdown file.",
+    });
+  };
+
   // Create a reference to store the speech recognition instance
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
@@ -525,6 +676,26 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                     </svg>
                     Modify Plan
                   </button>
+                  <button
+                    onClick={handleCreateReport}
+                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md text-sm flex items-center transition"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    Create Report
+                  </button>
                 </div>
               </div>
             </div>
@@ -612,9 +783,9 @@ Please create a detailed itinerary with flight options, accommodations, activiti
             </button>
           </div>
 
-          {/* Plan Trip Button - Below Input */}
-          {showInlineTravelForm && (
-            <div className="mt-3 text-center">
+          {/* Action Buttons - Below Input */}
+          <div className="mt-3 flex justify-center gap-3">
+            {showInlineTravelForm && (
               <Button
                 type="button"
                 onClick={handlePlanTripClick}
@@ -637,8 +808,34 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                 </svg>
                 Plan a Trip
               </Button>
-            </div>
-          )}
+            )}
+            
+            {/* Create Report Button - Show when there's conversation history */}
+            {messages.length > 1 && (
+              <Button
+                type="button"
+                onClick={handleCreateReport}
+                variant="outline"
+                className="text-sm px-4 py-2 bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                Create Report
+              </Button>
+            )}
+          </div>
         </form>
       </div>
     </div>
