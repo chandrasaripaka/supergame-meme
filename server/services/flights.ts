@@ -159,7 +159,6 @@ function getAirportCode(cityName: string): string {
 
   // Try exact match first
   if (airportCodes[cleanCityName]) {
-    console.log(`Found exact match: ${cleanCityName} -> ${airportCodes[cleanCityName]}`);
     return airportCodes[cleanCityName];
   }
 
@@ -167,7 +166,6 @@ function getAirportCode(cityName: string): string {
   const lowerCityName = cleanCityName.toLowerCase();
   for (const [city, code] of Object.entries(airportCodes)) {
     if (city.toLowerCase() === lowerCityName) {
-      console.log(`Found case-insensitive match: ${cleanCityName} -> ${code}`);
       return code;
     }
   }
@@ -175,13 +173,9 @@ function getAirportCode(cityName: string): string {
   // Try partial matches
   for (const [city, code] of Object.entries(airportCodes)) {
     if (lowerCityName.includes(city.toLowerCase()) || city.toLowerCase().includes(lowerCityName)) {
-      console.log(`Found partial match: ${cleanCityName} -> ${code}`);
       return code;
     }
   }
-
-  // Log unmatched cities for debugging
-  console.log(`Airport code not found for: "${cityName}"`);
 
   // Default fallback to JFK for unknown cities
   return 'JFK';
