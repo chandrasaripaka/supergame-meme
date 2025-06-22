@@ -20,7 +20,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Welcome to WanderNotes! I'm your AI Travel Concierge. To provide you with the most personalized travel recommendations, I'll need to collect your travel details first. Please fill out the travel form above to get started with your planning.",
+      content: "Welcome! I'm your AI Travel Concierge. To provide you with the most personalized travel recommendations, I'll need to collect your travel details first. Please fill out the travel form above to get started with your planning.",
       modelInfo: {
         provider: "system",
         model: "dynamic-llm-router",
@@ -388,12 +388,7 @@ Let me create a personalized itinerary for you!`;
                 )}
               </svg>
             </button>
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </div>
-            <h1 className="text-xl font-semibold text-gray-900">WanderNotes</h1>
+
           </div>
           
           <div className="flex items-center space-x-4">
