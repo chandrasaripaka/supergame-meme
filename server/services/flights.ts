@@ -37,6 +37,7 @@ function getAirportCode(cityName: string): string {
   }
 
   const airportCodes: { [key: string]: string } = {
+    // Major US Cities
     'New York': 'JFK',
     'New York City': 'JFK',
     'NYC': 'JFK',
@@ -49,19 +50,14 @@ function getAirportCode(cityName: string): string {
     'Las Vegas': 'LAS',
     'Orlando': 'MCO',
     'Phoenix': 'PHX',
+    'Denver': 'DEN',
+    'Atlanta': 'ATL',
+    'Dallas': 'DFW',
+    'Houston': 'IAH',
+    
+    // Europe
     'London': 'LHR',
     'Paris': 'CDG',
-    'Tokyo': 'NRT',
-    'Tokyo, Japan': 'NRT',
-    'Dubai': 'DXB',
-    'Singapore': 'SIN',
-    'Bangkok': 'BKK',
-    'Seoul': 'ICN',
-    'Hong Kong': 'HKG',
-    'Sydney': 'SYD',
-    'Melbourne': 'MEL',
-    'Mumbai': 'BOM',
-    'Delhi': 'DEL',
     'Frankfurt': 'FRA',
     'Amsterdam': 'AMS',
     'Zurich': 'ZUR',
@@ -71,23 +67,121 @@ function getAirportCode(cityName: string): string {
     'Madrid': 'MAD',
     'Barcelona': 'BCN',
     'Vienna': 'VIE',
-    'Brussels': 'BRU'
+    'Brussels': 'BRU',
+    'Munich': 'MUC',
+    'Copenhagen': 'CPH',
+    'Stockholm': 'ARN',
+    'Oslo': 'OSL',
+    'Helsinki': 'HEL',
+    
+    // Asia Pacific
+    'Tokyo': 'NRT',
+    'Tokyo, Japan': 'NRT',
+    'Singapore': 'SIN',
+    'SG': 'SIN',
+    'Singapore, Singapore': 'SIN',
+    'Hong Kong': 'HKG',
+    'HK': 'HKG',
+    'Hong Kong, Hong Kong': 'HKG',
+    'Bangkok': 'BKK',
+    'Seoul': 'ICN',
+    'Sydney': 'SYD',
+    'Melbourne': 'MEL',
+    'Mumbai': 'BOM',
+    'Delhi': 'DEL',
+    'Dubai': 'DXB',
+    'Doha': 'DOH',
+    'Beijing': 'PEK',
+    'Shanghai': 'PVG',
+    'Guangzhou': 'CAN',
+    'Shenzhen': 'SZX',
+    'Taipei': 'TPE',
+    'Manila': 'MNL',
+    'Jakarta': 'CGK',
+    'Kuala Lumpur': 'KUL',
+    'Ho Chi Minh City': 'SGN',
+    'Hanoi': 'HAN',
+    'Phnom Penh': 'PNH',
+    'Yangon': 'RGN',
+    'Colombo': 'CMB',
+    'Kathmandu': 'KTM',
+    'Dhaka': 'DAC',
+    'Karachi': 'KHI',
+    'Lahore': 'LHE',
+    'Islamabad': 'ISB',
+    
+    // Australia & New Zealand
+    'Brisbane': 'BNE',
+    'Perth': 'PER',
+    'Adelaide': 'ADL',
+    'Auckland': 'AKL',
+    'Wellington': 'WLG',
+    'Christchurch': 'CHC',
+    
+    // Middle East & Africa
+    'Cairo': 'CAI',
+    'Casablanca': 'CMN',
+    'Johannesburg': 'JNB',
+    'Cape Town': 'CPT',
+    'Nairobi': 'NBO',
+    'Addis Ababa': 'ADD',
+    'Lagos': 'LOS',
+    'Accra': 'ACC',
+    'Tel Aviv': 'TLV',
+    'Riyadh': 'RUH',
+    'Jeddah': 'JED',
+    'Kuwait City': 'KWI',
+    'Abu Dhabi': 'AUH',
+    'Muscat': 'MCT',
+    'Bahrain': 'BAH',
+    
+    // South America
+    'São Paulo': 'GRU',
+    'Rio de Janeiro': 'GIG',
+    'Buenos Aires': 'EZE',
+    'Lima': 'LIM',
+    'Bogotá': 'BOG',
+    'Santiago': 'SCL',
+    'Caracas': 'CCS',
+    'Quito': 'UIO',
+    'La Paz': 'LPB',
+    
+    // Canada
+    'Toronto': 'YYZ',
+    'Vancouver': 'YVR',
+    'Montreal': 'YUL',
+    'Calgary': 'YYC',
+    'Ottawa': 'YOW'
   };
 
-  // Clean city name
+  // Clean city name and normalize
   const cleanCityName = cityName.trim();
 
   // Try exact match first
   if (airportCodes[cleanCityName]) {
+    console.log(`Found exact match: ${cleanCityName} -> ${airportCodes[cleanCityName]}`);
     return airportCodes[cleanCityName];
+  }
+
+  // Try case-insensitive exact match
+  const lowerCityName = cleanCityName.toLowerCase();
+  for (const [city, code] of Object.entries(airportCodes)) {
+    if (city.toLowerCase() === lowerCityName) {
+      console.log(`Found case-insensitive match: ${cleanCityName} -> ${code}`);
+      return code;
+    }
   }
 
   // Try partial matches
   for (const [city, code] of Object.entries(airportCodes)) {
-    if (cleanCityName.toLowerCase().includes(city.toLowerCase()) || city.toLowerCase().includes(cleanCityName.toLowerCase())) {
+    if (lowerCityName.includes(city.toLowerCase()) || city.toLowerCase().includes(lowerCityName)) {
+      console.log(`Found partial match: ${cleanCityName} -> ${code}`);
       return code;
     }
   }
+
+  // Log unmatched cities for debugging
+  console.log(`Airport code not found for: "${cityName}"`);
 
   // Default fallback to JFK for unknown cities
   return 'JFK';
