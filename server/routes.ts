@@ -1554,6 +1554,142 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Subscription management routes
+  app.get(`${apiPrefix}/subscriptions`, isAuthenticated, async (req, res) => {
+    try {
+      const userSubscriptions = await db.query.subscriptions.findMany({
+        where: eq(subscriptions.userId, req.user!.id),
+        orderBy: desc(subscriptions.createdAt)
+      });
+      return res.status(200).json(userSubscriptions);
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.post(`${apiPrefix}/subscriptions`, isAuthenticated, async (req, res) => {
+    try {
+      const planPrices = {
+        explorer: "9.99",
+        wanderer: "19.99", 
+        travel_pro: "49.99"
+      };
+      
+      const planFeatures = {
+        explorer: ["Up to 3 trips per month", "Basic AI recommendations", "Standard itinerary templates", "Email support", "Mobile app access"],
+        wanderer: ["Unlimited trips", "Advanced AI personalization", "Premium editorial content", "Real-time booking assistance", "Priority support", "Bill sharing with companions", "Custom itinerary export", "Weather & safety alerts"],
+        travel_pro: ["Everything in Wanderer", "Team collaboration tools", "White-label options", "API access", "Dedicated account manager", "Advanced analytics", "Custom integrations", "SLA guarantee"]
+      };
+
+      const subscriptionData = {
+        userId: req.user!.id,
+        planType: req.body.planType,
+        status: "active" as const,
+        pricePerMonth: planPrices[req.body.planType as keyof typeof planPrices],
+        features: planFeatures[req.body.planType as keyof typeof planFeatures],
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+      };
+
+      const validatedData = insertSubscriptionSchema.parse(subscriptionData);
+      const [newSubscription] = await db.insert(subscriptions).values(validatedData).returning();
+      return res.status(201).json(newSubscription);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error creating subscription:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.patch(`${apiPrefix}/subscriptions/:id`, isAuthenticated, async (req, res) => {
+    try {
+      const subscriptionId = parseInt(req.params.id);
+      const [updatedSubscription] = await db
+        .update(subscriptions)
+        .set({ 
+          status: req.body.status,
+          updatedAt: new Date()
+        })
+        .where(and(
+          eq(subscriptions.id, subscriptionId),
+          eq(subscriptions.userId, req.user!.id)
+        ))
+        .returning();
+
+      if (!updatedSubscription) {
+        return res.status(404).json({ error: 'Subscription not found' });
+      }
+
+      return res.status(200).json(updatedSubscription);
+    } catch (error) {
+      console.error('Error updating subscription:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.get(`${apiPrefix}/subscription-plans`, async (req, res) => {
+    try {
+      const plans = {
+        explorer: {
+          name: "Explorer",
+          price: "$9.99",
+          period: "per month",
+          description: "Perfect for occasional travelers",
+          features: [
+            "Up to 3 trips per month",
+            "Basic AI recommendations", 
+            "Standard itinerary templates",
+            "Email support",
+            "Mobile app access"
+          ]
+        },
+        wanderer: {
+          name: "Wanderer", 
+          price: "$19.99",
+          period: "per month",
+          description: "Ideal for frequent travelers",
+          features: [
+            "Unlimited trips",
+            "Advanced AI personalization",
+            "Premium editorial content", 
+            "Real-time booking assistance",
+            "Priority support",
+            "Bill sharing with companions",
+            "Custom itinerary export",
+            "Weather & safety alerts"
+          ]
+        },
+        travel_pro: {
+          name: "Travel Pro",
+          price: "$49.99", 
+          period: "per month",
+          description: "For travel professionals & agencies",
+          features: [
+            "Everything in Wanderer",
+            "Team collaboration tools",
+            "White-label options",
+            "API access", 
+            "Dedicated account manager",
+            "Advanced analytics",
+            "Custom integrations",
+            "SLA guarantee"
+          ]
+        }
+      };
+      return res.status(200).json(plans);
+    } catch (error) {
+      console.error('Error fetching subscription plans:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Register all routes with authentication middleware
+  authRoutes(app);
+  localAuthRoutes(app);
+  bookingChatRoutes(app);
+
   const httpServer = createServer(app);
   return httpServer;
 }

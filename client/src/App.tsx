@@ -25,15 +25,14 @@ import { AppFooter } from "@/components/AppFooter";
 function Router() {
   const [location] = useLocation();
   
-  // Don't show header/footer on login page or landing page
+  // Don't show header/footer on login page, but show them on landing page
   const isLoginPage = location === '/login';
-  const isLandingPage = location === '/';
   
   return (
     <div className="min-h-screen flex flex-col">
-      {!isLoginPage && !isLandingPage && <AppHeader />}
+      {!isLoginPage && <AppHeader />}
       
-      <main className={`flex-1 w-full ${!isLoginPage && !isLandingPage ? 'pt-0' : ''}`}>
+      <main className={`flex-1 w-full ${!isLoginPage ? 'pt-0' : ''}`}>
         <Switch>
           <Route path="/" component={LandingPage} />
           <Route path="/home" component={Home} />
@@ -53,7 +52,7 @@ function Router() {
         </Switch>
       </main>
       
-      {!isLoginPage && !isLandingPage && <AppFooter />}
+      {!isLoginPage && <AppFooter />}
     </div>
   );
 }

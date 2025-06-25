@@ -1,0 +1,68 @@
+# WanderNotes - AI Travel Concierge
+
+## Overview
+WanderNotes is an AI-powered travel planning platform featuring conversational AI interface with Google OAuth authentication, personalized travel experiences through multiple AI models, travel memory scrapbook creator, and comprehensive travel planning with interactive flight selection and day-wise activity customization.
+
+## Recent Changes
+- **2025-06-25**: Created comprehensive landing page based on executive summary document
+- **2025-06-25**: Implemented subscription model with three tiers (Explorer, Wanderer, Travel Pro)
+- **2025-06-25**: Added backend API routes for subscription management
+- **2025-06-25**: Removed WanderNotes branding from home page header only (kept in App Header/Footer)
+- **2025-06-25**: Completed "Create Report" functionality with downloadable Markdown reports
+- **2025-06-25**: Fixed flight card display issues with comprehensive IATA code database
+- **2025-06-25**: Implemented proper airport code mapping and accurate date calculations
+
+## Project Architecture
+
+### Frontend (React + TypeScript)
+- **Landing Page**: Professional marketing page with subscription model integration
+- **Home Page**: Main travel planning interface with AI chat
+- **Authentication**: Google OAuth + local auth with session management
+- **Travel Planning**: Interactive forms with flight selector and itinerary builder
+- **Scrapbook**: Travel memory creation and management system
+- **Subscription Management**: Three-tier pricing model with feature restrictions
+
+### Backend (Express + Node.js)
+- **API Routes**: RESTful endpoints for all features including subscriptions
+- **AI Integration**: Multiple LLM providers (OpenAI, Gemini) with dynamic routing
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: Passport.js with Google OAuth2 and local strategies
+- **External APIs**: Google Maps, Weather, Flight data integration
+
+### Database Schema
+- Users with Google OAuth support
+- Chat sessions and messages
+- Travel trips and itineraries  
+- Subscriptions with plan types and features
+- Scrapbooks and travel memories
+- Hotels and attractions data
+
+### Key Features
+1. **AI Travel Concierge**: Multi-model AI chat for travel planning
+2. **Flight Search**: Real-time flight data with fallback generation
+3. **Interactive Itinerary**: Day-wise activity customization
+4. **Travel Reports**: Downloadable comprehensive trip summaries
+5. **Subscription Model**: Explorer ($9.99), Wanderer ($19.99), Travel Pro ($49.99)
+6. **Memory Scrapbook**: Visual travel memory creation and sharing
+7. **Safety Alerts**: Destination safety information integration
+
+## User Preferences
+- Clean, minimal UI design inspired by Perplexity.ai
+- Professional branding positioned as "Notion + ChatGPT of travel"
+- Collapsible sidebar for better space utilization
+- Real-time data preferred over placeholder content
+- Mobile-responsive design throughout
+
+## Technical Decisions
+- **Routing**: Wouter for client-side routing
+- **State Management**: TanStack Query for server state
+- **UI Framework**: shadcn/ui components with Tailwind CSS
+- **Database**: PostgreSQL with Drizzle ORM (no migrations, direct schema push)
+- **AI Models**: Dynamic LLM routing between OpenAI and Gemini
+- **Authentication**: Session-based with Google OAuth integration
+
+## Deployment
+- Configured for Replit deployment
+- Environment variables managed through Replit secrets
+- Auto-restart workflow on code changes
+- No Docker/virtualization (uses Nix environment)

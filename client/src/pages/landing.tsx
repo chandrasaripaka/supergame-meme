@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Check, Star, Globe, Brain, Heart, Map, Users, BookOpen, Zap, Shield } from 'lucide-react';
 
 export default function LandingPage() {
-  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'premium' | 'enterprise'>('premium');
+  const [selectedPlan, setSelectedPlan] = useState<'explorer' | 'wanderer' | 'travel_pro'>('wanderer');
 
   const features = [
     {
@@ -43,7 +43,7 @@ export default function LandingPage() {
   ];
 
   const pricingPlans = {
-    basic: {
+    explorer: {
       name: "Explorer",
       price: "$9.99",
       period: "per month",
@@ -57,7 +57,7 @@ export default function LandingPage() {
       ],
       highlight: false
     },
-    premium: {
+    wanderer: {
       name: "Wanderer",
       price: "$19.99",
       period: "per month",
@@ -74,7 +74,7 @@ export default function LandingPage() {
       ],
       highlight: true
     },
-    enterprise: {
+    travel_pro: {
       name: "Travel Pro",
       price: "$49.99",
       period: "per month",
@@ -91,6 +91,12 @@ export default function LandingPage() {
       ],
       highlight: false
     }
+  };
+
+  const handleSubscription = (planType: string) => {
+    // Store selected plan and redirect to registration/login
+    localStorage.setItem('selectedPlan', planType);
+    window.location.href = '/login';
   };
 
   return (
@@ -289,11 +295,11 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <Tabs defaultValue="premium" className="max-w-6xl mx-auto">
+          <Tabs defaultValue="wanderer" className="max-w-6xl mx-auto">
             <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="basic">Explorer</TabsTrigger>
-              <TabsTrigger value="premium">Wanderer</TabsTrigger>
-              <TabsTrigger value="enterprise">Travel Pro</TabsTrigger>
+              <TabsTrigger value="explorer">Explorer</TabsTrigger>
+              <TabsTrigger value="wanderer">Wanderer</TabsTrigger>
+              <TabsTrigger value="travel_pro">Travel Pro</TabsTrigger>
             </TabsList>
 
             {Object.entries(pricingPlans).map(([key, plan]) => (
@@ -324,6 +330,7 @@ export default function LandingPage() {
                     <Button 
                       className={`w-full ${plan.highlight ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
                       variant={plan.highlight ? 'default' : 'outline'}
+                      onClick={() => handleSubscription(key)}
                     >
                       Get Started with {plan.name}
                     </Button>
