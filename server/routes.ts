@@ -1686,9 +1686,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Register all routes with authentication middleware
-  authRoutes(app);
-  localAuthRoutes(app);
-  bookingChatRoutes(app);
+  app.use('/auth', authRoutes);
+  app.use('/auth/local', localAuthRoutes);
+  app.use('/api/booking', bookingChatRoutes);
 
   const httpServer = createServer(app);
   return httpServer;
