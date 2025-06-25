@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChatInterface } from './ChatInterface';
 import { InteractiveItinerary } from './InteractiveItinerary';
+import { SubscriptionSelector } from './SubscriptionSelector';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,7 @@ export function TravelPlannerInterface({
   const [activeTab, setActiveTab] = useState<'chat' | 'itinerary'>('chat');
   const [chatHistoryCollapsed, setChatHistoryCollapsed] = useState(false);
   const [showChatHistory, setShowChatHistory] = useState(false);
+  const [showSubscriptionSelector, setShowSubscriptionSelector] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
 
   // Fetch chat sessions for history
@@ -297,7 +299,7 @@ export function TravelPlannerInterface({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 min-w-0 h-full"
+      <div className="flex-1 min-w-0 h-full">
         <div className="h-full flex flex-col">
           {/* Travel Context Header - Mobile Responsive */}
           {travelContext && (
@@ -342,6 +344,20 @@ export function TravelPlannerInterface({
                   <span className="sm:hidden">Planner</span>
                 </TabsTrigger>
               </TabsList>
+              
+              {/* Subscription prompt for enhanced features */}
+              {travelContext && (
+                <div className="mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSubscriptionSelector(true)}
+                    className="text-xs"
+                  >
+                    Upgrade for Enhanced Planning
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Chat Tab */}
@@ -394,6 +410,37 @@ export function TravelPlannerInterface({
           </Tabs>
         </div>
       </div>
+
+      {/* Subscription Selector Modal */}
+      {showSubscriptionSelector && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 md:p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900">Choose Your Plan</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowSubscriptionSelector(false)}
+                  className="h-8 w-8 p-0"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </Button>
+              </div>
+            </div>
+            
+            <SubscriptionSelector
+              onPlanSelect={(planId) => {
+                setShowSubscriptionSelector(false);
+                // Handle plan selection
+              }}
+              showTravelContext={true}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
