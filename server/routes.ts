@@ -10,11 +10,13 @@ import {
   chatMessages,
   scrapbooks,
   travelMemories,
+  subscriptions,
   insertUserSchema, 
   insertTripSchema, 
   insertMessageSchema,
   insertScrapbookSchema,
-  insertTravelMemorySchema
+  insertTravelMemorySchema,
+  insertSubscriptionSchema
 } from "@shared/schema";
 import { eq, and, desc, asc } from "drizzle-orm";
 import { z } from "zod";

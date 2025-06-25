@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -201,12 +201,39 @@ export const insertTravelMemorySchema = createInsertSchema(travelMemories).pick(
   scrapbookId: true,
 });
 
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  planType: text("plan_type", { enum: ["explorer", "wanderer", "travel_pro"] }).notNull(),
+  status: text("status", { enum: ["active", "inactive", "cancelled", "expired"] }).notNull().default("active"),
+  startDate: timestamp("start_date").defaultNow().notNull(),
+  endDate: timestamp("end_date"),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  pricePerMonth: decimal("price_per_month", { precision: 10, scale: 2 }).notNull(),
+  features: text("features").array(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull()
+});
+
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).pick({
+  userId: true,
+  planType: true,
+  status: true,
+  endDate: true,
+  stripeCustomerId: true,
+  stripeSubscriptionId: true,
+  pricePerMonth: true,
+  features: true
+});
+
 // Define relations
 export const userRelations = relations(users, ({ many }) => ({
   trips: many(trips),
   messages: many(messages),
   chatSessions: many(chatSessions),
   scrapbooks: many(scrapbooks),
+  subscriptions: many(subscriptions),
 }));
 
 export const chatSessionRelations = relations(chatSessions, ({ one, many }) => ({
@@ -267,6 +294,13 @@ export const travelMemoryRelations = relations(travelMemories, ({ one }) => ({
   }),
 }));
 
+export const subscriptionRelations = relations(subscriptions, ({ one }) => ({
+  user: one(users, {
+    fields: [subscriptions.userId],
+    references: [users.id],
+  }),
+}));
+
 // Types
 export type User = typeof users.$inferSelect;
 export type ChatSession = typeof chatSessions.$inferSelect;
@@ -277,6 +311,7 @@ export type Message = typeof messages.$inferSelect;
 export type Hotel = typeof hotels.$inferSelect;
 export type Scrapbook = typeof scrapbooks.$inferSelect;
 export type TravelMemory = typeof travelMemories.$inferSelect;
+export type Subscription = typeof subscriptions.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
@@ -287,3 +322,4 @@ export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
 export type InsertScrapbook = z.infer<typeof insertScrapbookSchema>;
 export type InsertTravelMemory = z.infer<typeof insertTravelMemorySchema>;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
