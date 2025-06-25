@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, Star, Globe, Brain, Heart, Map, Users, BookOpen, Zap, Shield } from 'lucide-react';
+import { Check, Star, Globe, Brain, Heart, Map, Users, BookOpen, Zap, Shield, MessageCircle } from 'lucide-react';
 
 export default function LandingPage() {
   const [selectedPlan, setSelectedPlan] = useState<'explorer' | 'wanderer' | 'travel_pro'>('wanderer');
@@ -448,7 +448,8 @@ export default function LandingPage() {
               reach@wander-notes.com
             </a>
             <span className="hidden sm:inline text-gray-600">•</span>
-            <a href="https://wa.me/6589505706" className="text-blue-400 hover:text-blue-300">
+            <a href="https://wa.me/6589505706" className="text-blue-400 hover:text-blue-300 flex items-center gap-2">
+              <MessageCircle size={18} />
               WhatsApp Connect
             </a>
           </div>
