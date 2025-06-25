@@ -13,6 +13,7 @@ import { User } from '@shared/schema';
 export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showTravelForm, setShowTravelForm] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [travelContext, setTravelContext] = useState<any>(null);
   const [savedTravelDetails, setSavedTravelDetails] = useState<any>(null);
   const [requireTravelDetails, setRequireTravelDetails] = useState(true);
@@ -408,10 +409,10 @@ Let me create a personalized itinerary for you!`;
         </div>
       </header>
 
-      {/* Main Layout with Sidebar */}
+      {/* Main Layout with Sidebar - Mobile Responsive */}
       <div className="flex min-h-[calc(100vh-73px)]">
-        {/* Left Sidebar - Vertical Accordion Menu */}
-        <aside className={`${sidebarCollapsed ? 'w-16' : 'w-80'} bg-white border-r border-gray-200 flex-shrink-0 transition-all duration-300 overflow-hidden`}>
+        {/* Left Sidebar - Vertical Accordion Menu - Hidden on mobile */}
+        <aside className={`${sidebarCollapsed ? 'w-16' : 'w-80'} bg-white border-r border-gray-200 flex-shrink-0 transition-all duration-300 overflow-hidden hidden md:block`}>
           <div className={`${sidebarCollapsed ? 'p-2' : 'p-4'} space-y-2`}>
             {/* Travel Topics Accordion */}
             {sidebarCollapsed ? (
@@ -662,12 +663,93 @@ Let me create a personalized itinerary for you!`;
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col">
+        <main className="flex-1 flex flex-col min-w-0">
+          {/* Mobile Menu Button */}
+          <div className="md:hidden p-4 border-b bg-white">
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <span className="font-medium">Menu</span>
+            </button>
+          </div>
+
+          {/* Mobile Sidebar Overlay */}
+          {showMobileMenu && (
+            <div className="fixed inset-0 z-50 md:hidden">
+              <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setShowMobileMenu(false)} />
+              <div className="fixed left-0 top-0 h-full w-80 bg-white shadow-lg overflow-y-auto">
+                <div className="p-4 border-b">
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-semibold text-lg">Menu</h2>
+                    <button
+                      onClick={() => setShowMobileMenu(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {/* Mobile menu content - copy sidebar content here */}
+                <div className="p-4 space-y-2">
+                  {/* Travel Topics for Mobile */}
+                  <details className="group">
+                    <summary className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors list-none">
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="font-medium text-gray-900">Travel Topics</span>
+                      </div>
+                      <svg className="w-4 h-4 text-gray-500 group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </summary>
+                    <div className="mt-2 ml-8 space-y-2">
+                      <button 
+                        onClick={() => {
+                          handleSendMessage("Tell me about destination research and how to choose the best places to visit");
+                          setShowMobileMenu(false);
+                        }}
+                        className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      >
+                        Destination Research
+                      </button>
+                      <button 
+                        onClick={() => {
+                          handleSendMessage("Help me plan my travel budget and find ways to save money");
+                          setShowMobileMenu(false);
+                        }}
+                        className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      >
+                        Budget Planning
+                      </button>
+                      <button 
+                        onClick={() => {
+                          handleSendMessage("What should I know about travel safety and health precautions?");
+                          setShowMobileMenu(false);
+                        }}
+                        className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      >
+                        Safety & Health
+                      </button>
+                    </div>
+                  </details>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Chat Interface - At the top after header */}
-          <div className="flex-1">
+          <div className="flex-1 min-h-0">
             {/* Show travel form if details are required */}
             {(showTravelForm || (requireTravelDetails && !savedTravelDetails)) && (
-              <div className="p-6 border-b">
+              <div className="p-4 md:p-6 border-b">
                 <TravelForm 
                   onSubmit={handleTravelFormSubmit} 
                   onClose={() => setShowTravelForm(false)}
