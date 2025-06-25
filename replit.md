@@ -12,6 +12,7 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-06-25**: Fixed flight card display issues with comprehensive IATA code database
 - **2025-06-25**: Implemented proper airport code mapping and accurate date calculations
 - **2025-06-25**: Changed "Phone Number" to "WhatsApp Connect" with icon and pre-filled message in landing page footer
+- **2025-06-25**: Integrated chat history with travel planner in unified interface with resizable panels
 
 ## Project Architecture
 

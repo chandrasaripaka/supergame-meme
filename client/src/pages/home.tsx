@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WelcomeCard } from '@/components/WelcomeCard';
 import { ChatInterface } from '@/components/ChatInterface';
+import { TravelPlannerInterface } from '@/components/TravelPlannerInterface';
 import { TravelQuickForm, BudgetBreakdown, DestinationSuggestions, TravelForm } from '@/components/TravelFormComponents';
 import { Message } from '@/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -663,42 +664,10 @@ Let me create a personalized itinerary for you!`;
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col">
           {/* Chat Interface - At the top after header */}
-          <div className="flex-1 p-6">
-            {/* Travel Context Display */}
-            {travelContext && (
-              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-blue-900">Current Travel Context</h3>
-                  <button
-                    onClick={() => {
-                      setTravelContext(null);
-                      setSavedTravelDetails(null);
-                      localStorage.removeItem('savedTravelDetails');
-                      // Keep chat history intact - only reset travel context
-                      toast({
-                        title: "Travel context cleared",
-                        description: "Travel context has been reset. Chat history is preserved. You can now enter new travel details.",
-                      });
-                    }}
-                    className="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
-                    title="Clear travel context"
-                  >
-                    Reset Context
-                  </button>
-                </div>
-                <div className="text-sm text-blue-800">
-                  <p><strong>From:</strong> {travelContext.from}</p>
-                  <p><strong>To:</strong> {travelContext.destination}</p>
-                  <p><strong>Duration:</strong> {travelContext.duration} days</p>
-                  <p><strong>Budget:</strong> ${travelContext.budget}</p>
-                  <p><strong>Travelers:</strong> {travelContext.travelers}</p>
-                </div>
-              </div>
-            )}
-
+          <div className="flex-1">
             {/* Show travel form if details are required */}
             {(showTravelForm || (requireTravelDetails && !savedTravelDetails)) && (
-              <div className="mb-6">
+              <div className="p-6 border-b">
                 <TravelForm 
                   onSubmit={handleTravelFormSubmit} 
                   onClose={() => setShowTravelForm(false)}
@@ -706,16 +675,19 @@ Let me create a personalized itinerary for you!`;
               </div>
             )}
 
-            {/* Chat Interface */}
-            <ChatInterface
-              messages={messages}
-              onSendMessage={handleSendMessage}
-              onSavePlan={handleSavePlan}
-              onExportPDF={handleExportPDF}
-              onModifyPlan={handleModifyPlan}
-              isLoading={isPending}
-              showFormByDefault={false}
-            />
+            {/* Travel Planner Interface with Chat History - Full Height */}
+            <div className="h-full">
+              <TravelPlannerInterface
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                onSavePlan={handleSavePlan}
+                onExportPDF={handleExportPDF}
+                onModifyPlan={handleModifyPlan}
+                isLoading={isPending}
+                travelContext={travelContext}
+                currentSessionId={currentSessionId}
+              />
+            </div>
           </div>
         </main>
       </div>
