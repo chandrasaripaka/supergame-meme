@@ -6,6 +6,7 @@ import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/lib/theme";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
+import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
 import ChatHistoryPage from "@/pages/chat-history";
 import PackingListPage from "@/pages/packing-list";
@@ -24,16 +25,18 @@ import { AppFooter } from "@/components/AppFooter";
 function Router() {
   const [location] = useLocation();
   
-  // Don't show header/footer on login page
+  // Don't show header/footer on login page or landing page
   const isLoginPage = location === '/login';
+  const isLandingPage = location === '/';
   
   return (
     <div className="min-h-screen flex flex-col">
-      {!isLoginPage && <AppHeader />}
+      {!isLoginPage && !isLandingPage && <AppHeader />}
       
-      <main className={`flex-1 w-full ${!isLoginPage ? 'pt-0' : ''}`}>
+      <main className={`flex-1 w-full ${!isLoginPage && !isLandingPage ? 'pt-0' : ''}`}>
         <Switch>
-          <Route path="/" component={Home} />
+          <Route path="/" component={LandingPage} />
+          <Route path="/home" component={Home} />
           <Route path="/login" component={LoginPage} />
           <Route path="/chat-history" component={ChatHistoryPage} />
           <Route path="/packing-list" component={PackingListPage} />
@@ -50,7 +53,7 @@ function Router() {
         </Switch>
       </main>
       
-      {!isLoginPage && <AppFooter />}
+      {!isLoginPage && !isLandingPage && <AppFooter />}
     </div>
   );
 }
