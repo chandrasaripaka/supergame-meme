@@ -210,37 +210,37 @@ export function TravelPlannerInterface({
           variant="outline"
           size="sm"
           onClick={() => setShowChatHistory(!showChatHistory)}
-          className="w-full flex items-center gap-2"
+          className="w-full flex items-center gap-2 text-xs"
         >
-          <History size={16} />
-          Chat History
-          {showChatHistory ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          <History size={14} />
+          History
+          {showChatHistory ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </Button>
       </div>
 
-      {/* Chat History Sidebar - Responsive */}
+      {/* Chat History Sidebar - Simplified */}
       <div className={`
         ${showChatHistory ? 'block' : 'hidden'} md:block
-        ${chatHistoryCollapsed ? 'md:w-16' : 'md:w-80'}
-        w-full md:h-full bg-gray-50/50 border-r transition-all duration-300
-        ${showChatHistory ? 'max-h-60 md:max-h-none overflow-y-auto' : ''}
+        ${chatHistoryCollapsed ? 'md:w-12' : 'md:w-64'}
+        w-full md:h-full bg-gray-50 border-r transition-all duration-300
+        ${showChatHistory ? 'max-h-48 md:max-h-none overflow-y-auto' : ''}
       `}>
         <div className="h-full flex flex-col">
-          <div className="p-4 border-b hidden md:block">
+          <div className="p-2 border-b hidden md:block">
             <div className="flex items-center justify-between">
               {!chatHistoryCollapsed && (
-                <h3 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
-                  <History size={16} />
-                  Chat History
+                <h3 className="font-medium text-xs text-gray-600 flex items-center gap-1">
+                  <History size={14} />
+                  History
                 </h3>
               )}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setChatHistoryCollapsed(!chatHistoryCollapsed)}
-                className="h-8 w-8 p-0"
+                className="h-6 w-6 p-0"
               >
-                {chatHistoryCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+                {chatHistoryCollapsed ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
               </Button>
             </div>
           </div>
@@ -301,63 +301,35 @@ export function TravelPlannerInterface({
       {/* Main Content */}
       <div className="flex-1 min-w-0 h-full">
         <div className="h-full flex flex-col">
-          {/* Travel Context Header - Mobile Responsive */}
+          {/* Travel Context Header - Simplified for Mobile */}
           {travelContext && (
-            <div className="border-b bg-white p-2 md:p-4">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
-                <div className="flex items-center gap-2">
-                  <PlaneTakeoff size={20} className="text-blue-600 flex-shrink-0" />
-                  <h2 className="font-semibold text-lg truncate">{travelContext.destination}</h2>
+            <div className="border-b bg-blue-50 p-2 md:p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 min-w-0">
+                  <PlaneTakeoff size={16} className="text-blue-600 flex-shrink-0" />
+                  <h2 className="font-semibold text-sm md:text-lg truncate">{travelContext.destination}</h2>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <Calendar size={14} className="flex-shrink-0" />
-                    <span className="truncate">
-                      {travelContext.departureDate && new Date(travelContext.departureDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users size={14} className="flex-shrink-0" />
-                    <span>{travelContext.travelers} travelers</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <DollarSign size={14} className="flex-shrink-0" />
-                    <span className="truncate">{travelContext.budget}</span>
-                  </div>
+                <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <span className="hidden sm:inline">{travelContext.travelers} travelers</span>
+                  <span className="font-medium text-blue-600">${travelContext.budget}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Tab Navigation - Mobile Responsive */}
+          {/* Tab Navigation - Simplified */}
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'chat' | 'itinerary')} className="flex-1 flex flex-col">
-            <div className="border-b bg-white px-2 md:px-4">
-              <TabsList className="grid w-full max-w-md grid-cols-2">
-                <TabsTrigger value="chat" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm">
-                  <MessageCircle size={14} className="md:w-4 md:h-4" />
-                  <span className="hidden sm:inline">AI Chat</span>
-                  <span className="sm:hidden">Chat</span>
+            <div className="border-b bg-white px-2 md:px-4 py-1">
+              <TabsList className="grid w-full max-w-sm grid-cols-2 h-8">
+                <TabsTrigger value="chat" className="flex items-center gap-1 text-xs h-6">
+                  <MessageCircle size={12} />
+                  <span>Chat</span>
                 </TabsTrigger>
-                <TabsTrigger value="itinerary" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm" disabled={!travelContext}>
-                  <Map size={14} className="md:w-4 md:h-4" />
-                  <span className="hidden sm:inline">Travel Planner</span>
-                  <span className="sm:hidden">Planner</span>
+                <TabsTrigger value="itinerary" className="flex items-center gap-1 text-xs h-6" disabled={!travelContext}>
+                  <Map size={12} />
+                  <span>Plan</span>
                 </TabsTrigger>
               </TabsList>
-              
-              {/* Subscription prompt for enhanced features */}
-              {travelContext && (
-                <div className="mt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowSubscriptionSelector(true)}
-                    className="text-xs"
-                  >
-                    Upgrade for Enhanced Planning
-                  </Button>
-                </div>
-              )}
             </div>
 
             {/* Chat Tab */}

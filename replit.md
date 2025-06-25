@@ -14,6 +14,7 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-06-25**: Changed "Phone Number" to "WhatsApp Connect" with icon and pre-filled message in landing page footer
 - **2025-06-25**: Integrated chat history with travel planner in unified interface with resizable panels
 - **2025-06-25**: Made application mobile-responsive with collapsible sidebars, mobile menu, and adaptive layouts
+- **2025-06-25**: Simplified mobile interface to reduce clutter with smaller fonts, compressed layouts, and streamlined components
 
 ## Project Architecture
 
