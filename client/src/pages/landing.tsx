@@ -448,7 +448,12 @@ export default function LandingPage() {
               reach@wander-notes.com
             </a>
             <span className="hidden sm:inline text-gray-600">•</span>
-            <a href="https://wa.me/6589505706" className="text-blue-400 hover:text-blue-300 flex items-center gap-2">
+            <a 
+              href="https://wa.me/6589505706?text=Hi%20WanderNotes%20team,%20I%20would%20like%20to%20learn%20more%20about%20your%20travel%20planning%20services." 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 flex items-center gap-2 transition-colors"
+            >
               <MessageCircle size={18} />
               WhatsApp Connect
             </a>
