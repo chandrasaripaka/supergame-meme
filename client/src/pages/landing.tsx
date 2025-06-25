@@ -448,8 +448,8 @@ export default function LandingPage() {
               reach@wander-notes.com
             </a>
             <span className="hidden sm:inline text-gray-600">•</span>
-            <a href="tel:+6589505706" className="text-blue-400 hover:text-blue-300">
-              +65 8950 5706
+            <a href="https://wa.me/6589505706" className="text-blue-400 hover:text-blue-300">
+              WhatsApp Connect
             </a>
           </div>
           <p className="text-gray-400 mt-8">
