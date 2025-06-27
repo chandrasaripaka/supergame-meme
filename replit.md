@@ -17,6 +17,7 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-06-25**: Simplified mobile interface to reduce clutter with smaller fonts, compressed layouts, and streamlined components
 - **2025-06-27**: Updated company branding to "Wander Notes by TabTapAI PTE LTD Singapore" with © 2025 All rights reserved
 - **2025-06-27**: Redesigned mobile interface with clean, minimal header and decluttered navigation
+- **2025-06-27**: Fixed mobile header layout using AppHeader component with proper responsive design
 
 ## Project Architecture
 

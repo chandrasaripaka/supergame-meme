@@ -9,6 +9,7 @@ import { sendMessageToAI } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 import { PopularDestinations } from '@/components/PopularDestinations';
 import { User } from '@shared/schema';
+import { AppHeader } from '@/components/AppHeader';
 
 export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -666,10 +667,10 @@ Let me create a personalized itinerary for you!`;
         <main className="flex-1 flex flex-col min-w-0">
           {/* Mobile Action Bar */}
           <div className="md:hidden border-b bg-white">
-            <div className="flex items-center justify-between p-2">
+            <div className="flex items-center justify-between p-3">
               <button
                 onClick={() => setShowTravelForm(true)}
-                className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium mr-2"
+                className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium mr-3"
               >
                 Plan New Trip
               </button>
