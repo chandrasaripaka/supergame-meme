@@ -204,18 +204,15 @@ export function TravelPlannerInterface({
 
   return (
     <div className="h-full flex flex-col md:flex-row">
-      {/* Mobile-only Chat History Toggle */}
-      <div className="md:hidden border-b bg-white p-2">
-        <Button
-          variant="outline"
-          size="sm"
+      {/* Mobile Chat History Toggle - Minimal */}
+      <div className="md:hidden border-b bg-gray-50 px-2 py-1">
+        <button
           onClick={() => setShowChatHistory(!showChatHistory)}
-          className="w-full flex items-center gap-2 text-xs"
+          className="text-xs text-gray-600 flex items-center gap-1"
         >
-          <History size={14} />
-          History
-          {showChatHistory ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        </Button>
+          <History size={12} />
+          {showChatHistory ? 'Hide' : 'Show'} History
+        </button>
       </div>
 
       {/* Chat History Sidebar - Simplified */}
@@ -301,35 +298,44 @@ export function TravelPlannerInterface({
       {/* Main Content */}
       <div className="flex-1 min-w-0 h-full">
         <div className="h-full flex flex-col">
-          {/* Travel Context Header - Simplified for Mobile */}
+          {/* Travel Context - Ultra Minimal */}
           {travelContext && (
-            <div className="border-b bg-blue-50 p-2 md:p-3">
+            <div className="border-b bg-blue-50 px-2 py-1.5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 min-w-0">
-                  <PlaneTakeoff size={16} className="text-blue-600 flex-shrink-0" />
-                  <h2 className="font-semibold text-sm md:text-lg truncate">{travelContext.destination}</h2>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-600">
-                  <span className="hidden sm:inline">{travelContext.travelers} travelers</span>
-                  <span className="font-medium text-blue-600">${travelContext.budget}</span>
-                </div>
+                <span className="font-medium text-sm truncate">{travelContext.destination}</span>
+                <span className="text-xs text-blue-600 font-medium">${travelContext.budget}</span>
               </div>
             </div>
           )}
 
-          {/* Tab Navigation - Simplified */}
+          {/* Tab Navigation - Ultra Clean */}
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'chat' | 'itinerary')} className="flex-1 flex flex-col">
-            <div className="border-b bg-white px-2 md:px-4 py-1">
-              <TabsList className="grid w-full max-w-sm grid-cols-2 h-8">
-                <TabsTrigger value="chat" className="flex items-center gap-1 text-xs h-6">
-                  <MessageCircle size={12} />
-                  <span>Chat</span>
-                </TabsTrigger>
-                <TabsTrigger value="itinerary" className="flex items-center gap-1 text-xs h-6" disabled={!travelContext}>
-                  <Map size={12} />
-                  <span>Plan</span>
-                </TabsTrigger>
-              </TabsList>
+            <div className="border-b bg-white px-2 py-1">
+              <div className="flex">
+                <button
+                  onClick={() => setActiveTab('chat')}
+                  className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-l ${
+                    activeTab === 'chat' 
+                      ? 'bg-blue-100 text-blue-700' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  Chat
+                </button>
+                <button
+                  onClick={() => setActiveTab('itinerary')}
+                  disabled={!travelContext}
+                  className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-r ${
+                    activeTab === 'itinerary' 
+                      ? 'bg-blue-100 text-blue-700' 
+                      : travelContext 
+                        ? 'text-gray-600 hover:text-gray-800' 
+                        : 'text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  Plan
+                </button>
+              </div>
             </div>
 
             {/* Chat Tab */}

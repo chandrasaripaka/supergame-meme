@@ -664,17 +664,24 @@ Let me create a personalized itinerary for you!`;
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0">
-          {/* Mobile Menu Button */}
-          <div className="md:hidden p-2 border-b bg-white">
-            <button
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 text-sm"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-              <span className="font-medium">Menu</span>
-            </button>
+          {/* Mobile Action Bar */}
+          <div className="md:hidden border-b bg-white">
+            <div className="flex items-center justify-between p-2">
+              <button
+                onClick={() => setShowTravelForm(true)}
+                className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium mr-2"
+              >
+                Plan New Trip
+              </button>
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 text-gray-600 hover:text-gray-800"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Mobile Sidebar Overlay */}
