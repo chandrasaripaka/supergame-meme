@@ -22,7 +22,7 @@ export function AppFooter() {
               />
             </svg>
             <span className="text-gray-800 font-medium">
-              WanderNotes
+              Wander Notes by TabTapAI PTE LTD Singapore
             </span>
           </div>
           <div className="flex space-x-4 text-gray-600">
@@ -42,7 +42,7 @@ export function AppFooter() {
         </div>
         <div className="mt-4 text-center text-sm text-gray-500">
           <p>
-            © {new Date().getFullYear()} WanderNotes. Your AI Travel Concierge. All rights reserved.
+            © 2025 Wander Notes by TabTapAI PTE LTD Singapore. All rights reserved.
           </p>
           <p className="mt-1">
             Contact us: <a href="mailto:reach@wander-notes.com" className="hover:text-primary transition">reach@wander-notes.com</a>

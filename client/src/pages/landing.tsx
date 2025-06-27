@@ -110,7 +110,7 @@ export default function LandingPage() {
               The Future of Travel Planning
             </Badge>
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-              WanderNotes: Your AI Travel{' '}
+              Wander Notes: Your AI Travel{' '}
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Concierge
               </span>
@@ -459,7 +459,7 @@ export default function LandingPage() {
             </a>
           </div>
           <p className="text-gray-400 mt-8">
-            © 2025 WanderNotes. Empowering travelers to explore the world with confidence and creativity.
+            © 2025 Wander Notes by TabTapAI PTE LTD Singapore. All rights reserved.
           </p>
         </div>
       </footer>

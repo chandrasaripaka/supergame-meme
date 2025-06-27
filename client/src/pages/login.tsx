@@ -60,7 +60,7 @@ export default function LoginPage() {
             />
           </div>
           <CardTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent leading-tight">
-            Travel Concierge
+            Wander Notes Travel Concierge
           </CardTitle>
           <CardDescription className="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-2">
             AI-POWERED JOURNEY PLANNING
