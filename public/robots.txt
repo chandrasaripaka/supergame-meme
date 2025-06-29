@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://wandernotes.replit.app/sitemap.xml
+
+# Crawl-delay for responsible crawling
+Crawl-delay: 1

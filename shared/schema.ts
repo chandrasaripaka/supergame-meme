@@ -312,6 +312,7 @@ export type Hotel = typeof hotels.$inferSelect;
 export type Scrapbook = typeof scrapbooks.$inferSelect;
 export type TravelMemory = typeof travelMemories.$inferSelect;
 export type Subscription = typeof subscriptions.$inferSelect;
+export type Booking = typeof bookings.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
