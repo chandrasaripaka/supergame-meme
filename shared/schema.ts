@@ -216,6 +216,38 @@ export const subscriptions = pgTable("subscriptions", {
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
 
+export const bookings = pgTable("bookings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  tripId: integer("trip_id").references(() => trips.id),
+  bookingType: text("booking_type").notNull(), // 'flight', 'hotel', 'activity', 'car_rental'
+  bookingReference: text("booking_reference").notNull(),
+  providerName: text("provider_name").notNull(), // e.g., 'Amadeus', 'Booking.com', etc.
+  providerBookingId: text("provider_booking_id"),
+  
+  // Booking details
+  title: text("title").notNull(),
+  description: text("description"),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  location: text("location"),
+  
+  // Pricing
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("USD"),
+  
+  // Status tracking
+  status: text("status").notNull().default("pending"), // 'pending', 'confirmed', 'cancelled', 'completed'
+  
+  // Additional metadata
+  guestCount: integer("guest_count").default(1),
+  specialRequests: text("special_requests"),
+  confirmationDetails: text("confirmation_details"), // JSON string
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull()
+});
+
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).pick({
   userId: true,
   planType: true,
@@ -227,6 +259,26 @@ export const insertSubscriptionSchema = createInsertSchema(subscriptions).pick({
   features: true
 });
 
+export const insertBookingSchema = createInsertSchema(bookings).pick({
+  userId: true,
+  tripId: true,
+  bookingType: true,
+  bookingReference: true,
+  providerName: true,
+  providerBookingId: true,
+  title: true,
+  description: true,
+  startDate: true,
+  endDate: true,
+  location: true,
+  totalAmount: true,
+  currency: true,
+  status: true,
+  guestCount: true,
+  specialRequests: true,
+  confirmationDetails: true
+});
+
 // Define relations
 export const userRelations = relations(users, ({ many }) => ({
   trips: many(trips),
@@ -234,6 +286,12 @@ export const userRelations = relations(users, ({ many }) => ({
   chatSessions: many(chatSessions),
   scrapbooks: many(scrapbooks),
   subscriptions: many(subscriptions),
+  bookings: many(bookings)
+}));
+
+export const bookingRelations = relations(bookings, ({ one }) => ({
+  user: one(users, { fields: [bookings.userId], references: [users.id] }),
+  trip: one(trips, { fields: [bookings.tripId], references: [trips.id] })
 }));
 
 export const chatSessionRelations = relations(chatSessions, ({ one, many }) => ({
@@ -324,3 +382,4 @@ export type InsertHotel = z.infer<typeof insertHotelSchema>;
 export type InsertScrapbook = z.infer<typeof insertScrapbookSchema>;
 export type InsertTravelMemory = z.infer<typeof insertTravelMemorySchema>;
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+export type InsertBooking = z.infer<typeof insertBookingSchema>;
