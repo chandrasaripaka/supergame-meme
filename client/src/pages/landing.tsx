@@ -45,7 +45,7 @@ export default function LandingPage() {
   const pricingPlans = {
     explorer: {
       name: "Explorer",
-      price: "$9.99",
+      price: "$1.99",
       period: "per month",
       description: "Perfect for occasional travelers",
       features: [
@@ -59,7 +59,7 @@ export default function LandingPage() {
     },
     wanderer: {
       name: "Wanderer",
-      price: "$19.99",
+      price: "$2.99",
       period: "per month",
       description: "Ideal for frequent travelers",
       features: [
@@ -76,7 +76,7 @@ export default function LandingPage() {
     },
     travel_pro: {
       name: "Travel Pro",
-      price: "$49.99",
+      price: "$9.99",
       period: "per month",
       description: "For travel professionals & agencies",
       features: [

@@ -53,7 +53,7 @@ export function SubscriptionSelector({ onPlanSelect, currentPlan, showTravelCont
     {
       id: 'explorer',
       name: 'Explorer',
-      price: '$9.99',
+      price: '$1.99',
       period: '/month',
       description: 'Perfect for occasional travelers',
       features: [
@@ -72,7 +72,7 @@ export function SubscriptionSelector({ onPlanSelect, currentPlan, showTravelCont
     {
       id: 'wanderer',
       name: 'Wanderer',
-      price: '$19.99',
+      price: '$2.99',
       period: '/month',
       description: 'Ideal for regular adventurers',
       features: [
@@ -92,7 +92,7 @@ export function SubscriptionSelector({ onPlanSelect, currentPlan, showTravelCont
     {
       id: 'travel_pro',
       name: 'Travel Pro',
-      price: '$49.99',
+      price: '$9.99',
       period: '/month',
       description: 'For travel professionals and enthusiasts',
       features: [
