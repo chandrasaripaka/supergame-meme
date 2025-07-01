@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { Settings, Bookmark, Users, Shield, LayoutGrid, DollarSign, MessageCircle, Book, CalendarDays } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 import { ThemeToggle } from './theme-toggle';
+import { SponsorButton } from './SponsorButton';
 
 export function AppHeader() {
   return (
@@ -61,6 +62,7 @@ export function AppHeader() {
               <CalendarDays className="h-5 w-5" />
               <span className="hidden sm:inline-block ml-1">Bookings</span>
             </Link>
+            <SponsorButton variant="outline" size="sm" className="hidden md:flex" />
             <ThemeToggle />
             <UserProfile />
           </div>

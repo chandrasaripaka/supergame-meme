@@ -21,6 +21,7 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-06-29**: Enhanced SEO with comprehensive meta tags, structured data, and sitemap
 - **2025-06-29**: Added complete booking management system with database schema and UI components
 - **2025-06-29**: Updated pricing structure to $1.99 (Explorer), $2.99 (Wanderer), $9.99 (Travel Pro)
+- **2025-06-29**: Added sponsor button component with Google integration for project funding
 
 ## Project Architecture
 

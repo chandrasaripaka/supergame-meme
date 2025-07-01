@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Check, Star, Globe, Brain, Heart, Map, Users, BookOpen, Zap, Shield, MessageCircle } from 'lucide-react';
+import { SponsorCard } from '@/components/SponsorButton';
 
 export default function LandingPage() {
   const [selectedPlan, setSelectedPlan] = useState<'explorer' | 'wanderer' | 'travel_pro'>('wanderer');
