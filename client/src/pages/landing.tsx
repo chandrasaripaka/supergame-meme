@@ -416,6 +416,23 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Sponsor Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                Support Our Mission
+              </h2>
+              <p className="text-lg text-gray-600">
+                Help us build the future of AI-powered travel planning
+              </p>
+            </div>
+            <SponsorCard />
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="container mx-auto px-4 text-center">
