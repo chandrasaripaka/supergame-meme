@@ -10,9 +10,8 @@ interface SponsorButtonProps {
 
 export function SponsorButton({ variant = 'default', size = 'default', className = '' }: SponsorButtonProps) {
   const handleSponsorClick = () => {
-    // Open Google form for sponsorship - you'll need to create this form
-    // For now, opening GitHub Sponsors as an alternative
-    window.open('https://github.com/sponsors/wandernotes-ai', '_blank');
+    // Open PayPal sponsor link
+    window.open('https://paypal.me/VSaripaka?country.x=SG&locale.x=en_GB', '_blank');
   };
 
   return (
@@ -49,7 +48,7 @@ export function SponsorCard() {
           <div className="flex items-center space-x-3">
             <SponsorButton size="sm" />
             <span className="text-sm text-gray-500">
-              Support starts from $5/month
+              Support via PayPal - any amount appreciated
             </span>
           </div>
         </div>

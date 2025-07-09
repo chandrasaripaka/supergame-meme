@@ -23,6 +23,7 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-06-29**: Updated pricing structure to $1.99 (Explorer), $2.99 (Wanderer), $9.99 (Travel Pro)
 - **2025-06-29**: Added sponsor button component with Google integration for project funding
 - **2025-07-01**: Fixed navigation menu items visibility by making "My Account" section open by default in both desktop and mobile views
+- **2025-07-01**: Updated sponsor button to use PayPal link (https://paypal.me/VSaripaka?country.x=SG&locale.x=en_GB)
 
 ## Project Architecture
 
