@@ -22,7 +22,7 @@ export function SponsorButton({ variant = 'default', size = 'default', className
       onClick={handleSponsorClick}
     >
       <Heart className="h-4 w-4" />
-      <span>Sponsor Us through PayPal</span>
+      <span>Sponsor Via Paypal</span>
       <ExternalLink className="h-3 w-3" />
     </Button>
   );
