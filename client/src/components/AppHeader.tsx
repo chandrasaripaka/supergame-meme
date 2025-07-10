@@ -1,11 +1,14 @@
 import React from 'react';
-import { Link } from 'wouter';
-import { Settings, Bookmark, Users, Shield, LayoutGrid, DollarSign, MessageCircle, Book, CalendarDays } from 'lucide-react';
+import { Link, useLocation } from 'wouter';
+import { Settings, Bookmark, Users, Shield, LayoutGrid, DollarSign, MessageCircle, Book, CalendarDays, RotateCcw } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 import { ThemeToggle } from './theme-toggle';
 import { SponsorButton } from './SponsorButton';
+import { getResetContextFunction } from '@/lib/context';
 
 export function AppHeader() {
+  const [location] = useLocation();
+  const resetContext = getResetContextFunction();
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-4">
@@ -20,6 +23,15 @@ export function AppHeader() {
             <h1 className="text-lg font-semibold bg-gradient-to-r from-sky-500 to-indigo-600 bg-clip-text text-transparent">Wander Notes</h1>
           </Link>
           <div className="flex items-center space-x-2">
+            {location === '/home' && resetContext && (
+              <button
+                onClick={resetContext}
+                className="p-2 text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition"
+                title="Reset Context"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </button>
+            )}
             <ThemeToggle />
             <UserProfile />
           </div>
@@ -62,6 +74,16 @@ export function AppHeader() {
               <CalendarDays className="h-5 w-5" />
               <span className="hidden sm:inline-block ml-1">Bookings</span>
             </Link>
+            {location === '/home' && resetContext && (
+              <button
+                onClick={resetContext}
+                className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center"
+                title="Reset Context"
+              >
+                <RotateCcw className="h-5 w-5" />
+                <span className="hidden sm:inline-block ml-1">Reset Context</span>
+              </button>
+            )}
             <SponsorButton variant="outline" size="sm" className="hidden md:flex" />
             <ThemeToggle />
             <UserProfile />

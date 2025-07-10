@@ -9,6 +9,7 @@ import { sendMessageToAI } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 import { PopularDestinations } from '@/components/PopularDestinations';
 import { User } from '@shared/schema';
+import { setResetContextFunction, clearResetContextFunction } from '@/lib/context';
 
 
 export default function Home() {
@@ -85,6 +86,14 @@ export default function Home() {
         console.error('Error loading saved travel details:', error);
       }
     }
+    
+    // Register the reset context function
+    setResetContextFunction(handleResetContext);
+    
+    // Cleanup function to clear the registered function
+    return () => {
+      clearResetContextFunction();
+    };
   }, []);
 
   // Function to restore a chat session

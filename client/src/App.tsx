@@ -36,7 +36,9 @@ function Router() {
       <main className={`flex-1 w-full ${!isLoginPage ? 'pt-0' : ''}`}>
         <Switch>
           <Route path="/" component={LandingPage} />
-          <Route path="/home" component={Home} />
+          <Route path="/home">
+            {() => <Home />}
+          </Route>
           <Route path="/login" component={LoginPage} />
           <Route path="/chat-history" component={ChatHistoryPage} />
           <Route path="/packing-list" component={PackingListPage} />
