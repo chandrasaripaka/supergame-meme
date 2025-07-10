@@ -572,6 +572,59 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
               </details>
             )}
 
+            {/* Business Information Accordion */}
+            {sidebarCollapsed ? (
+              <button 
+                onClick={() => setSidebarCollapsed(false)}
+                className="w-full p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors flex items-center justify-center"
+                title="Business Information"
+              >
+                <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-6m-2-5a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            ) : (
+              <details className="group">
+                <summary className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors list-none">
+                  <div className="flex items-center space-x-3">
+                    <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-6m-2-5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span className="font-medium text-gray-900">Business Information</span>
+                  </div>
+                  <svg className="w-4 h-4 text-gray-500 group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </summary>
+                <div className="mt-2 ml-8 space-y-2">
+                  <button 
+                    onClick={() => handleSendMessage("Tell me about WanderNotes business description: What we do, problems we solve, and our target audience")}
+                    className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                  >
+                    Business Description
+                  </button>
+                  <button 
+                    onClick={() => handleSendMessage("Share information about our team: Key members and relevant experience at TabTapAI")}
+                    className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                  >
+                    Team Information
+                  </button>
+                  <button 
+                    onClick={() => handleSendMessage("Describe our products: What we're building/offering and current development stage")}
+                    className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                  >
+                    Our Products
+                  </button>
+                  <button 
+                    onClick={() => handleSendMessage("Show our company roadmap and future development plans")}
+                    className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                  >
+                    Development Roadmap
+                  </button>
+                </div>
+              </details>
+            )}
+
             {/* Travel Resources Accordion */}
             {sidebarCollapsed ? (
               <button 
@@ -678,15 +731,7 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
                   </svg>
                   <span>Companions</span>
                 </a>
-                <a 
-                  href="/chat-history"
-                  className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors flex items-center space-x-2 no-underline"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                  <span>Chat History</span>
-                </a>
+
                 <a 
                   href="/scrapbook"
                   className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors flex items-center space-x-2 no-underline"
@@ -788,6 +833,59 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
                     </div>
                   </details>
 
+                  {/* Business Information for Mobile */}
+                  <details className="group">
+                    <summary className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors list-none">
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-6m-2-5a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span className="font-medium text-gray-900">Business Information</span>
+                      </div>
+                      <svg className="w-4 h-4 text-gray-500 group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </summary>
+                    <div className="mt-2 ml-8 space-y-2">
+                      <button 
+                        onClick={() => {
+                          handleSendMessage("Tell me about WanderNotes business description: What we do, problems we solve, and our target audience");
+                          setShowMobileMenu(false);
+                        }}
+                        className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      >
+                        Business Description
+                      </button>
+                      <button 
+                        onClick={() => {
+                          handleSendMessage("Share information about our team: Key members and relevant experience at TabTapAI");
+                          setShowMobileMenu(false);
+                        }}
+                        className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      >
+                        Team Information
+                      </button>
+                      <button 
+                        onClick={() => {
+                          handleSendMessage("Describe our products: What we're building/offering and current development stage");
+                          setShowMobileMenu(false);
+                        }}
+                        className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      >
+                        Our Products
+                      </button>
+                      <button 
+                        onClick={() => {
+                          handleSendMessage("Show our company roadmap and future development plans");
+                          setShowMobileMenu(false);
+                        }}
+                        className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      >
+                        Development Roadmap
+                      </button>
+                    </div>
+                  </details>
+
                   {/* Navigation Links for Mobile */}
                   <details className="group" open>
                     <summary className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors list-none">
@@ -833,16 +931,7 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
                         </svg>
                         <span>Companions</span>
                       </a>
-                      <a 
-                        href="/chat-history"
-                        onClick={() => setShowMobileMenu(false)}
-                        className="w-full text-left p-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors flex items-center space-x-2 no-underline"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        <span>Chat History</span>
-                      </a>
+
                       <a 
                         href="/scrapbook"
                         onClick={() => setShowMobileMenu(false)}

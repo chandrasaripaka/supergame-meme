@@ -24,6 +24,11 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-06-29**: Added sponsor button component with Google integration for project funding
 - **2025-07-01**: Fixed navigation menu items visibility by making "My Account" section open by default in both desktop and mobile views
 - **2025-07-01**: Updated sponsor button to use PayPal link (https://paypal.me/VSaripaka?country.x=SG&locale.x=en_GB)
+- **2025-07-10**: Removed chat history panel from accordion menu as requested
+- **2025-07-10**: Added Business Information section with company details, team info, products, and roadmap
+- **2025-07-10**: Implemented comprehensive chat preservation functionality using localStorage
+- **2025-07-10**: Added context reset functionality with "Reset Context" button in header
+- **2025-07-10**: Enhanced travel itinerary planning with flight preference options and comprehensive flight generation
 
 ## Project Architecture
 
