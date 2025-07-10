@@ -9,7 +9,7 @@ import { sendMessageToAI } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 import { PopularDestinations } from '@/components/PopularDestinations';
 import { User } from '@shared/schema';
-import { AppHeader } from '@/components/AppHeader';
+
 
 export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -407,8 +407,6 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
   
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Use the AppHeader component instead of duplicate header */}
-      <AppHeader />
 
       {/* Sidebar Toggle Button for Desktop */}
       <div className="hidden md:block bg-white border-b border-gray-200 px-4 py-2">
