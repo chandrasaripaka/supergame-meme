@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
-import { Settings, Bookmark, Users, Shield, LayoutGrid, DollarSign, MessageCircle, Book, CalendarDays, RotateCcw } from 'lucide-react';
+import { Settings, Bookmark, Users, Shield, LayoutGrid, DollarSign, MessageCircle, Book, CalendarDays, RotateCcw, Info } from 'lucide-react';
 import { UserProfile } from './UserProfile';
 import { ThemeToggle } from './theme-toggle';
 import { SponsorButton } from './SponsorButton';
@@ -73,6 +73,10 @@ export function AppHeader() {
             <Link href="/bookings" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
               <CalendarDays className="h-5 w-5" />
               <span className="hidden sm:inline-block ml-1">Bookings</span>
+            </Link>
+            <Link href="/about-us" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
+              <Info className="h-5 w-5" />
+              <span className="hidden sm:inline-block ml-1">About Us</span>
             </Link>
             {location === '/home' && resetContext && (
               <button

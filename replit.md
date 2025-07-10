@@ -36,6 +36,8 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-07-10**: Embedded presentation viewer as tile card on home page with "Watch Demo" functionality
 - **2025-07-10**: Fixed duplicate header issue by removing AppHeader from home page (already rendered globally in App.tsx)
 - **2025-07-10**: Replaced presentation video with Beautiful.ai embedded presentation iframe for better integration
+- **2025-07-10**: Moved Business Information section from home page sidebar to dedicated About Us page
+- **2025-07-10**: Added About Us navigation link to header and replaced sidebar accordion with simple About Us link
 
 ## Project Architecture
 
