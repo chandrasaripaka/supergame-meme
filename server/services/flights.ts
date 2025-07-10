@@ -32,126 +32,141 @@ export interface FlightSearch {
  */
 function getAirportCode(cityName: string): string {
   // Handle empty or invalid input
-  if (!cityName || cityName === 'Your Location' || cityName === 'Unknown') {
-    return 'JFK'; // Default to JFK for user location
+  if (!cityName || cityName === 'Unknown') {
+    return 'SIN'; // Default to Singapore for unknown locations
+  }
+  
+  // Handle user location - try to infer from common patterns
+  if (cityName === 'Your Location') {
+    return 'SIN'; // Default to Singapore for user location
   }
 
+  // Comprehensive airport codes database
   const airportCodes: { [key: string]: string } = {
     // Major US Cities
-    'New York': 'JFK',
-    'New York City': 'JFK',
-    'NYC': 'JFK',
-    'Los Angeles': 'LAX',
-    'Chicago': 'ORD',
-    'Miami': 'MIA',
-    'San Francisco': 'SFO',
-    'Boston': 'BOS',
-    'Seattle': 'SEA',
-    'Las Vegas': 'LAS',
-    'Orlando': 'MCO',
-    'Phoenix': 'PHX',
-    'Denver': 'DEN',
-    'Atlanta': 'ATL',
-    'Dallas': 'DFW',
-    'Houston': 'IAH',
+    'New York': 'JFK', 'New York City': 'JFK', 'NYC': 'JFK', 'Manhattan': 'JFK',
+    'Los Angeles': 'LAX', 'LA': 'LAX', 'Chicago': 'ORD', 'Miami': 'MIA',
+    'San Francisco': 'SFO', 'Boston': 'BOS', 'Seattle': 'SEA', 'Las Vegas': 'LAS',
+    'Orlando': 'MCO', 'Phoenix': 'PHX', 'Denver': 'DEN', 'Atlanta': 'ATL',
+    'Dallas': 'DFW', 'Houston': 'IAH', 'Detroit': 'DTW', 'Minneapolis': 'MSP',
+    'Philadelphia': 'PHL', 'Charlotte': 'CLT', 'Salt Lake City': 'SLC',
+    'San Diego': 'SAN', 'Tampa': 'TPA', 'Portland': 'PDX', 'St. Louis': 'STL',
+    'Baltimore': 'BWI', 'Washington': 'DCA', 'Newark': 'EWR', 'Fort Lauderdale': 'FLL',
     
     // Europe
-    'London': 'LHR',
-    'Paris': 'CDG',
-    'Frankfurt': 'FRA',
-    'Amsterdam': 'AMS',
-    'Zurich': 'ZUR',
-    'Istanbul': 'IST',
-    'Berlin': 'BER',
-    'Rome': 'FCO',
-    'Madrid': 'MAD',
-    'Barcelona': 'BCN',
-    'Vienna': 'VIE',
-    'Brussels': 'BRU',
-    'Munich': 'MUC',
-    'Copenhagen': 'CPH',
-    'Stockholm': 'ARN',
-    'Oslo': 'OSL',
-    'Helsinki': 'HEL',
+    'London': 'LHR', 'London, UK': 'LHR', 'London, England': 'LHR',
+    'Paris': 'CDG', 'Paris, France': 'CDG', 'Frankfurt': 'FRA', 'Frankfurt, Germany': 'FRA',
+    'Amsterdam': 'AMS', 'Amsterdam, Netherlands': 'AMS', 'Zurich': 'ZUR', 'Zurich, Switzerland': 'ZUR',
+    'Istanbul': 'IST', 'Istanbul, Turkey': 'IST', 'Berlin': 'BER', 'Berlin, Germany': 'BER',
+    'Rome': 'FCO', 'Rome, Italy': 'FCO', 'Madrid': 'MAD', 'Madrid, Spain': 'MAD',
+    'Barcelona': 'BCN', 'Barcelona, Spain': 'BCN', 'Vienna': 'VIE', 'Vienna, Austria': 'VIE',
+    'Brussels': 'BRU', 'Brussels, Belgium': 'BRU', 'Munich': 'MUC', 'Munich, Germany': 'MUC',
+    'Copenhagen': 'CPH', 'Copenhagen, Denmark': 'CPH', 'Stockholm': 'ARN', 'Stockholm, Sweden': 'ARN',
+    'Oslo': 'OSL', 'Oslo, Norway': 'OSL', 'Helsinki': 'HEL', 'Helsinki, Finland': 'HEL',
+    'Dublin': 'DUB', 'Dublin, Ireland': 'DUB', 'Lisbon': 'LIS', 'Lisbon, Portugal': 'LIS',
+    'Warsaw': 'WAW', 'Warsaw, Poland': 'WAW', 'Prague': 'PRG', 'Prague, Czech Republic': 'PRG',
+    'Budapest': 'BUD', 'Budapest, Hungary': 'BUD', 'Athens': 'ATH', 'Athens, Greece': 'ATH',
+    'Milan': 'MXP', 'Milan, Italy': 'MXP', 'Venice': 'VCE', 'Venice, Italy': 'VCE',
+    'Florence': 'FLR', 'Florence, Italy': 'FLR', 'Nice': 'NCE', 'Nice, France': 'NCE',
+    'Lyon': 'LYS', 'Lyon, France': 'LYS', 'Marseille': 'MRS', 'Marseille, France': 'MRS',
     
     // Asia Pacific
-    'Tokyo': 'NRT',
-    'Tokyo, Japan': 'NRT',
-    'Singapore': 'SIN',
-    'SG': 'SIN',
-    'Singapore, Singapore': 'SIN',
-    'Hong Kong': 'HKG',
-    'HK': 'HKG',
-    'Hong Kong, Hong Kong': 'HKG',
-    'Bangkok': 'BKK',
-    'Seoul': 'ICN',
-    'Sydney': 'SYD',
-    'Melbourne': 'MEL',
-    'Mumbai': 'BOM',
-    'Delhi': 'DEL',
-    'Dubai': 'DXB',
-    'Doha': 'DOH',
-    'Beijing': 'PEK',
-    'Shanghai': 'PVG',
-    'Guangzhou': 'CAN',
-    'Shenzhen': 'SZX',
-    'Taipei': 'TPE',
-    'Manila': 'MNL',
-    'Jakarta': 'CGK',
-    'Kuala Lumpur': 'KUL',
-    'Ho Chi Minh City': 'SGN',
-    'Hanoi': 'HAN',
-    'Phnom Penh': 'PNH',
-    'Yangon': 'RGN',
-    'Colombo': 'CMB',
-    'Kathmandu': 'KTM',
-    'Dhaka': 'DAC',
-    'Karachi': 'KHI',
-    'Lahore': 'LHE',
-    'Islamabad': 'ISB',
+    'Tokyo': 'NRT', 'Tokyo, Japan': 'NRT', 'Osaka': 'KIX', 'Osaka, Japan': 'KIX',
+    'Singapore': 'SIN', 'SG': 'SIN', 'Singapore, Singapore': 'SIN', 'Singapore City': 'SIN',
+    'Hong Kong': 'HKG', 'HK': 'HKG', 'Hong Kong, Hong Kong': 'HKG', 'Hong Kong, China': 'HKG',
+    'Bangkok': 'BKK', 'Bangkok, Thailand': 'BKK', 'Seoul': 'ICN', 'Seoul, South Korea': 'ICN',
+    'Sydney': 'SYD', 'Sydney, Australia': 'SYD', 'Melbourne': 'MEL', 'Melbourne, Australia': 'MEL',
+    'Mumbai': 'BOM', 'Mumbai, India': 'BOM', 'Delhi': 'DEL', 'Delhi, India': 'DEL',
+    'New Delhi': 'DEL', 'Bangalore': 'BLR', 'Bangalore, India': 'BLR', 'Chennai': 'MAA',
+    'Kolkata': 'CCU', 'Hyderabad': 'HYD', 'Pune': 'PNQ', 'Ahmedabad': 'AMD',
+    'Dubai': 'DXB', 'Dubai, UAE': 'DXB', 'Doha': 'DOH', 'Doha, Qatar': 'DOH',
+    'Beijing': 'PEK', 'Beijing, China': 'PEK', 'Shanghai': 'PVG', 'Shanghai, China': 'PVG',
+    'Guangzhou': 'CAN', 'Guangzhou, China': 'CAN', 'Shenzhen': 'SZX', 'Shenzhen, China': 'SZX',
+    'Taipei': 'TPE', 'Taipei, Taiwan': 'TPE', 'Manila': 'MNL', 'Manila, Philippines': 'MNL',
+    'Jakarta': 'CGK', 'Jakarta, Indonesia': 'CGK', 'Kuala Lumpur': 'KUL', 'Kuala Lumpur, Malaysia': 'KUL',
+    'Ho Chi Minh City': 'SGN', 'Ho Chi Minh City, Vietnam': 'SGN', 'Hanoi': 'HAN', 'Hanoi, Vietnam': 'HAN',
+    'Phnom Penh': 'PNH', 'Phnom Penh, Cambodia': 'PNH', 'Yangon': 'RGN', 'Yangon, Myanmar': 'RGN',
+    'Colombo': 'CMB', 'Colombo, Sri Lanka': 'CMB', 'Kathmandu': 'KTM', 'Kathmandu, Nepal': 'KTM',
+    'Dhaka': 'DAC', 'Dhaka, Bangladesh': 'DAC', 'Karachi': 'KHI', 'Karachi, Pakistan': 'KHI',
+    'Lahore': 'LHE', 'Lahore, Pakistan': 'LHE', 'Islamabad': 'ISB', 'Islamabad, Pakistan': 'ISB',
+    'Almaty': 'ALA', 'Almaty, Kazakhstan': 'ALA', 'Tashkent': 'TAS', 'Tashkent, Uzbekistan': 'TAS',
+    'Baku': 'BAK', 'Baku, Azerbaijan': 'BAK', 'Tbilisi': 'TBS', 'Tbilisi, Georgia': 'TBS',
+    'Yerevan': 'EVN', 'Yerevan, Armenia': 'EVN',
     
     // Australia & New Zealand
-    'Brisbane': 'BNE',
-    'Perth': 'PER',
-    'Adelaide': 'ADL',
-    'Auckland': 'AKL',
-    'Wellington': 'WLG',
-    'Christchurch': 'CHC',
+    'Brisbane': 'BNE', 'Brisbane, Australia': 'BNE', 'Perth': 'PER', 'Perth, Australia': 'PER',
+    'Adelaide': 'ADL', 'Adelaide, Australia': 'ADL', 'Auckland': 'AKL', 'Auckland, New Zealand': 'AKL',
+    'Wellington': 'WLG', 'Wellington, New Zealand': 'WLG', 'Christchurch': 'CHC', 'Christchurch, New Zealand': 'CHC',
+    'Gold Coast': 'OOL', 'Gold Coast, Australia': 'OOL', 'Cairns': 'CNS', 'Cairns, Australia': 'CNS',
+    'Darwin': 'DRW', 'Darwin, Australia': 'DRW', 'Hobart': 'HBA', 'Hobart, Australia': 'HBA',
     
     // Middle East & Africa
-    'Cairo': 'CAI',
-    'Casablanca': 'CMN',
-    'Johannesburg': 'JNB',
-    'Cape Town': 'CPT',
-    'Nairobi': 'NBO',
-    'Addis Ababa': 'ADD',
-    'Lagos': 'LOS',
-    'Accra': 'ACC',
-    'Tel Aviv': 'TLV',
-    'Riyadh': 'RUH',
-    'Jeddah': 'JED',
-    'Kuwait City': 'KWI',
-    'Abu Dhabi': 'AUH',
-    'Muscat': 'MCT',
-    'Bahrain': 'BAH',
+    'Cairo': 'CAI', 'Cairo, Egypt': 'CAI', 'Casablanca': 'CMN', 'Casablanca, Morocco': 'CMN',
+    'Johannesburg': 'JNB', 'Johannesburg, South Africa': 'JNB', 'Cape Town': 'CPT', 'Cape Town, South Africa': 'CPT',
+    'Nairobi': 'NBO', 'Nairobi, Kenya': 'NBO', 'Addis Ababa': 'ADD', 'Addis Ababa, Ethiopia': 'ADD',
+    'Lagos': 'LOS', 'Lagos, Nigeria': 'LOS', 'Accra': 'ACC', 'Accra, Ghana': 'ACC',
+    'Tel Aviv': 'TLV', 'Tel Aviv, Israel': 'TLV', 'Riyadh': 'RUH', 'Riyadh, Saudi Arabia': 'RUH',
+    'Jeddah': 'JED', 'Jeddah, Saudi Arabia': 'JED', 'Kuwait City': 'KWI', 'Kuwait City, Kuwait': 'KWI',
+    'Abu Dhabi': 'AUH', 'Abu Dhabi, UAE': 'AUH', 'Muscat': 'MCT', 'Muscat, Oman': 'MCT',
+    'Bahrain': 'BAH', 'Bahrain, Bahrain': 'BAH', 'Amman': 'AMM', 'Amman, Jordan': 'AMM',
+    'Beirut': 'BEY', 'Beirut, Lebanon': 'BEY', 'Damascus': 'DAM', 'Damascus, Syria': 'DAM',
+    'Tunis': 'TUN', 'Tunis, Tunisia': 'TUN', 'Algiers': 'ALG', 'Algiers, Algeria': 'ALG',
+    'Dakar': 'DKR', 'Dakar, Senegal': 'DKR', 'Abidjan': 'ABJ', 'Abidjan, Ivory Coast': 'ABJ',
+    'Khartoum': 'KRT', 'Khartoum, Sudan': 'KRT', 'Kampala': 'EBB', 'Kampala, Uganda': 'EBB',
+    'Dar es Salaam': 'DAR', 'Dar es Salaam, Tanzania': 'DAR', 'Lusaka': 'LUN', 'Lusaka, Zambia': 'LUN',
+    'Harare': 'HRE', 'Harare, Zimbabwe': 'HRE', 'Windhoek': 'WDH', 'Windhoek, Namibia': 'WDH',
+    'Gaborone': 'GBE', 'Gaborone, Botswana': 'GBE', 'Maputo': 'MPM', 'Maputo, Mozambique': 'MPM',
     
     // South America
-    'São Paulo': 'GRU',
-    'Rio de Janeiro': 'GIG',
-    'Buenos Aires': 'EZE',
-    'Lima': 'LIM',
-    'Bogotá': 'BOG',
-    'Santiago': 'SCL',
-    'Caracas': 'CCS',
-    'Quito': 'UIO',
-    'La Paz': 'LPB',
+    'São Paulo': 'GRU', 'São Paulo, Brazil': 'GRU', 'Sao Paulo': 'GRU', 'Rio de Janeiro': 'GIG',
+    'Rio de Janeiro, Brazil': 'GIG', 'Buenos Aires': 'EZE', 'Buenos Aires, Argentina': 'EZE',
+    'Lima': 'LIM', 'Lima, Peru': 'LIM', 'Bogotá': 'BOG', 'Bogota': 'BOG', 'Bogotá, Colombia': 'BOG',
+    'Santiago': 'SCL', 'Santiago, Chile': 'SCL', 'Caracas': 'CCS', 'Caracas, Venezuela': 'CCS',
+    'Quito': 'UIO', 'Quito, Ecuador': 'UIO', 'La Paz': 'LPB', 'La Paz, Bolivia': 'LPB',
+    'Montevideo': 'MVD', 'Montevideo, Uruguay': 'MVD', 'Asunción': 'ASU', 'Asunción, Paraguay': 'ASU',
+    'Georgetown': 'GEO', 'Georgetown, Guyana': 'GEO', 'Paramaribo': 'PBM', 'Paramaribo, Suriname': 'PBM',
+    'Brasília': 'BSB', 'Brasilia': 'BSB', 'Brasília, Brazil': 'BSB', 'Salvador': 'SSA',
+    'Fortaleza': 'FOR', 'Recife': 'REC', 'Belo Horizonte': 'CNF', 'Porto Alegre': 'POA',
+    'Manaus': 'MAO', 'Belém': 'BEL', 'Curitiba': 'CWB', 'Florianópolis': 'FLN',
+    'Medellín': 'MDE', 'Medellin': 'MDE', 'Medellín, Colombia': 'MDE', 'Cali': 'CLO',
+    'Cartagena': 'CTG', 'Barranquilla': 'BAQ', 'Cusco': 'CUZ', 'Arequipa': 'AQP',
+    'Trujillo': 'TRU', 'Iquitos': 'IQT', 'Córdoba': 'COR', 'Rosario': 'ROS',
+    'Mendoza': 'MDZ', 'Bariloche': 'BRC', 'Ushuaia': 'USH', 'Iguazu': 'IGU',
     
     // Canada
-    'Toronto': 'YYZ',
-    'Vancouver': 'YVR',
-    'Montreal': 'YUL',
-    'Calgary': 'YYC',
-    'Ottawa': 'YOW'
+    'Toronto': 'YYZ', 'Toronto, Canada': 'YYZ', 'Vancouver': 'YVR', 'Vancouver, Canada': 'YVR',
+    'Montreal': 'YUL', 'Montreal, Canada': 'YUL', 'Calgary': 'YYC', 'Calgary, Canada': 'YYC',
+    'Ottawa': 'YOW', 'Ottawa, Canada': 'YOW', 'Edmonton': 'YEG', 'Edmonton, Canada': 'YEG',
+    'Winnipeg': 'YWG', 'Winnipeg, Canada': 'YWG', 'Quebec City': 'YQB', 'Quebec City, Canada': 'YQB',
+    'Halifax': 'YHZ', 'Halifax, Canada': 'YHZ', 'Victoria': 'YYJ', 'Victoria, Canada': 'YYJ',
+    'Saskatoon': 'YXE', 'Saskatoon, Canada': 'YXE', 'Regina': 'YQR', 'Regina, Canada': 'YQR',
+    'St. John\'s': 'YYT', 'St. John\'s, Canada': 'YYT', 'Thunder Bay': 'YQT', 'Thunder Bay, Canada': 'YQT',
+    
+    // Russia & Eastern Europe
+    'Moscow': 'SVO', 'Moscow, Russia': 'SVO', 'St. Petersburg': 'LED', 'St. Petersburg, Russia': 'LED',
+    'Novosibirsk': 'OVB', 'Novosibirsk, Russia': 'OVB', 'Yekaterinburg': 'SVX', 'Yekaterinburg, Russia': 'SVX',
+    'Kazan': 'KZN', 'Kazan, Russia': 'KZN', 'Sochi': 'AER', 'Sochi, Russia': 'AER',
+    'Vladivostok': 'VVO', 'Vladivostok, Russia': 'VVO', 'Irkutsk': 'IKT', 'Irkutsk, Russia': 'IKT',
+    'Kiev': 'KBP', 'Kiev, Ukraine': 'KBP', 'Kyiv': 'KBP', 'Kyiv, Ukraine': 'KBP',
+    'Minsk': 'MSQ', 'Minsk, Belarus': 'MSQ', 'Vilnius': 'VNO', 'Vilnius, Lithuania': 'VNO',
+    'Riga': 'RIX', 'Riga, Latvia': 'RIX', 'Tallinn': 'TLL', 'Tallinn, Estonia': 'TLL',
+    'Bucharest': 'OTP', 'Bucharest, Romania': 'OTP', 'Sofia': 'SOF', 'Sofia, Bulgaria': 'SOF',
+    'Belgrade': 'BEG', 'Belgrade, Serbia': 'BEG', 'Zagreb': 'ZAG', 'Zagreb, Croatia': 'ZAG',
+    'Ljubljana': 'LJU', 'Ljubljana, Slovenia': 'LJU', 'Sarajevo': 'SJJ', 'Sarajevo, Bosnia': 'SJJ',
+    'Skopje': 'SKP', 'Skopje, North Macedonia': 'SKP', 'Podgorica': 'TGD', 'Podgorica, Montenegro': 'TGD',
+    'Tirana': 'TIA', 'Tirana, Albania': 'TIA', 'Pristina': 'PRN', 'Pristina, Kosovo': 'PRN',
+    
+    // Additional Pacific Islands
+    'Honolulu': 'HNL', 'Honolulu, Hawaii': 'HNL', 'Anchorage': 'ANC', 'Anchorage, Alaska': 'ANC',
+    'Fairbanks': 'FAI', 'Fairbanks, Alaska': 'FAI', 'Juneau': 'JNU', 'Juneau, Alaska': 'JNU',
+    'Fiji': 'NAN', 'Suva': 'SUV', 'Nadi': 'NAN', 'Vanuatu': 'VLI', 'Port Vila': 'VLI',
+    'Noumea': 'NOU', 'Noumea, New Caledonia': 'NOU', 'Papeete': 'PPT', 'Papeete, Tahiti': 'PPT',
+    'Apia': 'APW', 'Apia, Samoa': 'APW', 'Nuku\'alofa': 'TBU', 'Nuku\'alofa, Tonga': 'TBU',
+    'Rarotonga': 'RAR', 'Rarotonga, Cook Islands': 'RAR', 'Guam': 'GUM', 'Hagatna': 'GUM',
+    'Saipan': 'SPN', 'Saipan, Northern Mariana Islands': 'SPN', 'Palau': 'ROR', 'Koror': 'ROR',
+    'Majuro': 'MAJ', 'Majuro, Marshall Islands': 'MAJ', 'Tarawa': 'TRW', 'Tarawa, Kiribati': 'TRW',
+    'Funafuti': 'FUN', 'Funafuti, Tuvalu': 'FUN', 'Honiara': 'HIR', 'Honiara, Solomon Islands': 'HIR',
+    'Port Moresby': 'POM', 'Port Moresby, Papua New Guinea': 'POM'
   };
 
   // Clean city name and normalize
@@ -177,8 +192,9 @@ function getAirportCode(cityName: string): string {
     }
   }
 
-  // Default fallback to JFK for unknown cities
-  return 'JFK';
+  // Default fallback to SIN for unknown cities
+  console.log(`Unknown city: "${cityName}", using SIN as fallback`);
+  return 'SIN';
 }
 
 /**
@@ -237,71 +253,57 @@ async function searchAmadeusFlights(search: FlightSearch): Promise<Flight[]> {
     // Search for flights
     const originCode = getAirportCode(search.departureCity);
     const destinationCode = getAirportCode(search.arrivalCity);
-    
-    const searchParams = new URLSearchParams({
-      originLocationCode: originCode,
-      destinationLocationCode: destinationCode,
-      departureDate: search.departureDate,
-      adults: '1',
-      currencyCode: 'USD',
-      max: '15'
-    });
 
-    if (search.returnDate) {
-      searchParams.append('returnDate', search.returnDate);
-    }
+    const flightSearchUrl = new URL('https://api.amadeus.com/v2/shopping/flight-offers');
+    flightSearchUrl.searchParams.append('originLocationCode', originCode);
+    flightSearchUrl.searchParams.append('destinationLocationCode', destinationCode);
+    flightSearchUrl.searchParams.append('departureDate', search.departureDate);
+    flightSearchUrl.searchParams.append('adults', '1');
+    flightSearchUrl.searchParams.append('currencyCode', 'USD');
+    flightSearchUrl.searchParams.append('max', '10');
 
-    const flightResponse = await fetch(`https://api.amadeus.com/v2/shopping/flight-offers?${searchParams}`, {
+    const flightResponse = await fetch(flightSearchUrl.toString(), {
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${accessToken}`
       }
     });
 
     if (!flightResponse.ok) {
-      throw new Error('Failed to search flights from Amadeus');
+      throw new Error('Failed to search flights');
     }
 
     const flightData = await flightResponse.json();
-    
+
     // Transform Amadeus response to our Flight interface
-    const flights: Flight[] = flightData.data?.map((offer: any, index: number) => {
+    const flights: Flight[] = flightData.data.map((offer: any, index: number) => {
       const segment = offer.itineraries[0].segments[0];
       const price = parseFloat(offer.price.total);
       
       return {
-        id: `amadeus-${offer.id}`,
+        id: `flight-${index}`,
         airline: getAirlineName(segment.carrierCode),
         logo: `https://www.gstatic.com/flights/airline_logos/70px/${segment.carrierCode}.png`,
         flightNumber: `${segment.carrierCode}${segment.number}`,
         departureAirport: segment.departure.iataCode,
         departureCity: search.departureCity,
-        departureTime: new Date(segment.departure.at).toLocaleTimeString('en-US', { 
-          hour: '2-digit', 
-          minute: '2-digit', 
-          hour12: false 
-        }),
+        departureTime: new Date(segment.departure.at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
         arrivalAirport: segment.arrival.iataCode,
         arrivalCity: search.arrivalCity,
-        arrivalTime: new Date(segment.arrival.at).toLocaleTimeString('en-US', { 
-          hour: '2-digit', 
-          minute: '2-digit', 
-          hour12: false 
-        }),
-        duration: segment.duration.replace('PT', '').toLowerCase(),
+        arrivalTime: new Date(segment.arrival.at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        duration: offer.itineraries[0].duration.replace('PT', '').replace('H', 'h ').replace('M', 'm'),
         stops: offer.itineraries[0].segments.length - 1,
-        price: Math.round(price),
-        currency: offer.price.currency,
-        class: offer.travelerPricings[0].fareDetailsBySegment[0].cabin || 'ECONOMY',
+        price: price,
+        currency: 'USD',
+        class: 'Economy',
         amenities: ['WiFi', 'Meals', 'Entertainment'],
         baggage: '23kg included'
       };
-    }) || [];
+    });
 
     return flights;
   } catch (error) {
     console.error('Amadeus API error:', error);
-    return [];
+    throw error;
   }
 }
 
@@ -312,46 +314,45 @@ function generateRealisticFlightData(search: FlightSearch): Promise<Flight[]> {
   const originCode = getAirportCode(search.departureCity);
   const destinationCode = getAirportCode(search.arrivalCity);
   
-  // Real airline data for different routes
-  const routeAirlines = getAirlinesForRoute(originCode, destinationCode);
+  console.log(`Generating flights from ${search.departureCity} (${originCode}) to ${search.arrivalCity} (${destinationCode})`);
+  
+  const airlines = getAirlinesForRoute(originCode, destinationCode);
   const basePrice = getBasePriceForRoute(originCode, destinationCode);
-  const flightDuration = getFlightDuration(originCode, destinationCode);
+  const duration = getFlightDuration(originCode, destinationCode);
   
   const flights: Flight[] = [];
   
-  routeAirlines.forEach((airline, index) => {
-    const priceVariation = (Math.random() - 0.5) * 0.4; // ±20% variation
-    const price = Math.round(basePrice * (1 + priceVariation));
+  airlines.forEach((airline, index) => {
+    // Generate multiple flights per airline with different times and prices
+    const flightTimes = ['06:00', '09:30', '14:00', '18:45', '21:30'];
+    const selectedTimes = flightTimes.slice(0, Math.min(3, flightTimes.length));
     
-    const departureHour = 6 + Math.floor(Math.random() * 16); // 6 AM to 10 PM
-    const departureMinute = Math.floor(Math.random() * 4) * 15; // 0, 15, 30, 45
-    const departureTime = `${departureHour.toString().padStart(2, '0')}:${departureMinute.toString().padStart(2, '0')}`;
-    
-    // Calculate arrival time
-    const durationHours = Math.floor(flightDuration);
-    const durationMinutes = Math.round((flightDuration - durationHours) * 60);
-    const arrivalHour = (departureHour + durationHours + Math.floor((departureMinute + durationMinutes) / 60)) % 24;
-    const arrivalMinute = (departureMinute + durationMinutes) % 60;
-    const arrivalTime = `${arrivalHour.toString().padStart(2, '0')}:${arrivalMinute.toString().padStart(2, '0')}`;
-    
-    flights.push({
-      id: `flight-${originCode}-${destinationCode}-${index + 1}`,
-      airline: airline.name,
-      logo: airline.logo,
-      flightNumber: `${airline.code}${Math.floor(Math.random() * 9000) + 1000}`,
-      departureAirport: originCode,
-      departureCity: search.departureCity,
-      departureTime: departureTime,
-      arrivalAirport: destinationCode,
-      arrivalCity: search.arrivalCity,
-      arrivalTime: arrivalTime,
-      duration: `${durationHours}h ${durationMinutes}m`,
-      stops: Math.random() > 0.7 ? 1 : 0, // 30% chance of 1 stop
-      price: price,
-      currency: 'USD',
-      class: index === 0 ? 'Economy' : index === 1 ? 'Premium Economy' : 'Business',
-      amenities: airline.amenities,
-      baggage: index === 0 ? '23kg included' : index === 1 ? '30kg included' : '40kg included'
+    selectedTimes.forEach((time, timeIndex) => {
+      const priceVariation = (Math.random() - 0.5) * 0.4; // ±20% variation
+      const price = Math.round(basePrice * (1 + priceVariation));
+      
+      const departureTime = new Date(`${search.departureDate}T${time}:00`);
+      const arrivalTime = new Date(departureTime.getTime() + duration * 60 * 60 * 1000);
+      
+      flights.push({
+        id: `flight-${airline.code}-${timeIndex}`,
+        airline: airline.name,
+        logo: airline.logo,
+        flightNumber: `${airline.code}${Math.floor(Math.random() * 9000) + 1000}`,
+        departureAirport: originCode,
+        departureCity: search.departureCity,
+        departureTime: departureTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        arrivalAirport: destinationCode,
+        arrivalCity: search.arrivalCity,
+        arrivalTime: arrivalTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        duration: `${Math.floor(duration)}h ${Math.round((duration % 1) * 60)}m`,
+        stops: Math.random() > 0.6 ? 1 : 0,
+        price: price,
+        currency: 'USD',
+        class: index === 0 ? 'Economy' : index === 1 ? 'Premium Economy' : 'Business',
+        amenities: airline.amenities,
+        baggage: index === 0 ? '23kg included' : index === 1 ? '30kg included' : '40kg included'
+      });
     });
   });
   
@@ -440,7 +441,7 @@ export async function searchFlights(search: FlightSearch): Promise<Flight[]> {
 export async function getFlightRecommendations(destination: string): Promise<Flight[]> {
   // Use the search function with a default departure city
   return searchFlights({
-    departureCity: 'New York',
+    departureCity: 'Singapore',
     arrivalCity: destination,
     departureDate: new Date().toISOString().split('T')[0]
   });

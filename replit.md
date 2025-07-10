@@ -29,6 +29,9 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-07-10**: Implemented comprehensive chat preservation functionality using localStorage
 - **2025-07-10**: Added context reset functionality with "Reset Context" button in header
 - **2025-07-10**: Enhanced travel itinerary planning with flight preference options and comprehensive flight generation
+- **2025-07-10**: Populated comprehensive global airport codes database with 300+ airports worldwide
+- **2025-07-10**: Fixed airport code mapping bug - changed default fallback from JFK to SIN for unknown locations
+- **2025-07-10**: Completely removed chat history accordion from TravelPlannerInterface as requested
 
 ## Project Architecture
 
