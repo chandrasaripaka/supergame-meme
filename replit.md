@@ -33,6 +33,7 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-07-10**: Fixed airport code mapping bug - changed default fallback from JFK to SIN for unknown locations
 - **2025-07-10**: Completely removed chat history accordion from TravelPlannerInterface as requested
 - **2025-07-10**: Added team members to business information: Chandra Sekhar Saripaka (Co-Founder & CEO) and Sowjanya Saripaka (Co-Founder & Chief Analytics Officer)
+- **2025-07-10**: Embedded presentation viewer as tile card on home page with "Watch Demo" functionality
 
 ## Project Architecture
 
