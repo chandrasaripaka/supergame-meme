@@ -15,7 +15,7 @@ interface TravelFormData {
   endDate: Date | undefined;
   budget: string;
   travelers: string;
-  duration: string;
+  flightType: string;
 }
 
 interface TravelFormProps {
@@ -32,7 +32,7 @@ export function TravelQuickForm({ onSubmit, onSkip, initialData }: TravelFormPro
     endDate: initialData?.endDate,
     budget: initialData?.budget || '',
     travelers: initialData?.travelers || '1',
-    duration: initialData?.duration || '',
+    flightType: initialData?.flightType || '',
   });
 
   // Listen for auto-fill destination events
@@ -175,39 +175,53 @@ export function TravelQuickForm({ onSubmit, onSkip, initialData }: TravelFormPro
           </Select>
         </div>
 
-        {/* Duration */}
+        {/* Flight Preferences */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">
-            Trip Duration
+            Flight Preference
           </Label>
-          <Select value={formData.duration} onValueChange={(value) => setFormData({ ...formData, duration: value })}>
+          <Select value={formData.flightType} onValueChange={(value) => setFormData({ ...formData, flightType: value })}>
             <SelectTrigger>
-              <SelectValue placeholder="How long?" />
+              <SelectValue placeholder="Flight type preference" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="weekend">Weekend (2-3 days)</SelectItem>
-              <SelectItem value="short">Short Trip (4-7 days)</SelectItem>
-              <SelectItem value="medium">1-2 Weeks</SelectItem>
-              <SelectItem value="long">2-4 Weeks</SelectItem>
-              <SelectItem value="extended">Over a Month</SelectItem>
+              <SelectItem value="nonstop">Non-stop flights only</SelectItem>
+              <SelectItem value="one_stop">Up to 1 stop</SelectItem>
+              <SelectItem value="multiple_stops">Multiple stops OK</SelectItem>
+              <SelectItem value="cheapest">Cheapest option</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      <div className="flex gap-3 mt-6 justify-end">
-        {onSkip && (
-          <Button variant="outline" onClick={onSkip}>
-            Skip for Now
-          </Button>
-        )}
-        <Button 
-          onClick={handleSubmit}
-          disabled={!isFormComplete}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-        >
-          Continue Planning
+      <div className="flex gap-3 mt-6 justify-between">
+        <Button variant="outline" onClick={() => {
+          setFormData({
+            from: '',
+            destination: '',
+            startDate: undefined,
+            endDate: undefined,
+            budget: '',
+            travelers: '1',
+            flightType: '',
+          });
+        }}>
+          Reset Form
         </Button>
+        <div className="flex gap-3">
+          {onSkip && (
+            <Button variant="outline" onClick={onSkip}>
+              Skip for Now
+            </Button>
+          )}
+          <Button 
+            onClick={handleSubmit}
+            disabled={!isFormComplete}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          >
+            Plan Travel Itinerary
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -300,7 +314,7 @@ export function TravelForm({ onSubmit, onClose }: { onSubmit: (data: TravelFormD
     endDate: undefined,
     budget: '',
     travelers: '1',
-    duration: '',
+    flightType: '',
   });
 
   const handleSubmit = () => {
@@ -424,17 +438,16 @@ export function TravelForm({ onSubmit, onClose }: { onSubmit: (data: TravelFormD
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="duration">Trip Duration</Label>
-          <Select value={formData.duration} onValueChange={(value) => setFormData({ ...formData, duration: value })}>
+          <Label htmlFor="flightType">Flight Preference</Label>
+          <Select value={formData.flightType} onValueChange={(value) => setFormData({ ...formData, flightType: value })}>
             <SelectTrigger>
-              <SelectValue placeholder="Select duration" />
+              <SelectValue placeholder="Select flight preference" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="weekend">Weekend (2-3 days)</SelectItem>
-              <SelectItem value="short">Short Trip (4-7 days)</SelectItem>
-              <SelectItem value="medium">1-2 Weeks</SelectItem>
-              <SelectItem value="long">2-4 Weeks</SelectItem>
-              <SelectItem value="extended">Over a Month</SelectItem>
+              <SelectItem value="nonstop">Non-stop flights only</SelectItem>
+              <SelectItem value="one_stop">Up to 1 stop</SelectItem>
+              <SelectItem value="multiple_stops">Multiple stops OK</SelectItem>
+              <SelectItem value="cheapest">Cheapest option</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -97,38 +97,110 @@ export function TravelPlannerInterface({
     const sourceCode = getAirportCode(source);
     const destinationCode = getAirportCode(destination);
     
-    // Generate sample flights based on context
-    const outboundFlights = [
-      {
-        id: 'flight-1',
-        airline: 'Singapore Airlines',
-        flightNumber: 'SQ001',
-        departure: { airport: sourceCode, time: '14:30', date: travelContext.departureDate || '2025-07-01' },
-        arrival: { airport: destinationCode, time: '22:15', date: travelContext.departureDate || '2025-07-01' },
-        duration: '8h 45m',
-        price: budget === 'luxury' ? 2500 : budget === 'mid-range' ? 1200 : 650,
-        class: 'Economy' as const,
-        stops: 0,
-        amenities: ['In-flight entertainment', 'Meals included', 'Wi-Fi'],
-        baggage: '30kg checked'
-      }
-    ];
+    // Generate multiple flight options based on context and preferences
+    const generateFlightOptions = (isOutbound: boolean) => {
+      const fromAirport = isOutbound ? sourceCode : destinationCode;
+      const toAirport = isOutbound ? destinationCode : sourceCode;
+      const flightDate = isOutbound ? (travelContext.departureDate || '2025-07-01') : (travelContext.returnDate || '2025-07-07');
+      
+      const basePrice = budget === 'over_10000' ? 2500 : budget === '5000_10000' ? 1800 : 
+                        budget === '2500_5000' ? 1200 : budget === '1000_2500' ? 800 : 
+                        budget === '500_1000' ? 500 : 350;
+      
+      const airlines = ['Singapore Airlines', 'Emirates', 'Qatar Airways', 'Cathay Pacific', 'Turkish Airlines', 'British Airways'];
+      const flightPrefix = isOutbound ? 'OB' : 'RB';
+      
+      return [
+        // Non-stop premium flight
+        {
+          id: `${flightPrefix}-1`,
+          airline: airlines[0],
+          flightNumber: `${airlines[0].substring(0,2).toUpperCase()}001`,
+          departure: { airport: fromAirport, time: '14:30', date: flightDate },
+          arrival: { airport: toAirport, time: '22:15', date: flightDate },
+          duration: '8h 45m',
+          price: Math.round(basePrice * 1.4),
+          class: 'Business' as const,
+          stops: 0,
+          amenities: ['In-flight entertainment', 'Meals included', 'Wi-Fi', 'Lie-flat seats'],
+          baggage: '40kg checked'
+        },
+        // Non-stop economy flight
+        {
+          id: `${flightPrefix}-2`,
+          airline: airlines[1],
+          flightNumber: `${airlines[1].substring(0,2).toUpperCase()}015`,
+          departure: { airport: fromAirport, time: '10:15', date: flightDate },
+          arrival: { airport: toAirport, time: '18:00', date: flightDate },
+          duration: '8h 45m',
+          price: basePrice,
+          class: 'Economy' as const,
+          stops: 0,
+          amenities: ['In-flight entertainment', 'Meals included', 'Wi-Fi'],
+          baggage: '30kg checked'
+        },
+        // One-stop budget flight
+        {
+          id: `${flightPrefix}-3`,
+          airline: airlines[2],
+          flightNumber: `${airlines[2].substring(0,2).toUpperCase()}205`,
+          departure: { airport: fromAirport, time: '06:30', date: flightDate },
+          arrival: { airport: toAirport, time: '20:45', date: flightDate },
+          duration: '12h 15m',
+          price: Math.round(basePrice * 0.7),
+          class: 'Economy' as const,
+          stops: 1,
+          amenities: ['In-flight entertainment', 'Meals included'],
+          baggage: '25kg checked'
+        },
+        // Premium economy option
+        {
+          id: `${flightPrefix}-4`,
+          airline: airlines[3],
+          flightNumber: `${airlines[3].substring(0,2).toUpperCase()}042`,
+          departure: { airport: fromAirport, time: '16:45', date: flightDate },
+          arrival: { airport: toAirport, time: '01:30', date: flightDate },
+          duration: '9h 45m',
+          price: Math.round(basePrice * 1.2),
+          class: 'Premium Economy' as const,
+          stops: 0,
+          amenities: ['In-flight entertainment', 'Meals included', 'Wi-Fi', 'Extra legroom'],
+          baggage: '35kg checked'
+        },
+        // Budget option with stops
+        {
+          id: `${flightPrefix}-5`,
+          airline: airlines[4],
+          flightNumber: `${airlines[4].substring(0,2).toUpperCase()}178`,
+          departure: { airport: fromAirport, time: '23:15', date: flightDate },
+          arrival: { airport: toAirport, time: '15:30', date: flightDate },
+          duration: '14h 15m',
+          price: Math.round(basePrice * 0.6),
+          class: 'Economy' as const,
+          stops: 2,
+          amenities: ['In-flight entertainment', 'Meals included'],
+          baggage: '20kg checked'
+        },
+        // First class luxury option
+        {
+          id: `${flightPrefix}-6`,
+          airline: airlines[5],
+          flightNumber: `${airlines[5].substring(0,2).toUpperCase()}001`,
+          departure: { airport: fromAirport, time: '12:00', date: flightDate },
+          arrival: { airport: toAirport, time: '19:45', date: flightDate },
+          duration: '8h 45m',
+          price: Math.round(basePrice * 3.5),
+          class: 'First' as const,
+          stops: 0,
+          amenities: ['In-flight entertainment', 'Gourmet meals', 'Wi-Fi', 'Private suite', 'Chauffeur service'],
+          baggage: '50kg checked'
+        }
+      ];
+    };
+    
+    const outboundFlights = generateFlightOptions(true);
 
-    const returnFlights = [
-      {
-        id: 'flight-r1',
-        airline: 'Singapore Airlines',
-        flightNumber: 'SQ002',
-        departure: { airport: destinationCode, time: '10:30', date: travelContext.returnDate || '2025-07-07' },
-        arrival: { airport: sourceCode, time: '18:15', date: travelContext.returnDate || '2025-07-07' },
-        duration: '8h 45m',
-        price: budget === 'luxury' ? 2500 : budget === 'mid-range' ? 1200 : 650,
-        class: 'Economy' as const,
-        stops: 0,
-        amenities: ['In-flight entertainment', 'Meals included', 'Wi-Fi'],
-        baggage: '30kg checked'
-      }
-    ];
+    const returnFlights = generateFlightOptions(false);
 
     // Generate day plans based on context
     const dayPlans = [

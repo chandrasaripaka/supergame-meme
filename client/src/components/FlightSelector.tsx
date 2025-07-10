@@ -80,9 +80,21 @@ export function FlightSelector({ flights, onSelectFlight, direction, travelDetai
       case 'Economy': return 'bg-gray-100 text-gray-800';
       case 'Premium Economy': return 'bg-blue-100 text-blue-800';
       case 'Business': return 'bg-purple-100 text-purple-800';
-      case 'First': return 'bg-gold-100 text-gold-800';
+      case 'First': return 'bg-yellow-100 text-yellow-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const getStopsText = (stops: number) => {
+    if (stops === 0) return 'Non-stop';
+    if (stops === 1) return '1 stop';
+    return `${stops} stops`;
+  };
+
+  const getStopsBadgeColor = (stops: number) => {
+    if (stops === 0) return 'bg-green-100 text-green-800';
+    if (stops === 1) return 'bg-yellow-100 text-yellow-800';
+    return 'bg-red-100 text-red-800';
   };
 
   const getAmenityIcon = (amenity: string) => {

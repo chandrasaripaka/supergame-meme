@@ -270,8 +270,8 @@ export default function Home() {
     
     // Show confirmation toast
     toast({
-      title: "Travel details saved",
-      description: "Your travel information has been automatically saved and can be used for future planning.",
+      title: "Travel itinerary planning started",
+      description: "Your travel details have been saved and we're creating your personalized itinerary.",
     });
     
     // Create a summary message with travel details
@@ -282,9 +282,9 @@ export default function Home() {
 📅 Dates: ${formData.startDate ? new Date(formData.startDate).toLocaleDateString() : 'Flexible'} - ${formData.endDate ? new Date(formData.endDate).toLocaleDateString() : 'Flexible'}
 💰 Budget: ${getBudgetLabel(formData.budget)}
 👥 Travelers: ${getTravelersLabel(formData.travelers)}
-⏱️ Duration: ${getDurationLabel(formData.duration)}
+✈️ Flight Preference: ${getFlightTypeLabel(formData.flightType)}
 
-Let me create a personalized itinerary for you!`;
+Let me create a comprehensive travel itinerary with flight options for you!`;
 
     const summaryMessage: Message = {
       role: 'assistant',
@@ -299,8 +299,41 @@ Let me create a personalized itinerary for you!`;
     setMessages((prevMessages) => [...prevMessages, summaryMessage]);
     
     // Send the travel context to AI for planning
-    const planningPrompt = `Create a detailed travel itinerary with the following details: ${JSON.stringify(formData)}`;
+    const planningPrompt = `Create a detailed travel itinerary with comprehensive flight options (non-stop, one-stop, multiple stops) and day-wise activities for the following travel details: From ${formData.from} to ${formData.destination}, Budget: ${formData.budget}, Travelers: ${formData.travelers}, Flight preference: ${formData.flightType}, Departure: ${formData.startDate}, Return: ${formData.endDate}`;
     mutate(planningPrompt);
+  };
+
+  const handleResetContext = () => {
+    // Clear all travel context and stored data
+    setSavedTravelDetails(null);
+    setTravelContext(null);
+    setRequireTravelDetails(true);
+    setCurrentSessionId(null);
+    
+    // Clear localStorage
+    localStorage.removeItem('savedTravelDetails');
+    localStorage.removeItem('restoreChatSession');
+    
+    // Reset messages to initial state
+    setMessages([
+      {
+        role: 'assistant',
+        content: "Welcome! I'm your AI Travel Concierge. To provide you with the most personalized travel recommendations, I'll need to collect your travel details first. Please fill out the travel form above to get started with your planning.",
+        modelInfo: {
+          provider: "system",
+          model: "dynamic-llm-router",
+          note: "Travel Details Required"
+        }
+      }
+    ]);
+    
+    setShowWelcome(true);
+    setShowTravelForm(false);
+    
+    toast({
+      title: "Context Reset",
+      description: "All travel data has been cleared. You can start fresh with new travel details.",
+    });
   };
 
   const getBudgetLabel = (budget: string) => {
@@ -327,15 +360,14 @@ Let me create a personalized itinerary for you!`;
     return labels[travelers] || travelers;
   };
 
-  const getDurationLabel = (duration: string) => {
+  const getFlightTypeLabel = (flightType: string) => {
     const labels: { [key: string]: string } = {
-      'weekend': 'Weekend (2-3 days)',
-      'short': 'Short Trip (4-7 days)',
-      'medium': '1-2 Weeks',
-      'long': '2-4 Weeks',
-      'extended': 'Over a Month'
+      'nonstop': 'Non-stop flights only',
+      'one_stop': 'Up to 1 stop',
+      'multiple_stops': 'Multiple stops OK',
+      'cheapest': 'Cheapest option'
     };
-    return labels[duration] || duration;
+    return labels[flightType] || flightType;
   };
   
   const handleSavePlan = () => {
@@ -398,6 +430,13 @@ Let me create a personalized itinerary for you!`;
             {user && (
               <>
                 <span className="text-sm text-gray-600">Welcome, {user.username}</span>
+                <button
+                  onClick={handleResetContext}
+                  className="text-sm text-blue-600 hover:text-blue-800 transition-colors px-2 py-1 rounded border border-blue-200 hover:bg-blue-50"
+                  title="Reset travel context and start fresh"
+                >
+                  Reset Context
+                </button>
                 <button
                   onClick={handleLogout}
                   className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
