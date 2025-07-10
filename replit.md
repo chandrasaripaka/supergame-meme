@@ -34,6 +34,8 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-07-10**: Completely removed chat history accordion from TravelPlannerInterface as requested
 - **2025-07-10**: Added team members to business information: Chandra Sekhar Saripaka (Co-Founder & CEO) and Sowjanya Saripaka (Co-Founder & Chief Analytics Officer)
 - **2025-07-10**: Embedded presentation viewer as tile card on home page with "Watch Demo" functionality
+- **2025-07-10**: Fixed duplicate header issue by replacing custom header with AppHeader component
+- **2025-07-10**: Fixed presentation video display using proper video element with controls and fallback poster
 
 ## Project Architecture
 

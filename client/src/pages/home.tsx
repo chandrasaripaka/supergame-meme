@@ -407,51 +407,28 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
   
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {sidebarCollapsed ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                )}
-              </svg>
-            </button>
+      {/* Use the AppHeader component instead of duplicate header */}
+      <AppHeader />
 
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {user && (
-              <>
-                <span className="text-sm text-gray-600">Welcome, {user.username}</span>
-                <button
-                  onClick={handleResetContext}
-                  className="text-sm text-blue-600 hover:text-blue-800 transition-colors px-2 py-1 rounded border border-blue-200 hover:bg-blue-50"
-                  title="Reset travel context and start fresh"
-                >
-                  Reset Context
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                  Logout
-                </button>
-              </>
+      {/* Sidebar Toggle Button for Desktop */}
+      <div className="hidden md:block bg-white border-b border-gray-200 px-4 py-2">
+        <button
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+          title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {sidebarCollapsed ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
             )}
-          </div>
-        </div>
-      </header>
+          </svg>
+        </button>
+      </div>
 
       {/* Main Layout with Sidebar - Mobile Responsive */}
-      <div className="flex min-h-[calc(100vh-73px)]">
+      <div className="flex min-h-[calc(100vh-120px)]">
         {/* Left Sidebar - Vertical Accordion Menu - Hidden on mobile */}
         <aside className={`${sidebarCollapsed ? 'w-16' : 'w-80'} bg-white border-r border-gray-200 flex-shrink-0 transition-all duration-300 overflow-hidden hidden md:block`}>
           <div className={`${sidebarCollapsed ? 'p-2' : 'p-4'} space-y-2`}>
@@ -986,23 +963,16 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
                   
                   <div className="p-6">
                     <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden shadow-inner relative">
-                      <iframe
+                      <video
                         src="/attached_assets/Wander Notes_1751349625623.mp4"
-                        className="w-full h-full"
-                        frameBorder="0"
-                        allowFullScreen
-                        title="WanderNotes Demo Presentation"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                        <div className="text-center text-white">
-                          <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M8 5v14l11-7z"/>
-                            </svg>
-                          </div>
-                          <p className="text-sm font-medium">Click to watch the demo</p>
-                        </div>
-                      </div>
+                        className="w-full h-full object-cover"
+                        controls
+                        preload="metadata"
+                        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 600'%3E%3Crect width='100%25' height='100%25' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.35em' fill='%236b7280' font-family='system-ui' font-size='24'%3EWanderNotes Demo%3C/text%3E%3C/svg%3E"
+                      >
+                        <source src="/attached_assets/Wander Notes_1751349625623.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
                     </div>
                     
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
