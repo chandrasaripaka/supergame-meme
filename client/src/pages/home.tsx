@@ -961,16 +961,15 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
                   
                   <div className="p-6">
                     <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden shadow-inner relative">
-                      <video
-                        src="/attached_assets/Wander Notes_1751349625623.mp4"
-                        className="w-full h-full object-cover"
-                        controls
-                        preload="metadata"
-                        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 600'%3E%3Crect width='100%25' height='100%25' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.35em' fill='%236b7280' font-family='system-ui' font-size='24'%3EWanderNotes Demo%3C/text%3E%3C/svg%3E"
-                      >
-                        <source src="/attached_assets/Wander Notes_1751349625623.mp4" type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
+                      <div style={{position:"relative",width:"100%",height:"0",paddingBottom:"56.25%"}}>
+                        <iframe 
+                          allow="clipboard-write" 
+                          allowFullScreen 
+                          style={{position:"absolute", width: "100%", height: "100%",border: "solid 1px #333"}} 
+                          src="https://www.beautiful.ai/embed/-OUoEYQk24eEQTJFYGer?utm_source=beautiful_player&utm_medium=embed&utm_campaign=-OUJqAxT5nyPAvTcrGsu"
+                          title="Revolutionizing Travel Planning with WanderNotes"
+                        />
+                      </div>
                     </div>
                     
                     <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
