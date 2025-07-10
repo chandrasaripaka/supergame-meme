@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { AirportSelector } from '@/components/AirportSelector';
 import { format } from 'date-fns';
 
 interface TravelFormData {
@@ -64,11 +65,10 @@ export function TravelQuickForm({ onSubmit, onSkip, initialData }: TravelFormPro
           <Label htmlFor="from" className="text-sm font-medium text-gray-700">
             Where are you traveling from?
           </Label>
-          <Input
-            id="from"
-            placeholder="e.g., New York, London, Singapore"
+          <AirportSelector
             value={formData.from}
-            onChange={(e) => setFormData({ ...formData, from: e.target.value })}
+            onChange={(value) => setFormData({ ...formData, from: value })}
+            placeholder="Select departure airport"
             className="w-full"
           />
         </div>
@@ -78,11 +78,10 @@ export function TravelQuickForm({ onSubmit, onSkip, initialData }: TravelFormPro
           <Label htmlFor="destination" className="text-sm font-medium text-gray-700">
             Where do you want to go?
           </Label>
-          <Input
-            id="destination"
-            placeholder="e.g., Paris, Tokyo, New York"
+          <AirportSelector
             value={formData.destination}
-            onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
+            onChange={(value) => setFormData({ ...formData, destination: value })}
+            placeholder="Select destination airport"
             className="w-full"
           />
         </div>
