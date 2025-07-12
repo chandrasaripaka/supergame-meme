@@ -20,7 +20,7 @@ import PriceComparisonPage from "@/pages/price-comparison";
 import BookingPage from "@/pages/booking";
 import BookingsPage from "@/pages/bookings";
 import ScrapbookPage from "@/pages/scrapbook-fixed";
-import AboutUsPage from "@/pages/about-us";
+
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -53,7 +53,7 @@ function Router() {
           <Route path="/booking" component={BookingPage} />
           <Route path="/bookings" component={BookingsPage} />
           <Route path="/scrapbook" component={ScrapbookPage} />
-          <Route path="/about-us" component={AboutUsPage} />
+
           <Route component={NotFound} />
         </Switch>
       </main>

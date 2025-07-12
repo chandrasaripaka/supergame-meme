@@ -44,6 +44,7 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-07-12**: Removed "Watch Demo" button from landing page and integrated presentation directly into hero section
 - **2025-07-12**: Created comprehensive favicon system using TWV logo in map pin design
 - **2025-07-12**: Added favicon.svg, site.webmanifest, and browserconfig.xml for cross-platform icon support
+- **2025-07-12**: Moved About Us section from home page to landing page for better user flow
 
 ## Project Architecture
 

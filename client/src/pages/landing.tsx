@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, Star, Globe, Brain, Heart, Map, Users, BookOpen, Zap, Shield, MessageCircle } from 'lucide-react';
+import { Check, Star, Globe, Brain, Heart, Map, Users, BookOpen, Zap, Shield, MessageCircle, Building, Package, MapPin } from 'lucide-react';
 import { SponsorCard } from '@/components/SponsorButton';
 
 export default function LandingPage() {
@@ -460,6 +460,145 @@ export default function LandingPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* About Us Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                About WanderNotes
+              </h2>
+              <p className="text-lg text-gray-600">
+                Learn more about our mission, team, and the future of AI-powered travel planning
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 mb-16">
+              {/* Company Overview */}
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <div className="flex items-center mb-6">
+                  <Building className="w-8 h-8 text-blue-600 mr-3" />
+                  <h3 className="text-2xl font-semibold text-gray-900">Company Overview</h3>
+                </div>
+                <div className="space-y-4">
+                  <p className="text-gray-700 leading-relaxed">
+                    WanderNotes by TabTapAI PTE LTD Singapore is revolutionizing the travel industry by combining artificial intelligence with personalized travel planning. Our platform serves as "The Notion + ChatGPT of travel," providing intelligent, conversational travel assistance.
+                  </p>
+                  <p className="text-gray-700 leading-relaxed">
+                    We solve the complexity of modern travel planning by offering a unified platform that integrates flight search, accommodation booking, itinerary creation, and real-time travel assistance.
+                  </p>
+                </div>
+              </div>
+
+              {/* Team Information */}
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <div className="flex items-center mb-6">
+                  <Users className="w-8 h-8 text-green-600 mr-3" />
+                  <h3 className="text-2xl font-semibold text-gray-900">Our Team</h3>
+                </div>
+                <div className="space-y-6">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                      Chandra Sekhar Saripaka
+                    </h4>
+                    <p className="text-blue-600 font-medium mb-2">Co-Founder & CEO</p>
+                    <p className="text-gray-700 text-sm">
+                      Visionary leader driving the strategic direction of WanderNotes with extensive experience in AI and travel technology.
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                      Sowjanya Saripaka
+                    </h4>
+                    <p className="text-purple-600 font-medium mb-2">Co-Founder & Chief Analytics Officer</p>
+                    <p className="text-gray-700 text-sm">
+                      Analytics expert responsible for data-driven insights and machine learning implementations.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Our Products */}
+            <div className="bg-white rounded-xl shadow-lg p-8 mb-16">
+              <div className="flex items-center mb-6">
+                <Package className="w-8 h-8 text-purple-600 mr-3" />
+                <h3 className="text-2xl font-semibold text-gray-900">Our Products</h3>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="border-l-4 border-blue-500 pl-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                    AI Travel Concierge
+                  </h4>
+                  <p className="text-gray-700">
+                    Comprehensive travel planning platform with conversational AI, real-time travel data, and intelligent itinerary generation.
+                  </p>
+                </div>
+                <div className="border-l-4 border-green-500 pl-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                    Travel Memory Scrapbook
+                  </h4>
+                  <p className="text-gray-700">
+                    AI-assisted storytelling and visual documentation to create and share beautiful travel memories.
+                  </p>
+                </div>
+                <div className="border-l-4 border-purple-500 pl-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                    Enterprise Solutions
+                  </h4>
+                  <p className="text-gray-700">
+                    Business travel management solutions with corporate policy integration and expense management.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Development Roadmap */}
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="flex items-center mb-6">
+                <MapPin className="w-8 h-8 text-orange-600 mr-3" />
+                <h3 className="text-2xl font-semibold text-gray-900">Development Roadmap</h3>
+              </div>
+              <div className="space-y-8">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900">Phase 1: Core Platform (Current)</h4>
+                    <p className="text-gray-700 mt-2">
+                      AI-powered travel planning, flight integration, accommodation search, and basic itinerary generation.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900">Phase 2: Enhanced Features (Q2 2025)</h4>
+                    <p className="text-gray-700 mt-2">
+                      Real-time booking capabilities, advanced analytics, social features, and enhanced mobile experience.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                    <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900">Phase 3: Enterprise & Global (Q3-Q4 2025)</h4>
+                    <p className="text-gray-700 mt-2">
+                      Enterprise solutions, global expansion, advanced AI personalization, and major platform integrations.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
