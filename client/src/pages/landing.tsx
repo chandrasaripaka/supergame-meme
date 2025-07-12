@@ -126,9 +126,57 @@ export default function LandingPage() {
                   Start Planning Your Journey
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="px-8 py-3">
-                Watch Demo
-              </Button>
+            </div>
+            
+            {/* Presentation Demo */}
+            <div className="mt-16 max-w-4xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div className="p-6">
+                  <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden shadow-inner relative">
+                    <div style={{position:"relative",width:"100%",height:"0",paddingBottom:"56.25%"}}>
+                      <iframe 
+                        allow="clipboard-write" 
+                        allowFullScreen 
+                        style={{position:"absolute", width: "100%", height: "100%",border: "solid 1px #333"}} 
+                        src="https://www.beautiful.ai/embed/-OUoEYQk24eEQTJFYGer?utm_source=beautiful_player&utm_medium=embed&utm_campaign=-OUJqAxT5nyPAvTcrGsu"
+                        title="Revolutionizing Travel Planning with WanderNotes"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Brain className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">AI-Powered Planning</h4>
+                        <p className="text-sm text-gray-600 mt-1">See how our AI creates personalized itineraries</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Zap className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">Real-time Integration</h4>
+                        <p className="text-sm text-gray-600 mt-1">Live flight search and booking options</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-3">
+                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Heart className="w-6 h-6 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">Memory Scrapbook</h4>
+                        <p className="text-sm text-gray-600 mt-1">Create and share beautiful travel memories</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
