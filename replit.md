@@ -38,6 +38,8 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-07-10**: Replaced presentation video with Beautiful.ai embedded presentation iframe for better integration
 - **2025-07-10**: Moved Business Information section from home page sidebar to dedicated About Us page
 - **2025-07-10**: Added About Us navigation link to header and replaced sidebar accordion with simple About Us link
+- **2025-07-11**: Moved Beautiful.ai presentation from chat window to prominent position at top of home page
+- **2025-07-11**: Implemented comprehensive airport selector dropdowns for From/Destination fields with 100+ global airports
 
 ## Project Architecture
 

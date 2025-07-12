@@ -904,11 +904,9 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
             </div>
           )}
 
-          {/* Chat Interface - At the top after header */}
-          <div className="flex-1 min-h-0">
-            {/* Presentation Demo Tile Card */}
-            {showPresentationViewer && (
-              <div className="p-2 md:p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+          {/* Presentation Demo Tile Card - Now at top of home page */}
+          {showPresentationViewer && (
+            <div className="p-2 md:p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                   <div className="p-4 border-b border-gray-100">
@@ -991,9 +989,11 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
                   </div>
                 </div>
               </div>
-              </div>
-            )}
-            
+            </div>
+          )}
+
+          {/* Chat Interface - Now below the presentation */}
+          <div className="flex-1 min-h-0">
             {/* Show travel form if details are required */}
             {(showTravelForm || (requireTravelDetails && !savedTravelDetails)) && (
               <div className="p-2 md:p-4 border-b bg-gray-50">
