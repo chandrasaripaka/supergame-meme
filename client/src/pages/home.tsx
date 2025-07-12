@@ -724,6 +724,94 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
             </div>
           </div>
 
+          {/* Presentation Demo Tile Card - Now at top of home page */}
+          {showPresentationViewer && (
+            <div className="p-2 md:p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+              <div className="max-w-4xl mx-auto">
+                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                  <div className="p-4 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">Watch Demo: WanderNotes in Action</h3>
+                          <p className="text-sm text-gray-600">See how our AI travel concierge transforms your travel planning experience</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Live Demo</span>
+                        <button 
+                          onClick={() => setShowPresentationViewer(false)}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6">
+                    <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden shadow-inner relative">
+                      <div style={{position:"relative",width:"100%",height:"0",paddingBottom:"56.25%"}}>
+                        <iframe 
+                          allow="clipboard-write" 
+                          allowFullScreen 
+                          style={{position:"absolute", width: "100%", height: "100%",border: "solid 1px #333"}} 
+                          src="https://www.beautiful.ai/embed/-OUoEYQk24eEQTJFYGer?utm_source=beautiful_player&utm_medium=embed&utm_campaign=-OUJqAxT5nyPAvTcrGsu"
+                          title="Revolutionizing Travel Planning with WanderNotes"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900 text-sm">AI-Powered Planning</h4>
+                          <p className="text-xs text-gray-600 mt-1">See how our AI creates personalized itineraries</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900 text-sm">Flight Integration</h4>
+                          <p className="text-xs text-gray-600 mt-1">Real-time flight search and booking options</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900 text-sm">Memory Scrapbook</h4>
+                          <p className="text-xs text-gray-600 mt-1">Create and share beautiful travel memories</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Mobile Sidebar Overlay */}
           {showMobileMenu && (
             <div className="fixed inset-0 z-50 md:hidden">
@@ -899,94 +987,6 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
                       </a>
                     </div>
                   </details>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Presentation Demo Tile Card - Now at top of home page */}
-          {showPresentationViewer && (
-            <div className="p-2 md:p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
-              <div className="max-w-4xl mx-auto">
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                  <div className="p-4 border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">Watch Demo: WanderNotes in Action</h3>
-                          <p className="text-sm text-gray-600">See how our AI travel concierge transforms your travel planning experience</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">Live Demo</span>
-                        <button 
-                          onClick={() => setShowPresentationViewer(false)}
-                          className="text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-6">
-                    <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden shadow-inner relative">
-                      <div style={{position:"relative",width:"100%",height:"0",paddingBottom:"56.25%"}}>
-                        <iframe 
-                          allow="clipboard-write" 
-                          allowFullScreen 
-                          style={{position:"absolute", width: "100%", height: "100%",border: "solid 1px #333"}} 
-                          src="https://www.beautiful.ai/embed/-OUoEYQk24eEQTJFYGer?utm_source=beautiful_player&utm_medium=embed&utm_campaign=-OUJqAxT5nyPAvTcrGsu"
-                          title="Revolutionizing Travel Planning with WanderNotes"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900 text-sm">AI-Powered Planning</h4>
-                          <p className="text-xs text-gray-600 mt-1">See how our AI creates personalized itineraries</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900 text-sm">Flight Integration</h4>
-                          <p className="text-xs text-gray-600 mt-1">Real-time flight search and booking options</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900 text-sm">Memory Scrapbook</h4>
-                          <p className="text-xs text-gray-600 mt-1">Create and share beautiful travel memories</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
