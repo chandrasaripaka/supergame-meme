@@ -639,7 +639,7 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                   />
                 )}
 
-                {/* Action Buttons */}
+                {/* Action Buttons - Mobile-Responsive */}
                 <div className="flex flex-wrap gap-2 mt-4">
                   <SaveTripButton 
                     messages={messages} 
@@ -647,11 +647,11 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                   />
                   <button
                     onClick={handleExportPDF}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm flex items-center transition"
+                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 md:px-4 md:py-2 rounded-md text-xs md:text-sm flex items-center transition"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 mr-1"
+                      className="h-3 w-3 mr-1 md:h-4 md:w-4"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -663,15 +663,16 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                       />
                     </svg>
-                    Export PDF
+                    <span className="hidden sm:inline">Export PDF</span>
+                    <span className="sm:hidden">PDF</span>
                   </button>
                   <button
                     onClick={handleModifyPlan}
-                    className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md text-sm flex items-center transition"
+                    className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-md text-xs md:text-sm flex items-center transition"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 mr-1"
+                      className="h-3 w-3 mr-1 md:h-4 md:w-4"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -683,15 +684,16 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                       />
                     </svg>
-                    Modify Plan
+                    <span className="hidden sm:inline">Modify Plan</span>
+                    <span className="sm:hidden">Edit</span>
                   </button>
                   <button
                     onClick={handleCreateReport}
-                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md text-sm flex items-center transition"
+                    className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-md text-xs md:text-sm flex items-center transition"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 mr-1"
+                      className="h-3 w-3 mr-1 md:h-4 md:w-4"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -703,7 +705,8 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    Create Report
+                    <span className="hidden sm:inline">Create Report</span>
+                    <span className="sm:hidden">Report</span>
                   </button>
                 </div>
               </div>
@@ -711,8 +714,8 @@ Please create a detailed itinerary with flight options, accommodations, activiti
           )}
       </div>
 
-      {/* Input Area - OpenAI Style */}
-      <div className="mt-6 px-4">
+      {/* Input Area - Mobile-Responsive */}
+      <div className="mt-6 px-2 md:px-4">
         <form onSubmit={handleSubmit} className="relative">
           <div className="relative bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
             <Input
@@ -720,15 +723,15 @@ Please create a detailed itinerary with flight options, accommodations, activiti
               placeholder="Message WanderNotes..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full px-4 py-4 pr-20 border-0 rounded-xl resize-none focus:ring-0 focus:outline-none text-base"
-              style={{ minHeight: '56px' }}
+              className="w-full px-3 py-3 pr-16 md:px-4 md:py-4 md:pr-20 border-0 rounded-xl resize-none focus:ring-0 focus:outline-none text-sm md:text-base"
+              style={{ minHeight: '48px' }}
             />
             
-            {/* Voice Input Button */}
+            {/* Voice Input Button - Mobile-Responsive */}
             <button
               type="button"
               onClick={handleVoiceInput}
-              className={`absolute right-14 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-colors ${
+              className={`absolute right-10 md:right-14 top-1/2 transform -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-colors ${
                 isListening
                   ? "text-primary bg-primary/10"
                   : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
@@ -738,7 +741,7 @@ Please create a detailed itinerary with flight options, accommodations, activiti
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4 md:h-5 md:w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -751,17 +754,17 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                 />
               </svg>
               {isListening && (
-                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="absolute -top-1 -right-1 flex h-2 w-2 md:h-3 md:w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 md:h-3 md:w-3 bg-primary"></span>
                 </span>
               )}
             </button>
 
-            {/* Send Button */}
+            {/* Send Button - Mobile-Responsive */}
             <button
               type="submit"
-              className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-colors ${
+              className={`absolute right-1.5 md:right-2 top-1/2 transform -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-colors ${
                 inputValue.trim() && !isLoading
                   ? "bg-primary text-white hover:bg-primary/90"
                   : "bg-gray-100 text-gray-400"
@@ -769,14 +772,14 @@ Please create a detailed itinerary with flight options, accommodations, activiti
               disabled={!inputValue.trim() || isLoading}
             >
               {isLoading ? (
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <svg className="animate-spin h-4 w-4 md:h-5 md:w-5" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               ) : (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
+                  className="h-4 w-4 md:h-5 md:w-5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -792,18 +795,18 @@ Please create a detailed itinerary with flight options, accommodations, activiti
             </button>
           </div>
 
-          {/* Action Buttons - Below Input */}
-          <div className="mt-3 flex justify-center gap-3">
+          {/* Action Buttons - Below Input, Mobile-Responsive */}
+          <div className="mt-3 flex justify-center gap-2 md:gap-3 flex-wrap">
             {showInlineTravelForm && (
               <Button
                 type="button"
                 onClick={handlePlanTripClick}
                 variant="outline"
-                className="text-sm px-4 py-2"
+                className="text-xs md:text-sm px-3 py-1.5 md:px-4 md:py-2 flex-1 md:flex-none min-w-0"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-2"
+                  className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -815,7 +818,7 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"
                   />
                 </svg>
-                Plan a Trip
+                <span className="truncate">Plan a Trip</span>
               </Button>
             )}
             
@@ -825,11 +828,11 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                 type="button"
                 onClick={handleCreateReport}
                 variant="outline"
-                className="text-sm px-4 py-2 bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+                className="text-xs md:text-sm px-3 py-1.5 md:px-4 md:py-2 bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 flex-1 md:flex-none min-w-0"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-2"
+                  className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -841,7 +844,7 @@ Please create a detailed itinerary with flight options, accommodations, activiti
                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                Create Report
+                <span className="truncate">Create Report</span>
               </Button>
             )}
           </div>

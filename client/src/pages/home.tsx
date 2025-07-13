@@ -418,7 +418,7 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
     <div className="min-h-screen bg-gray-50">
 
       {/* Sidebar Toggle Button for Desktop */}
-      <div className="hidden md:block bg-white border-b border-gray-200 px-4 py-2">
+      <div className="hidden lg:block bg-white border-b border-gray-200 px-4 py-2">
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           className="p-2 rounded-md hover:bg-gray-100 transition-colors"
@@ -436,8 +436,8 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
 
       {/* Main Layout with Sidebar - Mobile Responsive */}
       <div className="flex min-h-[calc(100vh-120px)]">
-        {/* Left Sidebar - Vertical Accordion Menu - Hidden on mobile */}
-        <aside className={`${sidebarCollapsed ? 'w-16' : 'w-80'} bg-white border-r border-gray-200 flex-shrink-0 transition-all duration-300 overflow-hidden hidden md:block`}>
+        {/* Left Sidebar - Vertical Accordion Menu - Hidden on mobile and tablet */}
+        <aside className={`${sidebarCollapsed ? 'w-16' : 'w-80'} bg-white border-r border-gray-200 flex-shrink-0 transition-all duration-300 overflow-hidden hidden lg:block`}>
           <div className={`${sidebarCollapsed ? 'p-2' : 'p-4'} space-y-2`}>
             {/* Travel Topics Accordion */}
             {sidebarCollapsed ? (
@@ -683,21 +683,21 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0">
-          {/* Mobile Action Bar */}
-          <div className="md:hidden border-b bg-white">
+          {/* Mobile Action Bar - Enhanced for better mobile UX */}
+          <div className="lg:hidden border-b bg-white shadow-sm">
             <div className="flex items-center justify-between p-3">
               <button
                 onClick={() => setShowTravelForm(true)}
-                className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium mr-3"
+                className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium mr-3 shadow-sm hover:bg-blue-700 transition-colors"
               >
                 Plan New Trip
               </button>
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="p-2 text-gray-600 hover:text-gray-800"
+                className="p-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
             </div>
@@ -705,17 +705,17 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
 
 
 
-          {/* Mobile Sidebar Overlay */}
+          {/* Mobile Sidebar Overlay - Enhanced for better mobile UX */}
           {showMobileMenu && (
-            <div className="fixed inset-0 z-50 md:hidden">
+            <div className="fixed inset-0 z-50 lg:hidden">
               <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setShowMobileMenu(false)} />
-              <div className="fixed left-0 top-0 h-full w-80 bg-white shadow-lg overflow-y-auto">
-                <div className="p-4 border-b">
+              <div className="fixed left-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-lg overflow-y-auto">
+                <div className="p-4 border-b bg-gray-50">
                   <div className="flex items-center justify-between">
-                    <h2 className="font-semibold text-lg">Menu</h2>
+                    <h2 className="font-semibold text-lg text-gray-900">Menu</h2>
                     <button
                       onClick={() => setShowMobileMenu(false)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-200 rounded-full transition-colors"
                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -887,9 +887,9 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
 
           {/* Chat Interface - Now below the presentation */}
           <div className="flex-1 min-h-0">
-            {/* Show travel form if details are required */}
+            {/* Show travel form if details are required - Mobile-Responsive */}
             {(showTravelForm || (requireTravelDetails && !savedTravelDetails)) && (
-              <div className="p-2 md:p-4 border-b bg-gray-50">
+              <div className="p-3 md:p-4 border-b bg-gray-50">
                 <TravelForm 
                   onSubmit={handleTravelFormSubmit} 
                   onClose={() => setShowTravelForm(false)}
@@ -914,25 +914,25 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
         </main>
       </div>
 
-      {/* Travel Form Modal */}
+      {/* Travel Form Modal - Mobile-Responsive */}
       {showTravelForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[95vh] md:max-h-[90vh] overflow-y-auto">
+            <div className="p-4 md:p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Plan Your Perfect Trip</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900">Plan Your Perfect Trip</h2>
                 <button
                   onClick={() => setShowTravelForm(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 hover:bg-gray-100 rounded-full"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
             
-            <div className="p-6">
+            <div className="p-4 md:p-6">
               <TravelForm 
                 onSubmit={handleTravelFormSubmit}
                 onClose={() => setShowTravelForm(false)}

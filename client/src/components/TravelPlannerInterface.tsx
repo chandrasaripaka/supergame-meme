@@ -275,31 +275,30 @@ export function TravelPlannerInterface({
   };
 
   return (
-    <div className="h-full flex flex-col md:flex-row">
-
+    <div className="h-full flex flex-col">
       {/* Main Content */}
       <div className="flex-1 min-w-0 h-full">
         <div className="h-full flex flex-col">
-          {/* Travel Context - Ultra Minimal */}
+          {/* Travel Context - Mobile-Responsive */}
           {travelContext && (
-            <div className="border-b bg-blue-50 px-2 py-1.5">
+            <div className="border-b bg-blue-50 px-3 py-2 md:px-2 md:py-1.5">
               <div className="flex items-center justify-between">
-                <span className="font-medium text-sm truncate">{travelContext.destination}</span>
+                <span className="font-medium text-sm md:text-xs truncate">{travelContext.destination}</span>
                 <span className="text-xs text-blue-600 font-medium">${travelContext.budget}</span>
               </div>
             </div>
           )}
 
-          {/* Tab Navigation - Ultra Clean */}
+          {/* Tab Navigation - Mobile-Responsive */}
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'chat' | 'itinerary')} className="flex-1 flex flex-col">
-            <div className="border-b bg-white px-2 py-1">
+            <div className="border-b bg-white px-3 py-2 md:px-2 md:py-1">
               <div className="flex">
                 <button
                   onClick={() => setActiveTab('chat')}
-                  className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-l ${
+                  className={`flex-1 px-4 py-2 md:px-3 md:py-1.5 text-sm md:text-xs font-medium rounded-l transition-colors ${
                     activeTab === 'chat' 
                       ? 'bg-blue-100 text-blue-700' 
-                      : 'text-gray-600 hover:text-gray-800'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
                   }`}
                 >
                   Chat
@@ -307,11 +306,11 @@ export function TravelPlannerInterface({
                 <button
                   onClick={() => setActiveTab('itinerary')}
                   disabled={!travelContext}
-                  className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-r ${
+                  className={`flex-1 px-4 py-2 md:px-3 md:py-1.5 text-sm md:text-xs font-medium rounded-r transition-colors ${
                     activeTab === 'itinerary' 
                       ? 'bg-blue-100 text-blue-700' 
                       : travelContext 
-                        ? 'text-gray-600 hover:text-gray-800' 
+                        ? 'text-gray-600 hover:text-gray-800 hover:bg-gray-50' 
                         : 'text-gray-400 cursor-not-allowed'
                   }`}
                 >
