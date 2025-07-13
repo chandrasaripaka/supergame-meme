@@ -24,6 +24,8 @@ interface TravelPlannerInterfaceProps {
   onExportPDF?: () => void;
   onModifyPlan?: () => void;
   currentSessionId?: number | null;
+  isStudyMode?: boolean;
+  onToggleStudyMode?: () => void;
 }
 
 interface ChatSession {
@@ -41,7 +43,9 @@ export function TravelPlannerInterface({
   onSavePlan,
   onExportPDF,
   onModifyPlan,
-  currentSessionId
+  currentSessionId,
+  isStudyMode,
+  onToggleStudyMode
 }: TravelPlannerInterfaceProps) {
   const [activeTab, setActiveTab] = useState<'chat' | 'itinerary'>('chat');
   const [chatHistoryCollapsed, setChatHistoryCollapsed] = useState(false);
@@ -330,6 +334,8 @@ export function TravelPlannerInterface({
                   onModifyPlan={onModifyPlan}
                   isLoading={isLoading}
                   showFormByDefault={false}
+                  isStudyMode={isStudyMode}
+                  onToggleStudyMode={onToggleStudyMode}
                 />
               </div>
             </TabsContent>

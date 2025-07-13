@@ -21,6 +21,7 @@ export default function Home() {
   const [requireTravelDetails, setRequireTravelDetails] = useState(true);
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isStudyMode, setIsStudyMode] = useState(false);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -266,6 +267,18 @@ export default function Home() {
 
   const handleSuggestionClick = (suggestion: string) => {
     handleSendMessage(suggestion);
+  };
+
+  const handleToggleStudyMode = () => {
+    setIsStudyMode(prev => !prev);
+    const newMode = !isStudyMode;
+    
+    toast({
+      title: `Study Mode ${newMode ? 'Enabled' : 'Disabled'}`,
+      description: newMode 
+        ? "Enhanced learning features activated for focused travel planning"
+        : "Study mode disabled - back to normal chat mode",
+    });
   };
 
   const handleTravelFormSubmit = (formData: any) => {
@@ -908,6 +921,8 @@ Let me create a comprehensive travel itinerary with flight options for you!`;
                 isLoading={isPending}
                 travelContext={travelContext}
                 currentSessionId={currentSessionId}
+                isStudyMode={isStudyMode}
+                onToggleStudyMode={handleToggleStudyMode}
               />
             </div>
           </div>

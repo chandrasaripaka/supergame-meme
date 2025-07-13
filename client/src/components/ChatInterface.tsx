@@ -73,6 +73,8 @@ interface ChatInterfaceProps {
   onSavePlan?: () => void;
   onExportPDF?: () => void;
   onModifyPlan?: () => void;
+  isStudyMode?: boolean;
+  onToggleStudyMode?: () => void;
   isLoading: boolean;
   showFormByDefault?: boolean;
 }
@@ -85,6 +87,8 @@ export function ChatInterface({
   onModifyPlan,
   isLoading,
   showFormByDefault = true,
+  isStudyMode = false,
+  onToggleStudyMode,
 }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState("");
   const [isListening, setIsListening] = useState(false);
@@ -513,6 +517,42 @@ Please create a detailed itinerary with flight options, accommodations, activiti
 
   return (
     <div className="w-full">
+      {/* Study Mode Indicator */}
+      {isStudyMode && (
+        <div className="mb-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-3 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3 w-3 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-purple-800">Study Mode Active</p>
+              <p className="text-xs text-purple-600">Enhanced learning features enabled for travel planning</p>
+            </div>
+          </div>
+          {onToggleStudyMode && (
+            <button
+              onClick={onToggleStudyMode}
+              className="text-purple-600 hover:text-purple-800 text-sm font-medium transition-colors"
+            >
+              Turn Off
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Chat Messages Container - Perplexity Style */}
       <div
         ref={chatContainerRef}
@@ -822,6 +862,38 @@ Please create a detailed itinerary with flight options, accommodations, activiti
               </Button>
             )}
             
+            {/* Study Mode Toggle Button */}
+            {onToggleStudyMode && (
+              <Button
+                type="button"
+                onClick={onToggleStudyMode}
+                variant="outline"
+                className={`text-xs md:text-sm px-3 py-1.5 md:px-4 md:py-2 flex-1 md:flex-none min-w-0 ${
+                  isStudyMode
+                    ? "bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+                    : "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                }`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+                <span className="truncate">
+                  {isStudyMode ? "Study Mode" : "Study Mode"}
+                </span>
+              </Button>
+            )}
+
             {/* Create Report Button - Show when there's conversation history */}
             {messages.length > 1 && (
               <Button
