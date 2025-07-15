@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Check, Star, Globe, Brain, Heart, Map, Users, BookOpen, Zap, Shield, MessageCircle, Building, Package, MapPin } from 'lucide-react';
 import { SponsorCard } from '@/components/SponsorButton';
+import { TravelFlowDiagram } from '@/components/TravelFlowDiagram';
 
 export default function LandingPage() {
   const [selectedPlan, setSelectedPlan] = useState<'explorer' | 'wanderer' | 'travel_pro'>('wanderer');
@@ -179,6 +180,13 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Travel Flow Diagram Section */}
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container mx-auto px-4">
+          <TravelFlowDiagram />
         </div>
       </section>
 
