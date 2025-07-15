@@ -70,10 +70,7 @@ export function AppHeader() {
               <Book className="h-5 w-5" />
               <span className="hidden sm:inline-block ml-1">Scrapbook</span>
             </Link>
-            <Link href="/bookings" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
-              <CalendarDays className="h-5 w-5" />
-              <span className="hidden sm:inline-block ml-1">Bookings</span>
-            </Link>
+
             <Link href="/about-us" className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center">
               <Info className="h-5 w-5" />
               <span className="hidden sm:inline-block ml-1">About Us</span>

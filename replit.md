@@ -56,6 +56,7 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-07-13**: Added Study Mode feature with visual indicator and toggle functionality for enhanced learning experience
 - **2025-07-13**: Implemented Study Mode toggle button in chat interface with gradient visual indicator
 - **2025-07-13**: Updated ChatInterface and TravelPlannerInterface to support Study Mode props and functionality
+- **2025-07-15**: Removed Bookings Tab from application including navigation links, components, pages, and API routes
 
 ## Project Architecture
 

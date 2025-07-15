@@ -22,7 +22,7 @@ import { eq, and, desc, asc } from "drizzle-orm";
 import { z } from "zod";
 import authRoutes from "./routes/auth";
 import localAuthRoutes from "./routes/local-auth";
-import bookingChatRoutes from "./routes/booking-chat";
+
 import { isAuthenticated, createTemporarySession } from "./services/auth";
 import { getWeather } from "./services/weather";
 import { getPlaceDetails } from "./services/places";
@@ -368,8 +368,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register local auth routes for testing
   app.use('/api/local-auth', localAuthRoutes);
   
-  // Register booking chat routes
-  app.use('/api/booking-chat', bookingChatRoutes);
+
 
   // User routes
   app.post(`${apiPrefix}/users`, async (req, res) => {
@@ -1688,129 +1687,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register all routes with authentication middleware
   app.use('/auth', authRoutes);
   app.use('/auth/local', localAuthRoutes);
-  app.use('/api/booking', bookingChatRoutes);
-
-  // Booking Management Routes
-  app.get("/api/bookings", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    try {
-      const { tripId } = req.query;
-      
-      let query = db.query.bookings.findMany({
-        where: eq(bookings.userId, req.user!.id),
-        orderBy: desc(bookings.createdAt),
-        with: {
-          trip: true
-        }
-      });
-
-      if (tripId) {
-        query = db.query.bookings.findMany({
-          where: and(
-            eq(bookings.userId, req.user!.id),
-            eq(bookings.tripId, parseInt(tripId as string))
-          ),
-          orderBy: desc(bookings.createdAt),
-          with: {
-            trip: true
-          }
-        });
-      }
-
-      const userBookings = await query;
-      res.json(userBookings);
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
-      res.status(500).json({ error: "Failed to fetch bookings" });
-    }
-  });
-
-  app.post("/api/bookings", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    try {
-      const bookingData = {
-        ...req.body,
-        userId: req.user!.id
-      };
-
-      const [newBooking] = await db.insert(bookings).values(bookingData).returning();
-      res.status(201).json(newBooking);
-    } catch (error) {
-      console.error("Error creating booking:", error);
-      res.status(500).json({ error: "Failed to create booking" });
-    }
-  });
-
-  app.patch("/api/bookings/:id", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    try {
-      const bookingId = parseInt(req.params.id);
-      const updateData = req.body;
-
-      // Ensure user can only update their own bookings
-      const existingBooking = await db.query.bookings.findFirst({
-        where: and(
-          eq(bookings.id, bookingId),
-          eq(bookings.userId, req.user!.id)
-        )
-      });
-
-      if (!existingBooking) {
-        return res.status(404).json({ error: "Booking not found" });
-      }
-
-      const [updatedBooking] = await db
-        .update(bookings)
-        .set({
-          ...updateData,
-          updatedAt: new Date()
-        })
-        .where(eq(bookings.id, bookingId))
-        .returning();
-
-      res.json(updatedBooking);
-    } catch (error) {
-      console.error("Error updating booking:", error);
-      res.status(500).json({ error: "Failed to update booking" });
-    }
-  });
-
-  app.delete("/api/bookings/:id", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    try {
-      const bookingId = parseInt(req.params.id);
-
-      // Ensure user can only delete their own bookings
-      const existingBooking = await db.query.bookings.findFirst({
-        where: and(
-          eq(bookings.id, bookingId),
-          eq(bookings.userId, req.user!.id)
-        )
-      });
-
-      if (!existingBooking) {
-        return res.status(404).json({ error: "Booking not found" });
-      }
-
-      await db.delete(bookings).where(eq(bookings.id, bookingId));
-      res.status(204).send();
-    } catch (error) {
-      console.error("Error deleting booking:", error);
-      res.status(500).json({ error: "Failed to delete booking" });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
