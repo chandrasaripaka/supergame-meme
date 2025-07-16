@@ -136,6 +136,130 @@ export const insertAttractionSchema = createInsertSchema(attractions).pick({
   type: true,
 });
 
+// Airports table for comprehensive airport data
+export const airports = pgTable("airports", {
+  id: serial("id").primaryKey(),
+  iataCode: varchar("iata_code", { length: 3 }).notNull().unique(),
+  icaoCode: varchar("icao_code", { length: 4 }),
+  name: text("name").notNull(),
+  city: text("city").notNull(),
+  country: text("country").notNull(),
+  countryCode: varchar("country_code", { length: 2 }).notNull(),
+  region: text("region"),
+  continent: text("continent"),
+  timezone: text("timezone"),
+  coordinates: jsonb("coordinates").default({}),
+  elevation: integer("elevation"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertAirportSchema = createInsertSchema(airports).pick({
+  iataCode: true,
+  icaoCode: true,
+  name: true,
+  city: true,
+  country: true,
+  countryCode: true,
+  region: true,
+  continent: true,
+  timezone: true,
+  coordinates: true,
+  elevation: true,
+  isActive: true,
+});
+
+// Airlines table for flight data
+export const airlines = pgTable("airlines", {
+  id: serial("id").primaryKey(),
+  iataCode: varchar("iata_code", { length: 3 }).notNull().unique(),
+  icaoCode: varchar("icao_code", { length: 4 }),
+  name: text("name").notNull(),
+  country: text("country").notNull(),
+  logo: text("logo"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Destination statistics for comprehensive travel data
+export const destinationStats = pgTable("destination_stats", {
+  id: serial("id").primaryKey(),
+  destinationId: text("destination_id").notNull().unique(),
+  name: text("name").notNull(),
+  country: text("country").notNull(),
+  overallRating: decimal("overall_rating", { precision: 3, scale: 2 }).default("7.0"),
+  activitiesRating: decimal("activities_rating", { precision: 3, scale: 2 }).default("7.0"),
+  sceneryRating: decimal("scenery_rating", { precision: 3, scale: 2 }).default("7.0"),
+  valueRating: decimal("value_rating", { precision: 3, scale: 2 }).default("7.0"),
+  accessibilityRating: decimal("accessibility_rating", { precision: 3, scale: 2 }).default("7.0"),
+  accommodationCost: integer("accommodation_cost").default(120),
+  foodCost: integer("food_cost").default(50),
+  transportationCost: integer("transportation_cost").default(30),
+  activitiesCost: integer("activities_cost").default(40),
+  miscCost: integer("misc_cost").default(18),
+  peakSeason: text("peak_season").default("summer"),
+  bestTimeToVisit: text("best_time_to_visit"),
+  timezone: text("timezone"),
+  currency: text("currency").default("USD"),
+  language: text("language"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Seasonal recommendations for destinations
+export const seasonalRecommendations = pgTable("seasonal_recommendations", {
+  id: serial("id").primaryKey(),
+  destinationId: text("destination_id").notNull().references(() => destinationStats.destinationId),
+  season: text("season").notNull(),
+  score: decimal("score", { precision: 3, scale: 2 }).notNull(),
+  highlights: text("highlights").array().default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Activity distribution for destinations
+export const activityDistribution = pgTable("activity_distribution", {
+  id: serial("id").primaryKey(),
+  destinationId: text("destination_id").notNull().references(() => destinationStats.destinationId),
+  activityType: text("activity_type").notNull(),
+  percentage: integer("percentage").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Visitor data for destinations
+export const visitorData = pgTable("visitor_data", {
+  id: serial("id").primaryKey(),
+  destinationId: text("destination_id").notNull().references(() => destinationStats.destinationId),
+  month: text("month").notNull(),
+  visitors: integer("visitors").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Comparable destinations
+export const comparableDestinations = pgTable("comparable_destinations", {
+  id: serial("id").primaryKey(),
+  destinationId: text("destination_id").notNull().references(() => destinationStats.destinationId),
+  comparableDestinationId: text("comparable_destination_id").notNull(),
+  similarityScore: decimal("similarity_score", { precision: 3, scale: 2 }).default("0.00"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Airport to city mappings
+export const airportCityMapping = pgTable("airport_city_mapping", {
+  id: serial("id").primaryKey(),
+  cityName: text("city_name").notNull(),
+  airportCode: varchar("airport_code", { length: 3 }).notNull().references(() => airports.iataCode),
+  isDefault: boolean("is_default").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Messages table for storing conversation history
 export const messages = pgTable("messages", {
   id: serial("id").primaryKey(),
@@ -365,6 +489,7 @@ export type ChatSession = typeof chatSessions.$inferSelect;
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type Trip = typeof trips.$inferSelect;
 export type Attraction = typeof attractions.$inferSelect;
+export type Airport = typeof airports.$inferSelect;
 export type Message = typeof messages.$inferSelect;
 export type Hotel = typeof hotels.$inferSelect;
 export type Scrapbook = typeof scrapbooks.$inferSelect;
@@ -377,9 +502,89 @@ export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type InsertTrip = z.infer<typeof insertTripSchema>;
 export type InsertAttraction = z.infer<typeof insertAttractionSchema>;
+export type InsertAirport = z.infer<typeof insertAirportSchema>;
+
+// Insert schemas for new tables
+export const insertAirlineSchema = createInsertSchema(airlines).pick({
+  iataCode: true,
+  icaoCode: true,
+  name: true,
+  country: true,
+  logo: true,
+  isActive: true,
+});
+
+export const insertDestinationStatsSchema = createInsertSchema(destinationStats).pick({
+  destinationId: true,
+  name: true,
+  country: true,
+  overallRating: true,
+  activitiesRating: true,
+  sceneryRating: true,
+  valueRating: true,
+  accessibilityRating: true,
+  accommodationCost: true,
+  foodCost: true,
+  transportationCost: true,
+  activitiesCost: true,
+  miscCost: true,
+  peakSeason: true,
+  bestTimeToVisit: true,
+  timezone: true,
+  currency: true,
+  language: true,
+  isActive: true,
+});
+
+export const insertSeasonalRecommendationSchema = createInsertSchema(seasonalRecommendations).pick({
+  destinationId: true,
+  season: true,
+  score: true,
+  highlights: true,
+});
+
+export const insertActivityDistributionSchema = createInsertSchema(activityDistribution).pick({
+  destinationId: true,
+  activityType: true,
+  percentage: true,
+});
+
+export const insertVisitorDataSchema = createInsertSchema(visitorData).pick({
+  destinationId: true,
+  month: true,
+  visitors: true,
+});
+
+export const insertComparableDestinationSchema = createInsertSchema(comparableDestinations).pick({
+  destinationId: true,
+  comparableDestinationId: true,
+  similarityScore: true,
+});
+
+export const insertAirportCityMappingSchema = createInsertSchema(airportCityMapping).pick({
+  cityName: true,
+  airportCode: true,
+  isDefault: true,
+});
+
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
 export type InsertScrapbook = z.infer<typeof insertScrapbookSchema>;
 export type InsertTravelMemory = z.infer<typeof insertTravelMemorySchema>;
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
+export type InsertAirline = z.infer<typeof insertAirlineSchema>;
+export type InsertDestinationStats = z.infer<typeof insertDestinationStatsSchema>;
+export type InsertSeasonalRecommendation = z.infer<typeof insertSeasonalRecommendationSchema>;
+export type InsertActivityDistribution = z.infer<typeof insertActivityDistributionSchema>;
+export type InsertVisitorData = z.infer<typeof insertVisitorDataSchema>;
+export type InsertComparableDestination = z.infer<typeof insertComparableDestinationSchema>;
+export type InsertAirportCityMapping = z.infer<typeof insertAirportCityMappingSchema>;
+
+export type Airline = typeof airlines.$inferSelect;
+export type DestinationStats = typeof destinationStats.$inferSelect;
+export type SeasonalRecommendation = typeof seasonalRecommendations.$inferSelect;
+export type ActivityDistribution = typeof activityDistribution.$inferSelect;
+export type VisitorData = typeof visitorData.$inferSelect;
+export type ComparableDestination = typeof comparableDestinations.$inferSelect;
+export type AirportCityMapping = typeof airportCityMapping.$inferSelect;

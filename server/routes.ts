@@ -55,6 +55,8 @@ import {
   getFlightPricingTrends
 } from "./services/google-maps";
 import { getHotelRecommendations, getEventRecommendations, getAllSupportedDestinations } from "./services/hotel-recommendations";
+import { getDestinationStats as getDBDestinationStats } from "./services/database-destination-stats";
+import { getAirportCodeForCity, generateFlightOptions } from "./services/database-airline-service";
 
 /**
  * Extract potential destination names from a message
@@ -1681,6 +1683,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching subscription plans:', error);
       return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Database-driven destination statistics API
+  app.get(`${apiPrefix}/destination-stats/:destination`, async (req, res) => {
+    try {
+      const destination = req.params.destination;
+      const stats = await getDBDestinationStats(destination);
+      
+      if (!stats) {
+        return res.status(404).json({ 
+          error: 'Destination statistics not found',
+          message: `No statistics available for ${destination}`
+        });
+      }
+      
+      return res.status(200).json(stats);
+    } catch (error) {
+      console.error('Error fetching destination statistics:', error);
+      return res.status(500).json({ 
+        error: 'Error fetching destination statistics',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Database-driven flight generation API
+  app.post(`${apiPrefix}/flights/generate`, async (req, res) => {
+    try {
+      const { from, to, departureDate, returnDate, budget, passengers } = req.body;
+      
+      if (!from || !to || !departureDate) {
+        return res.status(400).json({ 
+          error: 'Missing required fields',
+          required: ['from', 'to', 'departureDate']
+        });
+      }
+      
+      const flights = await generateFlightOptions(from, to, departureDate, returnDate, budget, passengers);
+      
+      return res.status(200).json({
+        flights,
+        count: flights.length,
+        searchCriteria: { from, to, departureDate, returnDate, budget, passengers }
+      });
+    } catch (error) {
+      console.error('Error generating flight options:', error);
+      return res.status(500).json({ 
+        error: 'Error generating flight options',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Airport code lookup API
+  app.get(`${apiPrefix}/airport-code/:city`, async (req, res) => {
+    try {
+      const city = req.params.city;
+      const airportCode = await getAirportCodeForCity(city);
+      
+      return res.status(200).json({
+        city,
+        airportCode,
+        message: `Airport code for ${city} is ${airportCode}`
+      });
+    } catch (error) {
+      console.error('Error getting airport code:', error);
+      return res.status(500).json({ 
+        error: 'Error getting airport code',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

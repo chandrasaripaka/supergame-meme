@@ -73,36 +73,26 @@ export function TravelPlannerInterface({
     const travelers = travelContext.travelers || 1;
     const budget = travelContext.budget || 'mid-range';
     
-    // Map common city names to airport codes
-    const getAirportCode = (cityName: string): string => {
-      const cityToAirport: { [key: string]: string } = {
-        'singapore': 'SIN',
-        'new york': 'JFK',
-        'london': 'LHR',
-        'paris': 'CDG',
-        'tokyo': 'NRT',
-        'sydney': 'SYD',
-        'los angeles': 'LAX',
-        'bangkok': 'BKK',
-        'dubai': 'DXB',
-        'hong kong': 'HKG',
-        'kuala lumpur': 'KUL',
-        'manila': 'MNL',
-        'jakarta': 'CGK',
-        'seoul': 'ICN',
-        'mumbai': 'BOM',
-        'delhi': 'DEL'
-      };
-      
-      const normalized = cityName.toLowerCase().trim();
-      return cityToAirport[normalized] || cityName.slice(0, 3).toUpperCase();
+    // Get airport code from API
+    const getAirportCode = async (cityName: string): Promise<string> => {
+      try {
+        const response = await fetch(`/api/airport-code/${encodeURIComponent(cityName)}`);
+        if (response.ok) {
+          const data = await response.json();
+          return data.airportCode || 'SIN';
+        }
+        return 'SIN';
+      } catch (error) {
+        console.error('Error fetching airport code:', error);
+        return 'SIN';
+      }
     };
 
-    const sourceCode = getAirportCode(source);
-    const destinationCode = getAirportCode(destination);
-    
     // Generate multiple flight options based on context and preferences
-    const generateFlightOptions = (isOutbound: boolean) => {
+    const generateFlightOptions = async (isOutbound: boolean) => {
+      const sourceCode = await getAirportCode(source);
+      const destinationCode = await getAirportCode(destination);
+      
       const fromAirport = isOutbound ? sourceCode : destinationCode;
       const toAirport = isOutbound ? destinationCode : sourceCode;
       const flightDate = isOutbound ? (travelContext.departureDate || '2025-07-01') : (travelContext.returnDate || '2025-07-07');
@@ -111,100 +101,46 @@ export function TravelPlannerInterface({
                         budget === '2500_5000' ? 1200 : budget === '1000_2500' ? 800 : 
                         budget === '500_1000' ? 500 : 350;
       
-      const airlines = ['Singapore Airlines', 'Emirates', 'Qatar Airways', 'Cathay Pacific', 'Turkish Airlines', 'British Airways'];
-      const flightPrefix = isOutbound ? 'OB' : 'RB';
-      
-      return [
-        // Non-stop premium flight
-        {
-          id: `${flightPrefix}-1`,
-          airline: airlines[0],
-          flightNumber: `${airlines[0].substring(0,2).toUpperCase()}001`,
-          departure: { airport: fromAirport, time: '14:30', date: flightDate },
-          arrival: { airport: toAirport, time: '22:15', date: flightDate },
-          duration: '8h 45m',
-          price: Math.round(basePrice * 1.4),
-          class: 'Business' as const,
-          stops: 0,
-          amenities: ['In-flight entertainment', 'Meals included', 'Wi-Fi', 'Lie-flat seats'],
-          baggage: '40kg checked'
-        },
-        // Non-stop economy flight
-        {
-          id: `${flightPrefix}-2`,
-          airline: airlines[1],
-          flightNumber: `${airlines[1].substring(0,2).toUpperCase()}015`,
-          departure: { airport: fromAirport, time: '10:15', date: flightDate },
-          arrival: { airport: toAirport, time: '18:00', date: flightDate },
-          duration: '8h 45m',
-          price: basePrice,
-          class: 'Economy' as const,
-          stops: 0,
-          amenities: ['In-flight entertainment', 'Meals included', 'Wi-Fi'],
-          baggage: '30kg checked'
-        },
-        // One-stop budget flight
-        {
-          id: `${flightPrefix}-3`,
-          airline: airlines[2],
-          flightNumber: `${airlines[2].substring(0,2).toUpperCase()}205`,
-          departure: { airport: fromAirport, time: '06:30', date: flightDate },
-          arrival: { airport: toAirport, time: '20:45', date: flightDate },
-          duration: '12h 15m',
-          price: Math.round(basePrice * 0.7),
-          class: 'Economy' as const,
-          stops: 1,
-          amenities: ['In-flight entertainment', 'Meals included'],
-          baggage: '25kg checked'
-        },
-        // Premium economy option
-        {
-          id: `${flightPrefix}-4`,
-          airline: airlines[3],
-          flightNumber: `${airlines[3].substring(0,2).toUpperCase()}042`,
-          departure: { airport: fromAirport, time: '16:45', date: flightDate },
-          arrival: { airport: toAirport, time: '01:30', date: flightDate },
-          duration: '9h 45m',
-          price: Math.round(basePrice * 1.2),
-          class: 'Premium Economy' as const,
-          stops: 0,
-          amenities: ['In-flight entertainment', 'Meals included', 'Wi-Fi', 'Extra legroom'],
-          baggage: '35kg checked'
-        },
-        // Budget option with stops
-        {
-          id: `${flightPrefix}-5`,
-          airline: airlines[4],
-          flightNumber: `${airlines[4].substring(0,2).toUpperCase()}178`,
-          departure: { airport: fromAirport, time: '23:15', date: flightDate },
-          arrival: { airport: toAirport, time: '15:30', date: flightDate },
-          duration: '14h 15m',
-          price: Math.round(basePrice * 0.6),
-          class: 'Economy' as const,
-          stops: 2,
-          amenities: ['In-flight entertainment', 'Meals included'],
-          baggage: '20kg checked'
-        },
-        // First class luxury option
-        {
-          id: `${flightPrefix}-6`,
-          airline: airlines[5],
-          flightNumber: `${airlines[5].substring(0,2).toUpperCase()}001`,
-          departure: { airport: fromAirport, time: '12:00', date: flightDate },
-          arrival: { airport: toAirport, time: '19:45', date: flightDate },
-          duration: '8h 45m',
-          price: Math.round(basePrice * 3.5),
-          class: 'First' as const,
-          stops: 0,
-          amenities: ['In-flight entertainment', 'Gourmet meals', 'Wi-Fi', 'Private suite', 'Chauffeur service'],
-          baggage: '50kg checked'
+      // Get flight options from API
+      try {
+        const response = await fetch('/api/flight-options', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fromCode: fromAirport,
+            toCode: toAirport,
+            departureDate: flightDate,
+            basePrice: basePrice
+          })
+        });
+        
+        if (response.ok) {
+          const flightOptions = await response.json();
+          return flightOptions;
         }
-      ];
+      } catch (error) {
+        console.error('Error fetching flight options:', error);
+      }
+      
+      // Return empty array if API fails
+      return [];
     };
     
-    const outboundFlights = generateFlightOptions(true);
+    const [outboundFlights, setOutboundFlights] = useState<any[]>([]);
+    const [returnFlights, setReturnFlights] = useState<any[]>([]);
 
-    const returnFlights = generateFlightOptions(false);
+    // Load flight options on component mount
+    useEffect(() => {
+      const loadFlights = async () => {
+        const outbound = await generateFlightOptions(true);
+        const returnFlight = await generateFlightOptions(false);
+        setOutboundFlights(outbound);
+        setReturnFlights(returnFlight);
+      };
+      loadFlights();
+    }, [destination, source, travelContext.departureDate, travelContext.returnDate, budget]);
 
     // Generate day plans based on context
     const dayPlans = [
