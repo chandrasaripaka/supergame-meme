@@ -337,13 +337,21 @@ async function seedComprehensiveData() {
     await db.insert(airlines).values(airlinesData);
     console.log(`Inserted ${airlinesData.length} airlines`);
     
-    // Insert destination stats
-    await db.insert(destinationStats).values(destinationStatsData);
-    console.log(`Inserted ${destinationStatsData.length} destination stats`);
+    // Insert destination stats - map destinationId to id
+    const destinationStatsFormatted = destinationStatsData.map(dest => ({
+      ...dest,
+      id: dest.destinationId
+    }));
+    await db.insert(destinationStats).values(destinationStatsFormatted);
+    console.log(`Inserted ${destinationStatsFormatted.length} destination stats`);
     
-    // Insert seasonal recommendations
-    await db.insert(seasonalRecommendations).values(seasonalRecommendationsData);
-    console.log(`Inserted ${seasonalRecommendationsData.length} seasonal recommendations`);
+    // Insert seasonal recommendations - convert score to integer (multiply by 10 to preserve decimal precision)
+    const seasonalRecommendationsFormatted = seasonalRecommendationsData.map(item => ({
+      ...item,
+      score: Math.round(parseFloat(item.score) * 10) // Convert 9.5 to 95, 8.2 to 82
+    }));
+    await db.insert(seasonalRecommendations).values(seasonalRecommendationsFormatted);
+    console.log(`Inserted ${seasonalRecommendationsFormatted.length} seasonal recommendations`);
     
     // Insert activity distributions
     await db.insert(activityDistribution).values(activityDistributionData);
