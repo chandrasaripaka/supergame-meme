@@ -17,6 +17,8 @@ import TravelCompanionsPage from "@/pages/travel-companions";
 import SafetyTestPage from "@/pages/safety-test";
 import A2ADemoPage from "@/pages/a2a-demo";
 import PriceComparisonPage from "@/pages/price-comparison";
+import AboutUsPage from "@/pages/about-us";
+import SettingsPage from "@/pages/settings";
 
 import ScrapbookPage from "@/pages/scrapbook-fixed";
 
@@ -50,6 +52,8 @@ function Router() {
           <Route path="/a2a-demo" component={A2ADemoPage} />
           <Route path="/price-comparison" component={PriceComparisonPage} />
           <Route path="/scrapbook" component={ScrapbookPage} />
+          <Route path="/about-us" component={AboutUsPage} />
+          <Route path="/settings" component={SettingsPage} />
 
           <Route component={NotFound} />
         </Switch>
