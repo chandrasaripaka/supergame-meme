@@ -57,6 +57,10 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 - **2025-07-13**: Implemented Study Mode toggle button in chat interface with gradient visual indicator
 - **2025-07-13**: Updated ChatInterface and TravelPlannerInterface to support Study Mode props and functionality
 - **2025-07-15**: Removed Bookings Tab from application including navigation links, components, pages, and API routes
+- **2025-07-16**: Implemented comprehensive MCP (Model Context Protocol) Travel Server as unified gateway for travel APIs
+- **2025-07-16**: Created standardized travel tools: tool_searchFlights, tool_searchHotels, tool_findActivities, tool_getVisaRequirements, tool_book
+- **2025-07-16**: Established A2A (Agent-to-Agent) communication framework with database-driven fallbacks for all travel services
+- **2025-07-16**: Integrated MCP Travel Server with existing database services for seamless flight, hotel, and activity generation
 
 ## Project Architecture
 
@@ -71,9 +75,11 @@ WanderNotes is an AI-powered travel planning platform featuring conversational A
 ### Backend (Express + Node.js)
 - **API Routes**: RESTful endpoints for all features including subscriptions
 - **AI Integration**: Multiple LLM providers (OpenAI, Gemini) with dynamic routing
-- **Database**: PostgreSQL with Drizzle ORM
+- **MCP Travel Server**: Unified gateway for travel APIs with standardized tools
+- **A2A Communication**: Agent-to-Agent framework for travel service integration
+- **Database**: PostgreSQL with Drizzle ORM with comprehensive travel data
 - **Authentication**: Passport.js with Google OAuth2 and local strategies
-- **External APIs**: Google Maps, Weather, Flight data integration
+- **External APIs**: Google Maps, Weather, Amadeus, Skyscanner, Expedia, Viator integration
 
 ### Database Schema
 - Users with Google OAuth support

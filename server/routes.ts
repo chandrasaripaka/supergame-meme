@@ -58,6 +58,9 @@ import { getHotelRecommendations, getEventRecommendations, getAllSupportedDestin
 import { getDestinationStats as getDBDestinationStats } from "./services/database-destination-stats";
 import { getAirportCodeForCity, generateFlightOptions } from "./services/database-airline-service";
 
+// Import MCP Travel Server routes
+import mcpTravelRoutes from "./mcp-travel-server/routes";
+
 /**
  * Extract potential destination names from a message
  * @param message The message content to analyze
@@ -369,6 +372,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register local auth routes for testing
   app.use('/api/local-auth', localAuthRoutes);
+  
+  // Register MCP Travel Server routes
+  app.use('/api/mcp', mcpTravelRoutes);
   
 
 
